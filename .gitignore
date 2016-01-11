@@ -2,3 +2,5 @@
 *.m~
 data/
 notes/
+plots/
+_old/
