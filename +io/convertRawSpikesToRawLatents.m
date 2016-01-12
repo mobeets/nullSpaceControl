@@ -1,11 +1,11 @@
-function [latents, A, b, Ainv, binv] = convertRawSpikesToRawLatents(d, ...
-    spikes)
+function [latents, A, b, Ainv, binv] = convertRawSpikesToRawLatents(...
+    simpleData, spikes)
 
 % Convert spikes to latents
-L  = d.simpleData.nullDecoder.FactorAnalysisParams.L;
-ph = d.simpleData.nullDecoder.FactorAnalysisParams.ph;
-mu    = d.simpleData.nullDecoder.spikeCountMean';
-sigma = d.simpleData.nullDecoder.spikeCountStd';
+L  = simpleData.nullDecoder.FactorAnalysisParams.L;
+ph = simpleData.nullDecoder.FactorAnalysisParams.ph;
+mu    = simpleData.nullDecoder.spikeCountMean';
+sigma = simpleData.nullDecoder.spikeCountStd';
 
 A = L' * inv(L*L'+diag(ph))*inv(diag(sigma));
 b = A*(-mu);
@@ -16,4 +16,6 @@ if isempty(spikes)
     latents = [];
 else
     latents = bsxfun(@plus, A*spikes, b);
+end
+
 end

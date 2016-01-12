@@ -1,4 +1,4 @@
-function Z = baseFireFit()
+function Z = baseFireFit(D)
 
     f = mu;
     Z = nan(nt,1);

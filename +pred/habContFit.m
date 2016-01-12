@@ -1,4 +1,4 @@
-function Z = habContFit()
+function Z = habContFit(D)
     
     Zr = nan(nt,1);
     % need to set x(0) to set Zr(1)

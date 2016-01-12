@@ -1,10 +1,10 @@
-function [spikes, r, theta, extras] = filterTrialData(d, tidx)
+function [spikes, r, theta, extras] = filterTrialData(D, tidx)
 
-simpleData = d.simpleData;
-minDistanceFromTarget = d.params.MIN_DISTANCE;
-maxDistanceFromTarget = d.params.MAX_DISTANCE;
-maxAngularError = d.params.MAX_ANGULAR_ERROR;
-IDEAL_SPEED = d.params.IDEAL_SPEED;
+simpleData = D.simpleData;
+minDistanceFromTarget = D.params.MIN_DISTANCE;
+maxDistanceFromTarget = D.params.MAX_DISTANCE;
+maxAngularError = D.params.MAX_ANGULAR_ERROR;
+IDEAL_SPEED = D.params.IDEAL_SPEED;
 
 % Collect spikes and behavior from candidate trials
 

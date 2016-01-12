@@ -1,4 +1,4 @@
-function Z = minFireFit()
+function Z = minFireFit(D)
 
     nd = 86;
     f = zeros(nd,1);

@@ -1,22 +1,31 @@
-function [Act, Preds] = nullActivity(T1, T2, B, Act, Preds)
+function D = nullActivity(D, NB)
 
-    [zMu, zCov] = nullActivityByTrgAng(T1, Act.Z, B);
-    Act.T1.zMu = zMu;
-    Act.T1.zCov = zCov;
-    [zMu, zCov] = nullActivityByTrgAng(T2, Act.Z, B);
-    Act.T2.zMu = zMu;
-    Act.T2.zCov = zCov;
+    % mean/cov of null activity for observed activity
+    ix = strcmp('observed', {D.hyps.name});
+    D.hyps(ix).null.B1Col = nullActivityPerCol(...
+        D.blocks(1).latents, D.blocks(1), NB);
+    D.hyps(ix).null.B1 = nullActivityAll(...
+            D.blocks(1).latents, D.blocks(1), NB);
+    
+    % mean/cov of null activity in second block
+    for ii = 1:numel(D.hyps)
+        D.hyps(ii).null.B2Col = nullActivityPerCol(...
+            D.hyps(ii).latents, D.blocks(2), NB);
+        D.hyps(ii).null.B2 = nullActivityAll(...
+            D.hyps(ii).latents, D.blocks(2), NB);
+    end    
+    
+end
 
-    hyps = fieldnames(Preds);
-    nhyps = numel(hyps);
-
-    for ii = 1:nhyps
-        hypnm = hyps{ii};
-        Pred = Preds.(hypnm);
-        
-        [zMu0, zCov0] = nullActivityByTrgAng(T2, Pred.Z, B);
-        Preds.(hypnm).T2.zMu = zMu0;
-        Preds.(hypnm).T2.zCov = zCov0;
+function scs = nullActivityPerCol(latents, B, NB)
+    scs = struct([]);
+    for ii = 1:size(NB,2)
+        scs = [scs nullActivityAll(latents, B, NB)];
     end
+end
 
+function sc = nullActivityAll(latents, B, NB)
+    sc = struct();
+    [sc.zMu, sc.zCov, sc.zNull] = pred.nullActivityByTrgAng(B, ...
+        latents, NB);
 end

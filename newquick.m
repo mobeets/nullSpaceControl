@@ -8,13 +8,50 @@
 
 %% load and prepare data
 
-d = io.loadDataByDate('20120601');
-d.params = io.loadParams(d);
-d = io.filterDataByBlock(d);
-d.latents = io.rawSpikesToLatentsByBlock(d);
-% get decoding params
+D = io.loadDataByDate('20120601');
+D.params = io.loadParams(D);
+D.blocks = io.getDataByBlock(D);
+D = io.addDecoders(D);
 
 %% make predictions
 
-hyps(1).name = 'observed';
-hyps(1).latents = d.latents;
+ii = 1;
+D.hyps(ii).name = 'observed';
+D.hyps(ii).latents = D.blocks(2).latents;
+
+ii = ii + 1;
+D.hyps(ii).name = 'minimum';
+D.hyps(ii).latents = [];%pred.minFireFit(D);
+
+ii = ii + 1;
+D.hyps(ii).name = 'baseline';
+D.hyps(ii).latents = [];%pred.baseFireFit(D);
+
+ii = ii + 1;
+D.hyps(ii).name = 'unconstrained';
+D.hyps(ii).latents = [];%pred.uncContFit(D);
+
+ii = ii + 1;
+D.hyps(ii).name = 'habitual';
+D.hyps(ii).latents = [];%pred.habContFit(D);
+
+ii = ii + 1;
+D.hyps(ii).name = 'volitional';
+D.hyps(ii).latents = [];%pred.volContFit(D);
+
+%% calculate mean activity in null space of shuffle basis
+
+NB = null(D.blocks(2).fDecoder.M2);
+D = pred.nullActivity(D, NB);
+
+%% assess errors in hypotheses
+
+D = score.scoreAll(D);
+
+%% visualize
+
+% Plot Actual vs. Predicted, Map1->Map2, for each null column of B2
+
+% Plot error of means
+
+% Plot covariance ratios

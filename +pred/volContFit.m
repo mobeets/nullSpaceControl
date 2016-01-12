@@ -1,4 +1,4 @@
-function Z = volContFit()
+function Z = volContFit(D)
 
     Zpre = nan(nt,1);
     Zvol = nan(nt,1);
