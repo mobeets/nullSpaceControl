@@ -1,5 +1,5 @@
 function [zMu, zCov, zNull, zFull] = nullActivityByTrgAng(B, zAll, NB)
-        
+
     assert(size(NB,1) == size(zAll,1));
 %     DecVel = B.extras.decodedVelocities;
 %     decTargs = cellfun(@(v) rad2deg(atan(v(:,2)./v(:,1))), DecVel, 'uni', 0);

@@ -6,7 +6,8 @@ function Z = volContFit(D)
     for t = 2:nt
         % sample Z uniformly from times t in T1 where theta_t is
         % within 15 degs of theta
-        Zpre(t) = []; % see pred.habContFit();
+        Zsamp = pred.randZIfNearbyTheta(D.blocks(2).theta(t), D.blocks(1));
+        Zpre(t) = [];
         Zvol(t) = pred.rowSpaceFit(x(t), x(t-1), A2, B2, ...
             B2*ZPre(t) + c2, NB1);
     end

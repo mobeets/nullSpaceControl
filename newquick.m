@@ -20,6 +20,10 @@ D.hyps(ii).name = 'observed';
 D.hyps(ii).latents = D.blocks(2).latents;
 
 ii = ii + 1;
+D.hyps(ii).name = 'dummy';
+D.hyps(ii).latents = pred.dummyFit(D);
+
+ii = ii + 1;
 D.hyps(ii).name = 'minimum';
 D.hyps(ii).latents = [];%pred.minFireFit(D);
 

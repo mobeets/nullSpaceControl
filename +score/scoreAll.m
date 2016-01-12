@@ -13,6 +13,9 @@ function D = scoreAll(D)
         hyp = D.hyps(ii);
         zMu0 = hyp.null.B2.zMu;
         zCov0 = hyp.null.B2.zCov;
+        if isempty(zMu0)
+            continue;
+        end
         D.hyps(ii).errOfMeans = score.errOfMeans(zMu, zMu0);
         D.hyps(ii).covRatio = score.covRatio(zCov, zCov0);
     end

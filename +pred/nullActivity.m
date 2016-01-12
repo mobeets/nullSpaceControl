@@ -26,6 +26,10 @@ end
 
 function sc = nullActivityAll(latents, B, NB)
     sc = struct();
+    if isempty(latents)
+        sc.zMu = []; sc.zCov = []; sc.zNull = [];
+        return;
+    end
     [sc.zMu, sc.zCov, sc.zNull] = pred.nullActivityByTrgAng(B, ...
         latents, NB);
 end
