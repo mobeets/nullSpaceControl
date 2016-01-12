@@ -1,4 +1,6 @@
-function [spikes, r, theta, extras] = subselect_timepoints(simpleData, minDistanceFromTarget, maxDistanceFromTarget, maxAngularError, candidateTrials)
+function [spikes, r, theta, extras] = subselect_timepoints(simpleData, ...
+    minDistanceFromTarget, maxDistanceFromTarget, maxAngularError, ...
+    candidateTrials)
 
 IDEAL_SPEED = 175;
 
@@ -14,8 +16,6 @@ vel = cellfun(@(x) x', vel, 'UniformOutput', 0);
 
 targets = simpleData.targetLocations(candidateTrials,1:2)';
 ta = simpleData.targetAngles(candidateTrials)';
-
-
 
 % Create output variables
 numTrials = length(candidateTrials);
@@ -71,7 +71,8 @@ for trl = 1:numTrials
                 
                 spike_t = all_spikes{trl}(:,t+1);
                 
-                curr_spikes = [curr_spikes, spike_t];% spike used to move from p_t to p_tp1
+                % spike used to move from p_t to p_tp1
+                curr_spikes = [curr_spikes, spike_t];
                 curr_r = [curr_r, r_t];
                 curr_theta = [curr_theta, theta_t];
                 
@@ -91,9 +92,9 @@ for trl = 1:numTrials
     spikesCell{trl} = curr_spikes;
     rCell{trl} = curr_r;
     thetaCell{trl} = curr_theta;
+    
     targetAnglesCell{trl} = curr_ta;
     angularErrorsCell{trl} = curr_angularError;
-    
     vStar{trl} = curr_vs;
     vReal{trl} = curr_v;
     vPrev{trl} = curr_vp;

@@ -1,8 +1,8 @@
 %% overview
 
-% 1. load/filter data
-% 2. load/prep decoding params (simplifyKalman)
-% 3. make predictions
+% 1. load and filter data
+% 2. load and prep decoding params (calls simplifyKalman)
+% 3. make predictions for the five hypotheses
 % 4. calculate mean activity in null space of shuffle basis
 % 5. calculate errors from true activity in null space
 
@@ -82,8 +82,8 @@ predictions(predCounter).name = 'Habitual';
 % Get & plot volitional in intuitive row space
 fprintf('vol-row ')
 volitional_intuitiveRow_latents = get2dVolitional(latents, theta, ...
-    extras, intuitiveMs.latents.M2', intuitiveMs.latents, ...
-    shuffleMs.latents);
+    extras, intuitiveMs.latents.M2', ...
+    intuitiveMs.latents, shuffleMs.latents);
 
 predCounter = predCounter + 1;
 predictions(predCounter).latents = volitional_intuitiveRow_latents;

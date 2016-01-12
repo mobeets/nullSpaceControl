@@ -1,23 +1,17 @@
-function signal = getAttractor(type, date, extras, intuitiveMs, shuffleMs, nonnegative, inLatentSpace)
-
+function signal = getAttractor(type, date, extras, ...
+    intuitiveMs, shuffleMs, nonnegative, inLatentSpace)
 % type is 'zero' or 'baseline'
 
 if nargin == 4
     inLatentSpace = false; % require spike count to be in FA manifold?
 end
 
-[~, ~, ~, ALinv, mu] = convertRawSpikesToRawLatents_byDate([], date);
-
 if ~inLatentSpace
-    
     intuitiveMs = intuitiveMs.spikes;
     shuffleMs = shuffleMs.spikes;
-    
 else
-    
     intuitiveMs = intuitiveMs.latents;
     shuffleMs = shuffleMs.latents;
-    
 end
 
 signalDim = size(intuitiveMs.M2,2);
@@ -27,7 +21,10 @@ signal = cell(1,3);
 
 DESIRED_OUTPUT = false; % use vStar? if false, use vReal
 
-% --- Optimization variables ---
+[~, ~, ~, ALinv, mu] = convertRawSpikesToRawLatents_byDate([], date);
+
+%% --- Optimization variables ---
+
 LB = [];
 UB = [];
 x0 = [];
@@ -44,7 +41,6 @@ if ~inLatentSpace
         error('invalid type')
     end
     
-    
     if nonnegative % A*x <= b
         A = -eye(signalDim);
         b = zeros(signalDim,1);
@@ -52,9 +48,7 @@ if ~inLatentSpace
         A = [];
         b = [];
     end
-    
-    
-    
+
 else
     
     H = ALinv'*ALinv;
@@ -75,16 +69,11 @@ else
         b = [];
     end
     
-    
-    
 end
 
-
+%%
 
 options = optimset('Algorithm','interior-point-convex','Display','off');
-
-% ------------------------------
-
 for blk = 1:3
     
     vPrev = extras{blk}.vPrev;
