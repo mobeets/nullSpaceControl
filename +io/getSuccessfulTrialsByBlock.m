@@ -4,8 +4,9 @@ function tblk = getSuccessfulTrialsByBlock(D)
 % 
 
     ntrials = length(D.simpleData.shuffleIndices);
-    firstShuffleTrial = find(~isnan(D.simpleData.shuffleIndices), 1, 'first');
-    firstWashoutTrial = find(isnan(D.simpleData.shuffleIndices)' & ...
+    isShuffle = ~isnan(D.simpleData.shuffleIndices)';
+    firstShuffleTrial = find(isShuffle, 1, 'first');
+    firstWashoutTrial = find(~isShuffle & ...
         1:ntrials > firstShuffleTrial, 1, 'first');
 
     tblk = nan(ntrials, 1);

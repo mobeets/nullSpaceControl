@@ -11,3 +11,5 @@ newCA = cell(numel(idxs),1);
 for ii = 1:numel(idxs)
     newCA{ii} = oldCA{idxs{ii}};
 end
+
+end

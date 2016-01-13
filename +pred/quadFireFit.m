@@ -1,28 +1,55 @@
-function [z, u] = quadFireFit(x1, x0, f, A2, B2, c2)
+function [z, u] = quadFireFit(Blk, f, decoder, fitInLatent)
+% 
+% Each u(t) in U is solution (using quadprog) to:
+%   min_u(t) norm(u(t))^2
+%      s.t.
+%         (1) u(t) ? 0
+%         (2) x1 = A2*x0 + B2*z(u(t)) + c2
+% i.e.
+%   min_u (1/2)*u'*H*u + f'*u
+%      s.t.
+%         (1) A*u ? b
+%         (2) Aeq*u = beq
+%
 
-    % Each u(t) in U is solution (using quadprog) to:
-    %   min_u(t) norm(u(t))^2
-    %      s.t.
-    %         (1) u(t) ? 0
-    %         (2) x1 = A2*x0 + B2*z(u(t)) + c2
-    % i.e.
-    %   min_u (1/2)*u'*H*u + f'*u
-    %      s.t.
-    %         (1) A*u ? b
-    %         (2) Aeq*u = beq
-    %
-
-    nd = numel(f);
-    H = eye(nd);
-    A = -eye(nd);
-    b = zeros(nd,1);
+    x1 = Blk.vel(t);
+    x0 = Blk.velPrev(t);
+    Ac = decoder.M1;
+    Bc = decoder.M2;
+    cc = decoder.M0;
+        
+    if ~fitInLatent
+        nd = size(Blk.nDecoder.M2, 2);
+        H = eye(nd);
+        A = -eye(nd);
+        b = zeros(nd,1);
+    else
+        %  % L'*L where L = diag(sigma)*L from FactorParams
+        H = []; % ALinv'*ALinv
+        A = []; % -ALinv
+        b = []; % mu
+    end
     
-    Aeq = []; % s.t. Aeq*u = B2*z(u); might need to add term to beq
-    beq = x1 - A2*x0 - c2;
-    u = quadprog(H, f, A, b, Aeq, beq);
+    Aeq = Bc; % s.t. Aeq*u = Bc*z(u); might need to add term to beq
+    beq = x1 - Ac*x0 - cc;
+    
+    options = optimset('Algorithm', 'interior-point-convex', ...
+        'Display', 'off');
+    [sol, ~, exitflag] = quadprog(H, f, A, b, Aeq, beq, ...
+        [],[],[], options);
+    if ~exitflag
+        warning('quadprog optimization incomplete, but stopped.');
+    end
 
-    % Z = fastfa_estep(U, estParams);
-    % or must the following be done point-wise?
-    z = L'*((L*L' + Phi) \ (Sig \ (u - eta))); % Eq. 5
+    if ~fitInLatent
+        u = sol;
+        z = [];
+        % Z = fastfa_estep(U, estParams);
+        % or must the following be done point-wise?
+        z = L'*((L*L' + Phi) \ (Sig \ (u - eta))); % Eq. 5
+    else
+        z = sol;
+        u = [];
+    end
     
 end

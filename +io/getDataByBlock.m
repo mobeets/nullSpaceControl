@@ -1,16 +1,14 @@
 function B = getDataByBlock(D)
+    
+    % load all timepoints and flatten so that each is a trial
+    trials = io.makeTrials(D);
+    trials = io.filterTrialsByParams(trials, D.params);
 
+    % build struct array grouped by the trial's block
     B = struct([]);
-    trialBlockInds = io.getSuccessfulTrialsByBlock(D);
-    nblks = numel(unique(trialBlockInds(~isnan(trialBlockInds))));
-    for blk = 1:nblks
-        idx = trialBlockInds == blk;
-        b = struct();
-        [b.spikes, b.r, b.theta, b.extras] = ...
-            io.filterTrialData(D, idx);
-        b.latents = io.convertRawSpikesToRawLatents(...
-            D.simpleData, b.spikes);
-        B = [B b];
+    nblks = max(trials.block_index);
+    for ii = 1:nblks
+        B = [B io.filterTrialsByIdx(trials, trials.block_index == ii)];
     end
 
 end

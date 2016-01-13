@@ -1,10 +1,11 @@
 function D = addDecoders(D)
 
-    nMap1 = D.simpleData.nullDecoder.rawSpikes;
-    nMap2 = D.simpleData.shuffles.rawSpikes;
-    fMap1 = getFactorNullDecoder(D.simpleData.nullDecoder);
-    fMap2 = getFactorShuffleDecoder(D.simpleData.shuffles, ...
-        D.simpleData.nullDecoder);
+    nd = D.simpleData.nullDecoder;
+    sd = D.simpleData.shuffles;
+    nMap1 = nd.rawSpikes;
+    nMap2 = sd.rawSpikes;
+    fMap1 = getFactorNullDecoder(nd);
+    fMap2 = getFactorShuffleDecoder(sd, nd);
     
     assert(numel(D.blocks) == 3);
     D.blocks(1).nDecoder = nMap1;

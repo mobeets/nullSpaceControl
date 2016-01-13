@@ -3,12 +3,9 @@ function Zsamp = randZIfNearbyTheta(theta, B, theta_tol)
         theta_tol = 15;
     end
 
-    nearbyIdxs = getNearbyThetaIdxs(theta, B.theta, theta_tol);
+    bnds = [theta - theta_tol; theta + theta_tol];
+    nearbyIdxs = tools.targsInRange(B.thetas + 180, bnds);
     ix = randi(numel(nearbyIdxs));
-    Zsamp = B.latents(:,ix);
+    Zsamp = B.latents(ix,:);
 
-end
-
-function ixs = getNearbyThetaIdxs(theta, thetas, tol)
-    ixs = [];
 end

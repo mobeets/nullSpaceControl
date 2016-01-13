@@ -48,5 +48,4 @@ if abs(delta)>180
     error('computeAngle not working properly.. should only return angles between -180 and 180');
 end
 
-% end of fxn %
 end

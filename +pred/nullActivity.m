@@ -31,5 +31,5 @@ function sc = nullActivityAll(latents, B, NB)
         return;
     end
     [sc.zMu, sc.zCov, sc.zNull] = pred.nullActivityByTrgAng(B, ...
-        latents, NB);
+        latents', NB);
 end

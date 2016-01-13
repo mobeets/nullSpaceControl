@@ -8,12 +8,9 @@ IDEAL_SPEED = D.params.IDEAL_SPEED;
 
 % Collect spikes and behavior from candidate trials
 
-candidateTrials = 1:numel(tidx);
-candidateTrials = candidateTrials(tidx);
-all_spikes = subCellArray(simpleData.spikeBins, candidateTrials);
-pos = subCellArray(simpleData.decodedPositions, candidateTrials);
-vel = subCellArray(simpleData.decodedVelocities, candidateTrials);
-
+all_spikes = simpleData.spikeBins(tidx);
+pos = simpleData.decodedPositions(tidx);
+vel = simpleData.decodedVelocities(tidx);
 targets = simpleData.targetLocations(tidx, 1:2)';
 ta = simpleData.targetAngles(tidx)';
 
@@ -67,7 +64,7 @@ for tr = 1:ntrials
         if r_t >= minDistanceFromTarget && ...
             r_t <= maxDistanceFromTarget && ...
             abs(angError_t) <= maxAngularError
-                
+
             spike_t = all_spikes{tr}(t+1,:)';
 
             % spike used to move from p_t to p_tp1
