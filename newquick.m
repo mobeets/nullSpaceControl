@@ -19,27 +19,27 @@ ii = 1;
 D.hyps(ii).name = 'observed';
 D.hyps(ii).latents = D.blocks(2).latents;
 
-ii = ii + 1;
+ii = 2;
 D.hyps(ii).name = 'dummy';
 D.hyps(ii).latents = pred.dummyFit(D);
 
-ii = ii + 1;
+ii = 3;
 D.hyps(ii).name = 'minimum';
-D.hyps(ii).latents = [];%pred.minFireFit(D);
+D.hyps(ii).latents = pred.minFireFit(D);
 
-ii = ii + 1;
+ii = 4;
 D.hyps(ii).name = 'baseline';
-D.hyps(ii).latents = [];%pred.baseFireFit(D);
+D.hyps(ii).latents = pred.baseFireFit(D);
 
-ii = ii + 1;
+ii = 5;
 D.hyps(ii).name = 'unconstrained';
 D.hyps(ii).latents = pred.uncContFit(D);
 
-ii = ii + 1;
+ii = 6;
 D.hyps(ii).name = 'habitual';
 D.hyps(ii).latents = pred.habContFit(D);
 
-ii = ii + 1;
+ii = 7;
 D.hyps(ii).name = 'volitional';
 D.hyps(ii).latents = pred.volContFit(D);
 

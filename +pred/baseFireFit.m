@@ -1,12 +1,13 @@
 function Z = baseFireFit(D)
 
-    B1 = D.blocks(1);
     B2 = D.blocks(2);
-    f = mu;
+    Dc = D.simpleData.nullDecoder;
+    mu = Dc.spikeCountMean;
     
-    Z = nan(nt,1);
+    [nt, nu] = size(B2.spikes);
+    U = nan(nt,nu);
     for t = 1:nt
-        Z(t) = pred.quadFireFit(B1, f, B2.nDecoder, false);
+        U(t,:) = pred.quadFireFit(B2, t, -mu, B2.nDecoder, false);
     end
-
+    Z = io.convertRawSpikesToRawLatents(Dc, U')';
 end

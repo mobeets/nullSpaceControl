@@ -1,4 +1,4 @@
-function [z, u] = quadFireFit(Blk, f, decoder, fitInLatent)
+function z = quadFireFit(Blk, t, f, decoder, fitInLatent)
 % 
 % Each u(t) in U is solution (using quadprog) to:
 %   min_u(t) norm(u(t))^2
@@ -12,8 +12,8 @@ function [z, u] = quadFireFit(Blk, f, decoder, fitInLatent)
 %         (2) Aeq*u = beq
 %
 
-    x1 = Blk.vel(t);
-    x0 = Blk.velPrev(t);
+    x1 = Blk.vel(t,:)';
+    x0 = Blk.velPrev(t,:)';
     Ac = decoder.M1;
     Bc = decoder.M2;
     cc = decoder.M0;
@@ -35,21 +35,10 @@ function [z, u] = quadFireFit(Blk, f, decoder, fitInLatent)
     
     options = optimset('Algorithm', 'interior-point-convex', ...
         'Display', 'off');
-    [sol, ~, exitflag] = quadprog(H, f, A, b, Aeq, beq, ...
+    [z, ~, exitflag] = quadprog(H, f, A, b, Aeq, beq, ...
         [],[],[], options);
     if ~exitflag
         warning('quadprog optimization incomplete, but stopped.');
-    end
-
-    if ~fitInLatent
-        u = sol;
-        z = [];
-        % Z = fastfa_estep(U, estParams);
-        % or must the following be done point-wise?
-        z = L'*((L*L' + Phi) \ (Sig \ (u - eta))); % Eq. 5
-    else
-        z = sol;
-        u = [];
     end
     
 end

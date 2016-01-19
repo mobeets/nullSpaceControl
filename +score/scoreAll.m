@@ -18,9 +18,8 @@ function D = scoreAll(D)
         if isempty(zNull0)
             continue;
         end
-        D.hyps(ii).errOfMeans = score.errOfMeans(zNull, zNull0);
-%         D.hyps(ii).covRatio = score.covRatio(zNull, zNull0);
-%         D.hyps(ii).errOfMeans = score.errOfMeans(zMu, zMu0);
+%         D.hyps(ii).errOfMeans = score.errOfMeans(zNull, zNull0);
+        D.hyps(ii).errOfMeans = score.errOfMeans(zMu, zMu0);
         D.hyps(ii).covRatio = score.covRatio(zCov, zCov0);
     end
 
