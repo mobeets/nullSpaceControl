@@ -5,12 +5,18 @@ function z1 = rowSpaceFit(Blk, decoder, NB, t)
 %   (2) NB'*z1 = 0
 % 
     
-    x1 = Blk.vel(t);
-    x0 = Blk.velPrev(t);
+    x1 = Blk.vel(t,:)';
+    x0 = Blk.velPrev(t,:)';
     A = decoder.M1;
     B = decoder.M2;
     c = decoder.M0;
     
-    z1 = nan;
+    Brow = rref(B)';
+    z1p = (B*Brow)\(x1 - A*x0 - c);
+    
+    Brow2 = null(NB');
+    z1 = Brow2*z1p;
+    
+    assert(norm(NB'*z1) < 1e-12);
 
 end

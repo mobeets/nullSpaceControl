@@ -33,7 +33,7 @@ D.hyps(ii).latents = [];%pred.baseFireFit(D);
 
 ii = ii + 1;
 D.hyps(ii).name = 'unconstrained';
-D.hyps(ii).latents = [];%pred.uncContFit(D);
+D.hyps(ii).latents = pred.uncContFit(D);
 
 ii = ii + 1;
 D.hyps(ii).name = 'habitual';

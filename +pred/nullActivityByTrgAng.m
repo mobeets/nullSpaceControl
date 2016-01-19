@@ -25,7 +25,7 @@ function [zMu, zCov, zNull, zFull] = nullActivityByTrgAng(B, zAll, NB)
         zFull{ii} = zAll(:,ix1&ix2);
         zNull{ii} = NB'*zFull{ii};
         zMu{ii} = mean(zNull{ii});
-        zCov{ii} = cov(zNull{ii});
+        zCov{ii} = cov(zNull{ii}');
         % might actually want SE if NB is a basisVec (see reformatTheta)
     end
 
