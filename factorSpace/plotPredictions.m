@@ -122,5 +122,22 @@ plotStructures(end+1) = plotActivity(volitional_intuitiveRow_latents, ...
 
 %% Plot Errors
 
+nullBasis = shuffleBasis(:,3:10);
+[~,~,~,~,Lt] = getMeanAndSE(predictions(1).latents, theta, nullBasis);
+Lt = Lt(2,1);
+Lt = Lt{1};
+
+lts = cell(1,3);
+scale = 4;
+lts{1} = scale*ones(10,1551);
+lts{2} = scale*ones(10,4304);
+lts{3} = scale*ones(10,653);
+predictions(2).latents = lts;
+[~,~,~,~,ps] = getMeanAndSE(predictions(2).latents, theta, nullBasis);
+Pt = ps(2,1);
+Pt = Pt{1};
+
+%%
+
 bootstrapErrors_forDAP(predictions, theta, shuffleBasis(:,3:10));
 fprintf('\n')

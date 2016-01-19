@@ -37,11 +37,11 @@ D.hyps(ii).latents = pred.uncContFit(D);
 
 ii = ii + 1;
 D.hyps(ii).name = 'habitual';
-D.hyps(ii).latents = [];%pred.habContFit(D);
+D.hyps(ii).latents = pred.habContFit(D);
 
 ii = ii + 1;
 D.hyps(ii).name = 'volitional';
-D.hyps(ii).latents = [];%pred.volContFit(D);
+D.hyps(ii).latents = pred.volContFit(D);
 
 %% calculate mean activity in null space of shuffle basis
 

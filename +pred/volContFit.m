@@ -11,7 +11,7 @@ function Z = volContFit(D)
     for t = 1:nt
         % sample Z uniformly from times t in T1 where theta_t is
         % within 15 degs of theta
-        Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t), B1);
+        Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1);
         decoder = B2.fDecoder;
         decoder.M0 = decoder.M0 + decoder.M2*Zpre(t,:)';
         Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, t);

@@ -5,13 +5,16 @@ function [spikes, r, theta, extras] = subselect_timepoints(simpleData, ...
 IDEAL_SPEED = 175;
 
 % Collect spikes and behavior from candidate trials
-all_spikes = subCellArray(simpleData.spikeBins, candidateTrials);
+% all_spikes = subCellArray(simpleData.spikeBins, candidateTrials);
+all_spikes = {simpleData.spikeBins{candidateTrials}};
 all_spikes = cellfun(@(x) x', all_spikes, 'UniformOutput', 0);
 
-pos = subCellArray(simpleData.decodedPositions, candidateTrials);
+% pos = subCellArray(simpleData.decodedPositions, candidateTrials);
+pos = {simpleData.decodedPositions{candidateTrials}};
 pos = cellfun(@(x) x', pos, 'UniformOutput', 0);
 
-vel = subCellArray(simpleData.decodedVelocities, candidateTrials);
+% vel = subCellArray(simpleData.decodedVelocities, candidateTrials);
+vel = {simpleData.decodedVelocities{candidateTrials}};
 vel = cellfun(@(x) x', vel, 'UniformOutput', 0);
 
 targets = simpleData.targetLocations(candidateTrials,1:2)';

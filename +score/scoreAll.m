@@ -2,6 +2,7 @@ function D = scoreAll(D)
 
     ix = strcmp('observed', {D.hyps.name});
     actual = D.hyps(ix);
+    zNull = actual.null.B2.zNull;
     zMu = actual.null.B2.zMu;
     zCov = actual.null.B2.zCov;
     
@@ -11,12 +12,15 @@ function D = scoreAll(D)
             D.hyps(ii).covRatio = nan;
         end
         hyp = D.hyps(ii);
+        zNull0 = hyp.null.B2.zNull;
         zMu0 = hyp.null.B2.zMu;
         zCov0 = hyp.null.B2.zCov;
-        if isempty(zMu0)
+        if isempty(zNull0)
             continue;
         end
-        D.hyps(ii).errOfMeans = score.errOfMeans(zMu, zMu0);
+        D.hyps(ii).errOfMeans = score.errOfMeans(zNull, zNull0);
+%         D.hyps(ii).covRatio = score.covRatio(zNull, zNull0);
+%         D.hyps(ii).errOfMeans = score.errOfMeans(zMu, zMu0);
         D.hyps(ii).covRatio = score.covRatio(zCov, zCov0);
     end
 

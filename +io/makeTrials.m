@@ -9,7 +9,7 @@ function trials = makeTrials(D)
         trial = struct();
         ntimes = size(d.spikeBins{tr},1);
         
-        % trial.spikes = d.spikeBins{tr};
+%         trial.spikes = d.spikeBins{tr};
         % the below shifts all timepoints of spikes by 1 (what pete did)
         spikes = d.spikeBins{tr};
         trial.spikes = nan(size(spikes));
@@ -58,7 +58,7 @@ function trial = addNewFields(trial, D)
         movVec = trial.movementVector(t,:);
         r = norm(vec2trg);
         theta = tools.computeAngle(vec2trg, [1; 0]);
-        ang = tools.computeAngle(movVec, vec2trg);
+        angErr = tools.computeAngle(movVec, vec2trg);
         velStar = D.params.IDEAL_SPEED*vec2trg/norm(vec2trg);
         if t > 1
             velPrev = trial.vel(t-1,:);
@@ -68,7 +68,7 @@ function trial = addNewFields(trial, D)
 
         trial.rs(t) = r;
         trial.thetas(t) = theta;
-        trial.angError(t) = ang;
+        trial.angError(t) = angErr;
         trial.velStar(t,:) = velStar;
         trial.velPrev(t,:) = velPrev;
     end

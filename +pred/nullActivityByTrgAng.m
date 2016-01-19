@@ -1,4 +1,4 @@
-function [zMu, zCov, zNull, zFull] = nullActivityByTrgAng(B, zAll, NB)
+function [zMu, zCov, zNull, zFull, zStd] = nullActivityByTrgAng(B, zAll, NB)
 
     assert(size(NB,1) == size(zAll,1));
 %     DecVel = B.extras.decodedVelocities;
@@ -12,6 +12,7 @@ function [zMu, zCov, zNull, zFull] = nullActivityByTrgAng(B, zAll, NB)
     Ak(Ak < 0) = 360 + Ak(Ak < 0);
     
     zMu = cell(ntargs,1);
+    zStd = cell(ntargs,1);
     zCov = cell(ntargs,1);
     zNull = cell(ntargs,1);
     zFull = cell(ntargs,1);
@@ -24,9 +25,9 @@ function [zMu, zCov, zNull, zFull] = nullActivityByTrgAng(B, zAll, NB)
 
         zFull{ii} = zAll(:,ix1&ix2);
         zNull{ii} = NB'*zFull{ii};
-        zMu{ii} = mean(zNull{ii});
+        zMu{ii} = mean(zNull{ii},2);
+        zStd{ii} = std(zNull{ii})/sqrt(numel(zNull{ii}));
         zCov{ii} = cov(zNull{ii}');
-        % might actually want SE if NB is a basisVec (see reformatTheta)
     end
 
 end

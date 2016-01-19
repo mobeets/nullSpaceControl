@@ -4,8 +4,8 @@ function D = addDecoders(D)
     sd = D.simpleData.shuffles;
     nMap1 = nd.rawSpikes;
     nMap2 = sd.rawSpikes;
-    fMap1 = getFactorNullDecoder(nd);
-    fMap2 = getFactorShuffleDecoder(sd, nd);
+    fMap1 = getFactorNullDecoder(nd, D.kalmanInitParams);
+    fMap2 = getFactorShuffleDecoder(sd, nd, fMap1, D.kalmanInitParams);
     
     assert(numel(D.blocks) == 3);
     D.blocks(1).nDecoder = nMap1;
@@ -17,30 +17,23 @@ function D = addDecoders(D)
 
 end
 
-function fm = getFactorNullDecoder(nd)
+function fm = getFactorNullDecoder(nd, kalmanInitParams)
 
-    fm.M0 = nd.normalizedSpikes.M0;
-    fm.M1 = nd.normalizedSpikes.M1;
-    fm.M2 = [];
-    
-    % placeholder
-    fm.M2 = nd.normalizedSpikes.M2 * nd.normalizedSpikes.beta';
-    
-%     [M2, M1, M0, beta, k] = simplifyKalman(kalmanInitParams, ...
-%       'raw', 'factors');
-%      ^ these should match
+    [fm.M0, fm.M1, fm.M2, fm.k] = tools.simplifyKalman2(kalmanInitParams);
+    % M0, M1 the same as in nd.normalizedSpikes
 
 end
 
-function fm = getFactorShuffleDecoder(sd, nd)
+function fm = getFactorShuffleDecoder(sd, nd, fm1, kalmanInitParams)
     
-    fm.M0 = [];
-    fm.M1 = [];
-    fm.M2 = [];
+    % shuffled Sigma_z (already in sd.shuffleMatrix)
+    nshufs = numel(sd.shuffles);
+    eta_f = zeros(nshufs);
+    eta_f(sub2ind(size(eta_f), 1:nshufs, sd.shuffles)) = 1;
+    Sigma_z = eta_f*diag(1./nd.FactorAnalysisParams.factorStd);
     
-    % placeholder
-    fm.M0 = sd.normalizedSpikes.M0;
-    fm.M1 = sd.normalizedSpikes.M1;
-    fm.M2 = sd.normalizedSpikes.M2 * sd.normalizedSpikes.beta';
-
+    fm.M0 = -fm1.k*kalmanInitParams.d; % = sd.normalizedSpikes.M0;
+    fm.M1 = fm1.M1; % = sd.normalizedSpikes.M1;
+    fm.M2 = fm1.k*Sigma_z;
+    
 end
