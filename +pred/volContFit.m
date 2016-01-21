@@ -15,7 +15,10 @@ function Z = volContFit(D)
         decoder = B2.fDecoder;
         decoder.M0 = decoder.M0 + decoder.M2*Zpre(t,:)';
         Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, t);
+        
+%         Zvol(t,:) = pred.rowSpaceFit(B2, B2.fDecoder, NB1, t);
     end
     Z = Zvol + Zpre;
+%     Z = Zvol;
     
 end

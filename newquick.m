@@ -51,6 +51,7 @@ D = pred.nullActivity(D, NB);
 %% assess errors in hypotheses
 
 D = score.scoreAll(D);
+[D.hyps.errOfMeans]
 
 %% visualize
 

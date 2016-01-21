@@ -47,6 +47,7 @@ function trial = addNewFields(trial, D)
     trial.movementVector = [movementVector; nan nan];
 
     ntimes = size(trial.spikes,1);
+    trial.time = (1:ntimes)';
     trial.rs = nan(ntimes,1);
     trial.thetas = nan(ntimes,1);
     trial.angError = nan(ntimes,1);
@@ -66,7 +67,7 @@ function trial = addNewFields(trial, D)
             velPrev = [0 0];
         end
 
-        trial.rs(t) = r;
+        trial.rs(t) = r;        
         trial.thetas(t) = theta;
         trial.angError(t) = angErr;
         trial.velStar(t,:) = velStar;
