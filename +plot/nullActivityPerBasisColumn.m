@@ -1,0 +1,92 @@
+function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
+% xs [nt x 1] - cursor angle from target
+% ys [nt x nn] - activity for each column/neuron
+% zs [nt x 1] - target location
+% 
+% one panel per column of ys
+% one color per unique value of zs
+% averages are calculated for all ys where xs is within range of 
+%   one of the unique values in zs
+% 
+   
+    if nargin < 4
+        doScatter = true;
+    end
+    if nargin < 5
+        doMean = true;
+    end
+    if nargin < 6
+        clr = nan;
+    end
+    npanels = size(ys,2);
+    nps_c = ceil(sqrt(npanels));
+    nps_r = round(npanels/nps_c);        
+    
+    [Gms, Gses, Gs] = score.avgByThetaGroup(xs, ys, sort(unique(zs)));
+        
+    if doScatter
+        ymx = ceil(max(abs(ys(:))));
+    else
+        ymx = ceil(max(abs(Gms(:))));
+    end
+    for jj = 1:npanels
+        subplot(nps_c, nps_r, jj);
+        hold on;        
+        set(gca, 'FontSize', 14);
+
+        if doScatter
+            scatterByColorGroup(xs, ys(:,jj), zs, true);
+        end
+        if doMean
+            plotGroupMeanAndSE(Gs, Gms(:,jj), Gses(:,jj), clr);
+        end
+        
+        xlim([-50 370]);        
+        ylim([-ymx ymx]);
+        plot(xlim, [0 0], '--', 'Color', [0.5 0.5 0.5]);
+    end
+    xlabel('\theta between cursor and target');
+    ylabel('activity in column');
+    set(gcf, 'color', 'w');
+end
+
+function scatterByColorGroup(xs, ys, grps, doWrap)
+    if nargin < 4
+        doWrap = false;
+    end
+    sz = 10;
+    allgrps = sort(unique(grps));
+    cmap = cbrewer('div', 'RdYlGn', numel(allgrps));
+    
+    % plot scatter of each point
+    for ii = 1:numel(allgrps)
+        ix = (grps == allgrps(ii));
+        xsc = xs(ix);
+        if doWrap
+            xsc = wrapLargeDegrees(xsc);
+        end            
+        scatter(xsc, ys(ix), sz, cmap(ii,:));
+    end
+end
+
+function xs = wrapLargeDegrees(xs)    
+    if mean(xs < 20) > 0.2 && mean(xs > 300) > 0.2
+        xs(xs > 300) = xs(xs > 300) - 360;
+    end
+end
+
+function plotGroupMeanAndSE(xs, ms, ses, clr, clrE)
+    if nargin < 5 || all(isnan(clrE))
+        clrE = 0.5*ones(3,1);
+    end
+    if nargin < 4 || all(isnan(clr))
+        clr = 0.8*ones(3,1);
+    end
+    sz = 10;
+    lw = 3;
+
+    plot(xs, ms - ses, 'Color', clrE);
+    plot(xs, ms + ses, 'Color', clrE);
+    plot(xs, ms, '-', 'Color', clr, 'LineWidth', lw);
+    scatter(xs, ms, sz, 'k');
+end

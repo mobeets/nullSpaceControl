@@ -7,8 +7,8 @@ clr1 = [0.2 0.2 0.8];
 clr2 = [0.8 0.2 0.2];
 
 clrA = clr1;
-BlkA = B2;
-BlkB = B1;
+BlkA = B1;
+BlkB = B2;
 
 T = BlkA.thetas + 180;
 Z = BlkA.latents;
@@ -24,7 +24,7 @@ ix0 = BlkA.trial_index > prctile(BlkA.trial_index, [25]) & ...
 ix1 = BlkA.trial_index >= prctile(BlkA.trial_index, [90]);
 ix2 = BlkA.trial_index <= prctile(BlkA.trial_index, [10]);
 ix3 = true(size(BlkA.time));
-ixA = ix1;
+ixA = ix3;
 T = T(ixA);
 targs = targs(ixA);
 Z = Z(ixA,:);
@@ -52,6 +52,8 @@ bnds = Ak;
 for jj = 1:nbs
     subplot(nbs_c, nbs_r, jj);
     hold on;
+    
+    % plot scatter of each point
     for ii = 1:ntrgs
         ix = (targs == alltrg(ii));
         xx = T(ix);
@@ -59,15 +61,19 @@ for jj = 1:nbs
             xx(xx > 300) = xx(xx > 300) - 360;
         end
 %         scatter(xx, ZN(ix,jj), sz, cmap(ii,:));    
-    end    
+    end
+    
+    % calculate mean/std for each group
     ys = [];
     vs = [];
     for ii = 1:ntrgs
-        ysc = ZN(tools.targsInRange(T, bnds(ii,:)),jj);
+        ysc = ZN(tools.isInRange(T, bnds(ii,:)),jj);
         ys = [ys mean(ysc)];
         vs = [vs 2*std(ysc)/sqrt(numel(ysc))];
-    end    
-    [~,iz] = sort(alltrg);    
+    end
+    
+    % plot mean/std
+    [~,iz] = sort(alltrg);
     clr = 0.5*ones(3,1);
     plot(alltrg(iz), ys(iz) - vs(iz), 'Color', clr);
     plot(alltrg(iz), ys(iz) + vs(iz), 'Color', clr);

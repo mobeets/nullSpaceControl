@@ -45,8 +45,7 @@ D.hyps(ii).latents = pred.volContFit(D);
 
 %% calculate mean activity in null space of shuffle basis
 
-NB = null(D.blocks(2).fDecoder.M2);
-D = pred.nullActivity(D, NB);
+D = pred.nullActivity(D);
 
 %% assess errors in hypotheses
 
