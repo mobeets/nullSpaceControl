@@ -1,4 +1,4 @@
-function [zMu, zCov, zStd] = avgByThetaGroup(B, zNull)
+function [zMu, zCov, zStd, zNullBin] = avgByThetaGroup(B, zNull)
 
     decTargs = B.thetas + 180;
 
@@ -11,6 +11,7 @@ function [zMu, zCov, zStd] = avgByThetaGroup(B, zNull)
     zMu = cell(ntargs,1);
     zStd = cell(ntargs,1);
     zCov = cell(ntargs,1);
+    zNullBin = cell(ntargs,1);
 
     for ii = 1:numel(alltargs)
         % for each trial in ix, keep times where DecTrg is in Akc
@@ -18,6 +19,7 @@ function [zMu, zCov, zStd] = avgByThetaGroup(B, zNull)
         ix = tools.isInRange(decTargs, Ak(ii,:));
 
         zNullCur = zNull(ix,:);
+        zNullBin{ii} = zNullCur;
         zMu{ii} = mean(zNullCur)';
         zStd{ii} = (std(zNullCur)/sqrt(numel(zNullCur)))';
         zCov{ii} = (cov(zNullCur))';

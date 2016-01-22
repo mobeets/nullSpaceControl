@@ -1,7 +1,5 @@
 
-H = D.hyps(2);
-
-figure;
+% figure;
 clr1 = [0.2 0.2 0.8];
 clr2 = [0.8 0.2 0.2];
 plot.blkSummary(D.blocks(2), [], [], false, true, clr1);

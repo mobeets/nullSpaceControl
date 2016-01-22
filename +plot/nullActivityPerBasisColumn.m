@@ -25,10 +25,11 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
     [Gms, Gses, Gs] = score.avgByThetaGroup(xs, ys, sort(unique(zs)));
         
     if doScatter
-        ymx = ceil(max(abs(ys(:))));
+        ymx = ceil(max(abs(ys(:))));        
     else
         ymx = ceil(max(abs(Gms(:))));
     end
+    ymx = max(ymx, 2);
     for jj = 1:npanels
         subplot(nps_c, nps_r, jj);
         hold on;        
