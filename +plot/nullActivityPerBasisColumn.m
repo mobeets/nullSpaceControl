@@ -29,12 +29,18 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
     else
         ymx = ceil(max(abs(Gms(:))));
     end
+%     ymn = -2;
     ymx = max(ymx, 2);
+    ymx = 7;
     for jj = 1:npanels
         subplot(nps_c, nps_r, jj);
-        hold on;        
         set(gca, 'FontSize', 14);
+        
+%         polarPlotMean(Gs, Gms(:,jj), ymn);
+%         hold on;
+%         continue;
 
+        hold on;
         if doScatter
             scatterByColorGroup(xs, ys(:,jj), zs, true);
         end
@@ -51,6 +57,14 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
     set(gcf, 'color', 'w');
 end
 
+function polarPlotMean(xs, ys, ymn)
+    lw = 2;
+    xvals = [deg2rad(xs); deg2rad(xs(1))];
+    yvals = [ys - ymn; ys(1) - ymn];
+    h = polar(xvals, max(yvals, 0));
+    set(h, 'LineWidth', lw);
+end
+
 function scatterByColorGroup(xs, ys, grps, doWrap)
     if nargin < 4
         doWrap = false;
@@ -65,7 +79,7 @@ function scatterByColorGroup(xs, ys, grps, doWrap)
         xsc = xs(ix);
         if doWrap
             xsc = wrapLargeDegrees(xsc);
-        end            
+        end        
         scatter(xsc, ys(ix), sz, cmap(ii,:));
     end
 end

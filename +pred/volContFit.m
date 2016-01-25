@@ -2,7 +2,7 @@ function Z = volContFit(D)
 
     B1 = D.blocks(1);
     B2 = D.blocks(2);
-    NB1 = null(B1.fDecoder.M2);
+    NB1 = tools.getNullBasis(B1.fDecoder.M2);
     [nt, nn] = size(B2.latents);
 
     Zpre = nan(nt,nn);

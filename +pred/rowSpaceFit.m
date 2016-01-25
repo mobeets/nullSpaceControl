@@ -11,7 +11,7 @@ function z1 = rowSpaceFit(Blk, decoder, NB, t)
     B = decoder.M2;
     c = decoder.M0;
     
-    Brow = null(NB'); % recover row space from null space (???)
+    Brow = tools.getNullBasis(NB'); % recover row space from null space (???)
     z1p = (B*Brow)\(x1 - A*x0 - c); % unique soln to (1)
     z1 = Brow*z1p; % subject to (2)
     

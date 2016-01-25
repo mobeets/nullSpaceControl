@@ -11,7 +11,7 @@ function errOfMeans(hyps)
     set(gcf, 'color', 'w');
     title('average error in means');
 
-    set(gca,'YTick', 0:ceil(ys));
+    set(gca,'YTick', 0:ceil(max(ys)));
     set(gca,'LineWidth', lw);
     set(gca, 'box', 'off')
 

@@ -1,7 +1,7 @@
 function Z = uncContFit(D)
 
     B2 = D.blocks(2);
-    NB2 = null(B2.fDecoder.M2);
+    NB2 = tools.getNullBasis(B2.fDecoder.M2);
     [nt, nn] = size(B2.latents);
 
     % sample Z uniformly from B1 for each time point
