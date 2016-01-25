@@ -2,6 +2,7 @@ function Z = habContFit(D)
     
     B1 = D.blocks(1);
     B2 = D.blocks(2);
+%     NR1 = B1.fDecoder.RowM2;
     NB2 = B2.fDecoder.NulM2;
     RB2 = B2.fDecoder.RowM2;
     [nt, nn] = size(B2.latents);
@@ -14,9 +15,10 @@ function Z = habContFit(D)
         Zsamp = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1);
 %         Z(t,:) = Zsamp;
         Zn(t,:) = Zsamp*(NB2*NB2');
+%         Zn(t,:) = Zsamp*(NR1*NR1')*(NB2*NB2');
         Zr(t,:) = pred.rowSpaceFit(B2, B2.fDecoder, NB2, RB2, t);
     end
-        
+
     Z = Zr + Zn;
 
 end

@@ -100,8 +100,8 @@ function plotGroupMeanAndSE(xs, ms, ses, clr, clrE)
     sz = 10;
     lw = 3;
 
-    plot(xs, ms - ses, 'Color', clrE);
-    plot(xs, ms + ses, 'Color', clrE);
+%     plot(xs, ms - ses, 'Color', clrE);
+%     plot(xs, ms + ses, 'Color', clrE);
     plot(xs, ms, '-', 'Color', clr, 'LineWidth', lw);
     scatter(xs, ms, sz, 'k');
 end

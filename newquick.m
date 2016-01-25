@@ -56,7 +56,7 @@ D.hyps(ii).latents = pred.habContFit(D);
 
 ii = 10;
 D.hyps(ii).name = 'volitional';
-D.hyps(ii).latents = pred.volContFit(D);
+D.hyps(ii).latents = pred.volContFit(D, true);
 
 ii = 11;
 D.hyps(ii).name = 'rotated habitual';
@@ -65,6 +65,15 @@ D.hyps(ii).latents = pred.rotatedFit(D, D.hyps(9));
 ii = 12;
 D.hyps(ii).name = 'rotated volitional';
 D.hyps(ii).latents = pred.rotatedFit(D, D.hyps(10));
+
+ii = 13;
+D.hyps(ii).name = 'volitional - no precursor';
+D.hyps(ii).latents = pred.volContFit(D, false);
+
+ii = 14;
+D.hyps(ii).name = 'habitual, skip thetas';
+D.hyps(ii).latents = pred.rotatedFit(D, D.hyps(9));
+
 
 %% calculate mean activity in null space of shuffle basis
 
@@ -91,7 +100,7 @@ figure; plot.blkSummary(D.blocks(2), [], [], true, true, clr1);
 fnm = @(nm) fullfile('plots', 'fits2', nm);
 
 % Plot Actual vs. Predicted, Map1->Map2, for each null column of B2
-for ii = 12:numel(D.hyps)
+for ii = 14:numel(D.hyps)
     H = D.hyps(ii);
     fig = figure;
     plot.blkSummaryPredicted;

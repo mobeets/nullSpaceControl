@@ -1,4 +1,4 @@
-function Z = volContFit(D)
+function Z = volContFit(D, addPrecursor)
 
     B1 = D.blocks(1);
     B2 = D.blocks(2);
@@ -12,14 +12,15 @@ function Z = volContFit(D)
     for t = 1:nt
         % sample Z uniformly from times t in T1 where theta_t is
         % within 15 degs of theta
-        Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1);
         decoder = B2.fDecoder;
-        decoder.M0 = decoder.M0 + decoder.M2*Zpre(t,:)';
+        if addPrecursor
+            Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1);    
+            decoder.M0 = decoder.M0 + decoder.M2*Zpre(t,:)';
+        else
+            Zpre(t,:) = zeros(1,nn);
+        end
         Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, RB1, t);
-        
-%         Zvol(t,:) = pred.rowSpaceFit(B2, B2.fDecoder, NB1, t);
     end
     Z = Zvol + Zpre;
-%     Z = Zvol;
     
 end
