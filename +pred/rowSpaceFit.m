@@ -1,4 +1,4 @@
-function z1 = rowSpaceFit(Blk, decoder, NB, t)
+function z1 = rowSpaceFit(Blk, decoder, NB, RB, t)
 % 
 % each z1 is unique solution to
 %   (1) A*x0 + B*z1 + c = x1
@@ -11,7 +11,7 @@ function z1 = rowSpaceFit(Blk, decoder, NB, t)
     B = decoder.M2;
     c = decoder.M0;
     
-    Brow = tools.getNullBasis(NB'); % recover row space from null space (???)
+    Brow = RB; % tools.getNullBasis(NB'); % recover row space from null space (???)
     z1p = (B*Brow)\(x1 - A*x0 - c); % unique soln to (1)
     z1 = Brow*z1p; % subject to (2)
     

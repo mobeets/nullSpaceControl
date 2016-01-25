@@ -29,7 +29,7 @@ T = T(ixA);
 targs = targs(ixA);
 Z = Z(ixA,:);
 
-NB = null(BlkA.fDecoder.M2);
+NB = BlkA.fDecoder.NulM2;
 ZN = Z*NB;
 % ZN = Z;
 

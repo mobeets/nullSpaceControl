@@ -2,7 +2,8 @@ function Z = volContFit(D)
 
     B1 = D.blocks(1);
     B2 = D.blocks(2);
-    NB1 = tools.getNullBasis(B1.fDecoder.M2);
+    NB1 = B1.fDecoder.NulM2;
+    RB1 = B1.fDecoder.RowM2;
     [nt, nn] = size(B2.latents);
 
     Zpre = nan(nt,nn);
@@ -14,7 +15,7 @@ function Z = volContFit(D)
         Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1);
         decoder = B2.fDecoder;
         decoder.M0 = decoder.M0 + decoder.M2*Zpre(t,:)';
-        Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, t);
+        Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, RB1, t);
         
 %         Zvol(t,:) = pred.rowSpaceFit(B2, B2.fDecoder, NB1, t);
     end

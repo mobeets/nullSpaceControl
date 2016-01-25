@@ -49,8 +49,8 @@ ii = 8;
 D.hyps(ii).name = 'unconstrained';
 D.hyps(ii).latents = pred.uncContFit(D);
 
-ii = 11;
-D.hyps(ii).name = 'habitual - specific';
+ii = 6;
+D.hyps(ii).name = 'habitual';
 D.hyps(ii).latents = pred.habContFit(D);
 
 ii = 10;
@@ -71,14 +71,14 @@ D = score.scoreAll(D);
 %% visualize
 
 close all;
-fnm = @(nm) fullfile('plots', 'fits', nm);
+fnm = @(nm) fullfile('plots', 'fits2', nm);
 
 % Plot Actual vs. Predicted, Map1->Map2, for each null column of B2
-for ii = 1:numel(D.hyps)
+for ii = 6:numel(D.hyps)
     H = D.hyps(ii);
     fig = figure;
     plot.blkSummaryPredicted;
-    saveas(fig, fullfile(fnm([H.name '_all'])), 'png');
+    saveas(fig, fullfile(fnm([H.name ''])), 'png');
 end
 
 % Plot error of means

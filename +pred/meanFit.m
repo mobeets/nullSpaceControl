@@ -15,7 +15,7 @@ function sol = bestMeanObj(D)
     % search for best mean rate to predict
 
     B1 = D.blocks(1);
-    NB = tools.getNullBasis(B1.fDecoder.M2);
+    NB = B1.fDecoder.NulM2;
     
     zMu = pred.avgByThetaGroup(B1, B1.latents*NB);
     nd = size(B1.latents,1);

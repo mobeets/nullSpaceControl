@@ -20,6 +20,7 @@ end
 function fm = getFactorNullDecoder(nd, kalmanInitParams)
 
     [fm.M0, fm.M1, fm.M2, fm.k] = tools.simplifyKalman2(kalmanInitParams);
+    fm.NulM2 = tools.getNullBasis(fm.M2);
     % M0, M1 the same as in nd.normalizedSpikes
 
 end
@@ -35,5 +36,7 @@ function fm = getFactorShuffleDecoder(sd, nd, fm1, kalmanInitParams)
     fm.M0 = -fm1.k*kalmanInitParams.d; % = sd.normalizedSpikes.M0;
     fm.M1 = fm1.M1; % = sd.normalizedSpikes.M1;
     fm.M2 = fm1.k*Sigma_z;
+    fm.NulM2 = tools.getNullBasis(fm.M2);
+    fm.RowM2 = tools.getNullBasis(fm.NulM2');
     
 end

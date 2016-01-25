@@ -16,7 +16,7 @@ function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr)
     end
 
     xs = Blk.thetas + 180;    
-    NB = null(NBlk.fDecoder.M2);
+    NB = NBlk.fDecoder.NulM2;
     ys = Y.latents*NB;
     grps = Blk.targetAngle;
 

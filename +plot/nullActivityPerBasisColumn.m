@@ -31,7 +31,7 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
     end
 %     ymn = -2;
     ymx = max(ymx, 2);
-    ymx = 7;
+    ymx = 2;
     for jj = 1:npanels
         subplot(nps_c, nps_r, jj);
         set(gca, 'FontSize', 14);

@@ -1,6 +1,6 @@
 function D = nullActivity(D)
 
-    NBf = @(ii) tools.getNullBasis(D.blocks(ii).fDecoder.M2);
+    NBf = @(ii) D.blocks(ii).fDecoder.NulM2;
     
     % mean/cov of null activity in second block
     for ii = 1:numel(D.hyps)
