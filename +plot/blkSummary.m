@@ -1,4 +1,4 @@
-function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr)
+function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr, NB)
     if nargin < 2 || isempty(NBlk)
         NBlk = Blk;
     end
@@ -14,11 +14,16 @@ function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr)
     if nargin < 6
         clr = nan;
     end
+    if nargin < 7
+        NB = NBlk.fDecoder.NulM2;
+    end
 
-    xs = Blk.thetas + 180;    
-    NB = NBlk.fDecoder.NulM2;
+    xs = Blk.thetas + 180;
     ys = Y.latents*NB;
     grps = Blk.targetAngle;
+    
+    ix = ~isnan(sum(ys,2)); % ignore nans
+    xs = xs(ix); ys = ys(ix,:); grps = grps(ix);
 
     plot.nullActivityPerBasisColumn(xs, ys, grps, doScatter, doMean, clr);
 
