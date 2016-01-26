@@ -13,7 +13,7 @@ function Blks = addTrainAndTestIdx(Blks0, trainPct)
         % cv on trial index
         N = numel(unique([Blk.trial_index]));
         cvobj = cvpartition(N, 'HoldOut', 1-trainPct);
-        tinds = 1:N;
+        tinds = unique([Blk.trial_index]);
         tinds = tinds(cvobj.training(1));
         Blk.idxTrain = ismember(Blk.trial_index, tinds);
         Blk.idxTest = ~Blk.idxTrain;

@@ -6,7 +6,7 @@ function Z = volContFit(D, addPrecursor)
     RB1 = B1.fDecoder.RowM2;
     [nt, nn] = size(B2.latents);
 
-    Zpre = nan(nt,nn);
+    Zpre = zeros(nt,nn);
     Zvol = nan(nt,nn);
     % need to set x(0) to set Z(1)
     for t = 1:nt
@@ -14,10 +14,9 @@ function Z = volContFit(D, addPrecursor)
         % within 15 degs of theta
         decoder = B2.fDecoder;
         if addPrecursor
-            Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1);    
+            Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, ...
+                nan, false);
             decoder.M0 = decoder.M0 + decoder.M2*Zpre(t,:)';
-        else
-            Zpre(t,:) = zeros(1,nn);
         end
         Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, RB1, t);
     end

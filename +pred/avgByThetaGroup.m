@@ -13,10 +13,13 @@ function [zMu, zCov, zStd, zNullBin] = avgByThetaGroup(B, zNull)
     zCov = cell(ntargs,1);
     zNullBin = cell(ntargs,1);
 
+    % if some predictions are nan, only score on non-nans
+    ix0 = ~isnan(sum(zNull,2));
+%     ix0 = B.idxTest || ~any(isnan(sum(zNull,2)));
     for ii = 1:numel(alltargs)
         % for each trial in ix, keep times where DecTrg is in Akc
 %         ix = targs == alltargs(ii);
-        ix = tools.isInRange(decTargs, Ak(ii,:));
+        ix = tools.isInRange(decTargs, Ak(ii,:)) & ix0;
 
         zNullCur = zNull(ix,:);
         zNullBin{ii} = zNullCur;

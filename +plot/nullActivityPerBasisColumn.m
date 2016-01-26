@@ -31,7 +31,7 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
     end
 %     ymn = -2;
     ymx = max(ymx, 2);
-    ymx = 2;
+    ymx = 3;
     for jj = 1:npanels
         subplot(nps_c, nps_r, jj);
         set(gca, 'FontSize', 14);
@@ -72,6 +72,7 @@ function scatterByColorGroup(xs, ys, grps, doWrap)
     sz = 10;
     allgrps = sort(unique(grps));
     cmap = cbrewer('div', 'RdYlGn', numel(allgrps));
+    cmap = circshift(cmap, floor(numel(allgrps)/2));
     
     % plot scatter of each point
     for ii = 1:numel(allgrps)

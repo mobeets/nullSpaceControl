@@ -21,7 +21,11 @@ function D = scoreAll(D)
             continue;
         end
         
-        D.hyps(ii).errOfMeansFull = score.errOfMeans(zNull, zNull0);
+        if isequal(size(zNull{1}), size(zNull0{1}))
+            D.hyps(ii).errOfMeansFull = score.errOfMeans(zNull, zNull0);
+        else
+            D.hyps(ii).errOfMeansFull = nan;
+        end
         D.hyps(ii).errOfMeans = score.errOfMeans(zMu, zMu0);
         D.hyps(ii).covRatio = score.covRatio(zCov, zCov0);
     end
