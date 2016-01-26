@@ -14,5 +14,6 @@ function errOfMeans(hyps)
     set(gca,'YTick', 0:ceil(max(ys)));
     set(gca,'LineWidth', lw);
     set(gca, 'box', 'off')
+    set(gca, 'XTickLabelRotation', 45);
 
 end

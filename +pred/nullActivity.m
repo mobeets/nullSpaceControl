@@ -22,7 +22,7 @@ end
 function sc = nullActivityAll(latents, B, NB)
     sc = struct();
     if isempty(latents)
-        sc.zMu = []; sc.zCov = []; sc.zNull = []; sc.zNullBin = [];
+        sc.zNull = []; sc.zMu = {}; sc.zCov = {}; sc.zNullBin = {};
         return;
     end
     sc.zNull = latents*NB;

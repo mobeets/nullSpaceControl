@@ -15,7 +15,7 @@ function z1 = rowSpaceFit(Blk, decoder, NB, RB, t)
     z1p = (B*Brow)\(x1 - A*x0 - c); % unique soln to (1)
     z1 = Brow*z1p; % subject to (2)
     
-    assert(norm((x1 - A*x0 - c) - B*z1) < 1e-12); % satisfies (1)
-    assert(norm(NB'*z1) < 1e-12); % satisfies (2)
+    assert(norm((x1 - A*x0 - c) - B*z1) < 1e-10); % satisfies (1)
+    assert(norm(NB'*z1) < 1e-11); % satisfies (2)
 
 end

@@ -11,8 +11,9 @@
 D = io.loadDataByDate('20120601');
 D.params = io.loadParams(D);
 D.blocks = io.getDataByBlock(D);
-D = io.addDecoders(D);
 D.blocks = pred.addTrainAndTestIdx(D.blocks);
+D = io.addDecoders(D);
+% D = tools.rotateLatentsUpdateDecoders(D);
 
 %% make predictions
 
@@ -58,29 +59,27 @@ ii = 10;
 D.hyps(ii).name = 'volitional';
 D.hyps(ii).latents = pred.volContFit(D, true);
 
-ii = 11;
-D.hyps(ii).name = 'rotated habitual';
-D.hyps(ii).latents = pred.rotatedFit(D, D.hyps(9));
-
-ii = 12;
-D.hyps(ii).name = 'rotated volitional';
-D.hyps(ii).latents = pred.rotatedFit(D, D.hyps(10));
-
-ii = 13;
-D.hyps(ii).name = 'volitional - no precursor';
-D.hyps(ii).latents = pred.volContFit(D, false);
-
-ii = 14;
-D.hyps(ii).name = 'habitual, skip thetas';
-D.hyps(ii).latents = pred.rotatedFit(D, D.hyps(9));
+% ii = 11;
+% D.hyps(ii).name = 'rotated habitual';
+% D.hyps(ii).latents = pred.rotatedFit(D, D.hyps(9));
+% 
+% ii = 12;
+% D.hyps(ii).name = 'rotated volitional';
+% D.hyps(ii).latents = pred.rotatedFit(D, D.hyps(10));
+% 
+% ii = 13;
+% D.hyps(ii).name = 'volitional - no precursor';
+% D.hyps(ii).latents = pred.volContFit(D, false);
+% 
+% ii = 14;
+% D.hyps(ii).name = 'habitual, skip thetas';
+% D.hyps(ii).latents = pred.rotatedFit(D, D.hyps(9));
 
 
 %% calculate mean activity in null space of shuffle basis
+%   and assess errors in hypotheses
 
 D = pred.nullActivity(D);
-
-%% assess errors in hypotheses
-
 D = score.scoreAll(D);
 [D.hyps.errOfMeans]
 % [D.hyps.errOfMeansFull]
@@ -100,11 +99,11 @@ figure; plot.blkSummary(D.blocks(2), [], [], true, true, clr1);
 fnm = @(nm) fullfile('plots', 'fits2', nm);
 
 % Plot Actual vs. Predicted, Map1->Map2, for each null column of B2
-for ii = 14:numel(D.hyps)
+for ii = 2:numel(D.hyps)
     H = D.hyps(ii);
     fig = figure;
     plot.blkSummaryPredicted;
-    saveas(fig, fullfile(fnm([H.name ''])), 'png');
+%     saveas(fig, fullfile(fnm([H.name ''])), 'png');
 end
 
 % Plot error of means
