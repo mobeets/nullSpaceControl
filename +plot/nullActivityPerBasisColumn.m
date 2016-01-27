@@ -20,7 +20,7 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
     end
     npanels = size(ys,2);
     nps_c = ceil(sqrt(npanels));
-    nps_r = round(npanels/nps_c);        
+    nps_r = round(npanels/nps_c);
     
     [Gms, Gses, Gs] = score.avgByThetaGroup(xs, ys, sort(unique(zs)));
         

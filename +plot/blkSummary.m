@@ -1,4 +1,4 @@
-function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr, NB, ix0)
+function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr, NB, ix0, doTrans)
     if nargin < 2 || isempty(NBlk)
         NBlk = Blk;
     end
@@ -17,8 +17,11 @@ function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr, NB, ix0)
     if nargin < 7 || isempty(NB)
         NB = NBlk.fDecoder.NulM2;
     end
-    if nargin < 8
+    if nargin < 8 || isempty(ix0)
         ix0 = true;
+    end
+    if nargin < 9
+        doTrans = false;
     end
 
     xs = Blk.thetas + 180;
@@ -29,6 +32,13 @@ function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr, NB, ix0)
     ix = ix0 & ~isnan(sum(ys,2));
     xs = xs(ix); ys = ys(ix,:); grps = grps(ix);
 
-    plot.nullActivityPerBasisColumn(xs, ys, grps, doScatter, doMean, clr);
+    if doTrans
+        cnts = rad2deg(0:pi/4:2*pi-pi/4)';
+        plot.nullActivityPerKinematic(ys, xs, cnts, ...
+            doScatter, doMean, clr);
+    else
+        plot.nullActivityPerBasisColumn(xs, ys, grps, doScatter, ...
+            doMean, clr);
+    end
 
 end

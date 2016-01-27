@@ -1,9 +1,12 @@
-function blkSummaryPredicted(D, H, doRotate, ignoreTrue)
+function blkSummaryPredicted(D, H, doRotate, doCompare, doTrans)
     if nargin < 3
         doRotate = false;
     end
     if nargin < 4
-        ignoreTrue = false;
+        doCompare = false;
+    end
+    if nargin < 5
+        doTrans = false;
     end
 
     % figure;
@@ -17,15 +20,17 @@ function blkSummaryPredicted(D, H, doRotate, ignoreTrue)
         NB = NB*v;
     end
     
-    if ignoreTrue
-        plot.blkSummary(D.blocks(2), [], H, true, true, clr2);
+    if doCompare
+        plot.blkSummary(D.blocks(2), [], H, true, true, clr2, NB, ...
+            [], doTrans);
         plot.subtitle([H.name ' in null(B2)'], 'FontSize', 14);
     else
-        plot.blkSummary(D.blocks(2), [], [], false, true, clr1, NB);
-        plot.blkSummary(D.blocks(2), [], H, false, true, clr2, NB);
+        plot.blkSummary(D.blocks(2), [], [], false, true, clr1, NB, ...
+            [], doTrans);
+        plot.blkSummary(D.blocks(2), [], H, false, true, clr2, NB, ...
+            [], doTrans);
         plot.subtitle(['observed [blue] vs ' H.name ...
             ' [red] in null(B2)'], 'FontSize', 14);
     end
-    
 
 end
