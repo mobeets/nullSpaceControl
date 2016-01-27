@@ -76,23 +76,14 @@ ii = 13;
 D.hyps(ii).name = 'volitional - no precursor';
 D.hyps(ii).latents = pred.volContFit(D, false);
 
-%%
-
-close all;
-% figure; plot.blkSummaryPredicted(D, D.hyps(1), false, true);
-% figure; plot.blkSummaryPredicted(D, D.hyps(11), true, false, true);
-% figure; plot.blkSummaryPredicted(D, D.hyps(14), false, true);
-figure; plot.blkSummaryPredicted(D, D.hyps(9), true, false, true);
-
 %% calculate mean activity in null space of shuffle basis
 %   and assess errors in hypotheses
 
 D = pred.nullActivity(D);
 D = score.scoreAll(D);
 [D.hyps.errOfMeans]
-% [D.hyps.errOfMeansFull]
-% [D.hyps.covRatio]
 
 %% visualize
 
-plot.plotAll(D);
+plot.plotAll(D, D.hyps(2:end));
+
