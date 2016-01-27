@@ -8,12 +8,13 @@ function errOfMeans(hyps)
 %     eh = errorbar(1:numel(nms), ys, errL, errR, 'k.', 'Linewidth', lw);
     set(gca, 'XTickLabel', nms, 'XTick', 1:numel(nms));
     set(gca, 'FontSize', 14);
-    set(gcf, 'color', 'w');
-    title('average error in means');
+    set(gcf, 'color', 'w');    
 
     set(gca,'YTick', 0:ceil(max(ys)));
     set(gca,'LineWidth', lw);
     set(gca, 'box', 'off')
     set(gca, 'XTickLabelRotation', 45);
+    
+    ylabel('Error of means');
 
 end

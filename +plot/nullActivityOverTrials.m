@@ -1,9 +1,12 @@
-function nullActivityOverTrials(D, xnm, nbins)
+function nullActivityOverTrials(D, xnm, nbins, H)
     if nargin < 2
         xnm = 'trial_index';
     end
     if nargin < 3
         nbins = 4;
+    end
+    if nargin < 4
+        H = [];
     end
     doT = true;
     doRotate = true;
@@ -23,7 +26,7 @@ function nullActivityOverTrials(D, xnm, nbins)
 
     for ii = 1:nbins
         ix = xs >= bins(ii) & xs <= bins(ii+1);
-        plot.blkSummary(B, [], [], false, true, cmap(ii+2,:), NB, ix, doT);
+        plot.blkSummary(B, H, [], false, true, cmap(ii+2,:), NB, ix, doT);
     end
     plot.subtitle('observed by trial period [light to dark = early to late]', ...
         'FontSize', 14);

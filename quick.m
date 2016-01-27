@@ -10,7 +10,7 @@
 
 D = io.loadDataByDate('20120601'); % 20120525 20120601
 D.params = io.loadParams(D);
-D.params.MAX_ANGULAR_ERROR = 360;
+% D.params.MAX_ANGULAR_ERROR = 360;
 D.blocks = io.getDataByBlock(D);
 D.blocks = pred.addTrainAndTestIdx(D.blocks);
 D = io.addDecoders(D);
@@ -80,7 +80,7 @@ D.hyps(ii).latents = pred.volContFit(D, false);
 
 close all;
 % figure; plot.blkSummaryPredicted(D, D.hyps(1), false, true);
-figure; plot.blkSummaryPredicted(D, D.hyps(11), true, false, true);
+% figure; plot.blkSummaryPredicted(D, D.hyps(11), true, false, true);
 % figure; plot.blkSummaryPredicted(D, D.hyps(14), false, true);
 figure; plot.blkSummaryPredicted(D, D.hyps(9), true, false, true);
 
@@ -95,30 +95,4 @@ D = score.scoreAll(D);
 
 %% visualize
 
-close all;
-doRotate = true;
-doTranspose = true;
-ext = '';
-if doRotate
-    ext = [ext '_rot'];
-end
-if doTranspose
-    ext = [ext '_kin'];
-end
-fnm = @(nm) fullfile('plots', ['fits_' D.datestr ext], nm);
-
-% Plot Actual vs. Predicted, Map1->Map2, for each null column of B2
-for ii = 1:numel(D.hyps)
-    fig = figure; plot.blkSummaryPredicted(D, D.hyps(ii), doRotate, ...
-        false, doTranspose);
-    saveas(fig, fullfile(fnm([D.hyps(ii).name '-mean'])), 'png');
-    fig = figure; plot.blkSummaryPredicted(D, D.hyps(ii), doRotate, ...
-        true, doTranspose);
-    saveas(fig, fullfile(fnm([D.hyps(ii).name '-pts'])), 'png');
-end
-
-% Plot error of means
-fig = figure; plot.errOfMeans(D.hyps(2:end));
-saveas(fig, fullfile(fnm(['errOfMeans'])), 'png');
-
-% Plot covariance ratios
+plot.plotAll(D);

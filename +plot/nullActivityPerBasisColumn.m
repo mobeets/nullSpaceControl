@@ -22,7 +22,8 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
     nps_c = ceil(sqrt(npanels));
     nps_r = round(npanels/nps_c);
     
-    [Gms, Gses, Gs] = score.avgByThetaGroup(xs, ys, sort(unique(zs)));
+    grps = sort(unique(zs));
+    [Gms, Gses, Gs] = score.avgByThetaGroup(xs, ys, grps);
         
     if doScatter
         ymx = ceil(max(abs(ys(:))));        
@@ -51,7 +52,10 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
         xlim([-50 370]);        
         ylim([-ymx ymx]);
         plot(xlim, [0 0], '--', 'Color', [0.5 0.5 0.5]);
-    end
+        set(gca, 'XTick', grps(1:2:end));
+        set(gca, 'XTickLabel', grps(1:2:end));
+        set(gca, 'XTickLabelRotation', 45);
+    end    
     xlabel('\theta between cursor and target');
     ylabel('activity in column');
     set(gcf, 'color', 'w');
@@ -98,11 +102,11 @@ function plotGroupMeanAndSE(xs, ms, ses, clr, clrE)
     if nargin < 4 || all(isnan(clr))
         clr = 0.8*ones(3,1);
     end
-    sz = 10;
+    sz = 50;
     lw = 3;
 
 %     plot(xs, ms - ses, 'Color', clrE);
 %     plot(xs, ms + ses, 'Color', clrE);
     plot(xs, ms, '-', 'Color', clr, 'LineWidth', lw);
-    scatter(xs, ms, sz, 'k');
+    scatter(xs, ms, sz, clr, 'MarkerFaceColor', clr);
 end

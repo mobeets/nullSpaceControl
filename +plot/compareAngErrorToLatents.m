@@ -2,11 +2,12 @@
 B = D.blocks(2);
 
 NB = B.fDecoder.NulM2;
-if doRotate
+if true
     [~,~,v] = svd(B.latents*NB);
     NB = NB*v;
 end
 
+% F is normal D; D is D without any filtering on angError
 ys = F.hyps(1).latents*NB;
 ysh = F.hyps(9).latents*NB;
 grps0 = score.thetaGroup(F.blocks(2).thetas + 180, sort(unique(cnts)));
@@ -28,7 +29,7 @@ cmap = cbrewer('div', 'RdYlGn', numel(allgrps) + 2);
 for ii = 1:numel(allgrps)
     ix = (grps == allgrps(ii));
 %     scatter(allgrps(ii)*ones(sum(ix),1), B.angError(ix));
-    zs0 = mean(B.angError(ix));
+    zs0 = mean(abs(B.angError(ix)));
 %     scatter(allgrps(ii), zs0, 80, 'k', 'filled');
     
     ix = (grps0 == allgrps(ii));

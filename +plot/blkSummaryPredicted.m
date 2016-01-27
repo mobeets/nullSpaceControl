@@ -1,9 +1,9 @@
-function blkSummaryPredicted(D, H, doRotate, doCompare, doTrans)
+function blkSummaryPredicted(D, H, doRotate, doSolo, doTrans)
     if nargin < 3
         doRotate = false;
     end
     if nargin < 4
-        doCompare = false;
+        doSolo = false;
     end
     if nargin < 5
         doTrans = false;
@@ -20,7 +20,7 @@ function blkSummaryPredicted(D, H, doRotate, doCompare, doTrans)
         NB = NB*v;
     end
     
-    if doCompare
+    if doSolo
         plot.blkSummary(D.blocks(2), [], H, true, true, clr2, NB, ...
             [], doTrans);
         plot.subtitle([H.name ' in null(B2)'], 'FontSize', 14);
