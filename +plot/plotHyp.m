@@ -1,9 +1,12 @@
-function plotHyp(D, H, fldr, doSave)
+function plotHyp(D, H, fldr, doSave, doStick)
     if nargin < 3
         fldr = '';
     end
     if nargin < 4
         doSave = false;
+    end
+    if nargin < 5
+        doStick = false;
     end
     if doSave && isempty(fldr)
         fldr = plot.getFldr(D);
@@ -20,6 +23,17 @@ function plotHyp(D, H, fldr, doSave)
                 saveas(fig, fnm, 'png');
             end
         end
+    end
+    
+    if ~doStick
+        return;
+    end
+    
+    % stick plot
+    fig = figure;
+    plot.stickPlot(D, D.hyps(1).nullOG(2).zMu, H.null(2).zMu, H.name);
+    if ~isempty(fldr)
+        saveas(fig, fullfile(fldr, [H.name '_stick']), 'png');
     end
 
 end

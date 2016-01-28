@@ -33,7 +33,7 @@ function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr, NB, ix0, doTrans)
     xs = xs(ix); ys = ys(ix,:); grps = grps(ix);
 
     if doTrans
-        cnts = rad2deg(0:pi/4:2*pi-pi/4)';
+        cnts = score.thetaCenters();
         plot.nullActivityPerKinematic(ys, xs, cnts, ...
             doScatter, doMean, clr);
     else
