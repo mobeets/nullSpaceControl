@@ -8,26 +8,27 @@ function errorByKinematics(D, H, nm, nbins)
     end
     
     cnts = score.thetaCenters(nbins);
-    B = D.blocks(2);
+    B = D.blocks(1);
     NB = B.fDecoder.NulM2;
     if true % doRotate
         [~,~,v] = svd(B.latents*NB);
         NB = NB*v;
     end
-    
+
     xs0 = D.blocks(1).thetas + 180;
     Y0 = D.blocks(1).latents;
     ix = ~isnan(sum(Y0,2)); xs0 = xs0(ix); Y0 = Y0(ix,:);
     M0 = score.avgByThetaGroup(xs0, Y0*NB, cnts);
     
-    xs = B.thetas + 180;
-    Y1 = B.latents; Y2 = H.latents;
-    ix = ~isnan(sum(Y1,2)) & ~isnan(sum(Y2,2));
-    xs = xs(ix); Y1 = Y1(ix,:); Y2 = Y2(ix,:);
-    M1 = score.avgByThetaGroup(xs, Y1*NB, cnts);
-    M2 = score.avgByThetaGroup(xs, Y2*NB, cnts);    
-    errs = arrayfun(@(ii) norm(M1(ii,:) - M2(ii,:)), 1:size(M1,1));
-    errs = arrayfun(@(ii) norm(M0(ii,:) - M2(ii,:)), 1:size(M1,1));
+%     xs = B.thetas + 180;
+%     Y1 = B.latents; Y2 = H.latents;
+%     ix = ~isnan(sum(Y1,2)) & ~isnan(sum(Y2,2));
+%     xs = xs(ix); Y1 = Y1(ix,:); Y2 = Y2(ix,:);
+%     M1 = score.avgByThetaGroup(xs, Y1*NB, cnts);
+%     M2 = score.avgByThetaGroup(xs, Y2*NB, cnts);
+%     errs = arrayfun(@(ii) norm(M1(ii,:) - M2(ii,:)), 1:size(M1,1));
+    errs = arrayfun(@(ii) norm(M0(ii,:)), 1:size(M0,1));
+%     errs = arrayfun(@(ii) norm(M1(ii,:)), 1:size(M1,1));
     
     cmap = cbrewer('div', 'RdYlGn', numel(cnts));
     cmap = circshift(cmap, floor(numel(cnts)/2));
@@ -43,7 +44,8 @@ function errorByKinematics(D, H, nm, nbins)
             'MarkerFaceColor', cmap(ii,:));
     end    
     xlim([-25 385]);
-    ylim([0 1.2*nanmax(errs)]);
+%     ylim([0 1.2*nanmax(errs)]);
+    ylim([0 3]);
     set(gca, 'XTick', cnts(1:2:end));
     
     set(gcf, 'color', 'white');

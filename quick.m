@@ -86,4 +86,5 @@ D = score.scoreAll(D);
 
 %% visualize
 
-plot.plotAll(D, D.hyps(2:end), true);
+% plot.plotAll(D, D.hyps(2:end), true);
+tmp(D, D.hyps(2:end));

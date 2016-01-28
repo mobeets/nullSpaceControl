@@ -13,6 +13,7 @@ function fldr = getFldr(D, isMaster)
     if ~exist(fldr, 'dir')
         mkdir(fldr);
     else
+%         return;
         resp = input(['Folder "' fldr ...
             '" already exists. Continue (y/n)? '], 's');
         if isempty(resp) || strcmpi(resp(1), 'n')
