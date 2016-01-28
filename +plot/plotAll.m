@@ -1,6 +1,6 @@
 function plotAll(D, Hs, doSave, isMaster)
     if nargin < 3
-        doSave = false; isMaster = false;
+        doSave = false;
     end
     if nargin < 4
         isMaster = false;
@@ -14,7 +14,7 @@ function plotAll(D, Hs, doSave, isMaster)
     close all;
     
     for ii = 1:numel(Hs)
-        plot.plotHyp(D, Hs(ii), fldr);
+        plot.plotHyp(D, Hs(ii), fldr); 
     end
     
     % Plot error of means

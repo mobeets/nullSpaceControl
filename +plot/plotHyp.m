@@ -24,6 +24,11 @@ function plotHyp(D, H, fldr, doSave, doStick)
             end
         end
     end
+    fig = figure;
+    plot.errorByKinematics(D, H, H.name, 16);
+    if ~isempty(fldr)
+        saveas(fig, fullfile(fldr, [H.name '_kinErr']), 'png');
+    end
     
     if ~doStick
         return;
@@ -31,7 +36,7 @@ function plotHyp(D, H, fldr, doSave, doStick)
     
     % stick plot
     fig = figure;
-    plot.stickPlot(D, D.hyps(1).nullOG(2).zMu, H.null(2).zMu, H.name);
+    plot.stickPlot(D.hyps(1).nullOG(2).zMu, H.null(2).zMu, H.name);
     if ~isempty(fldr)
         saveas(fig, fullfile(fldr, [H.name '_stick']), 'png');
     end

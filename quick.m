@@ -8,7 +8,8 @@
 
 %% load and prepare data
 
-D = io.loadDataByDate('20120601'); % 20120525 20120601
+% dtstr = '20120601'; % 20120525 20120601 20131125 20131205
+D = io.loadDataByDate(dtstr);
 D.params = io.loadParams(D);
 % D.params.MAX_ANGULAR_ERROR = 360;
 D.blocks = io.getDataByBlock(D);
@@ -85,5 +86,4 @@ D = score.scoreAll(D);
 
 %% visualize
 
-plot.plotAll(D, D.hyps(2:end));
-
+plot.plotAll(D, D.hyps(2:end), true);

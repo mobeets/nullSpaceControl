@@ -1,6 +1,5 @@
-function [ms, ses, allgrps] = calcGroupMeanAndSE(xs, ys)
+function [ms, ses, allgrps] = calcGroupMeanAndSE(xs, ys, allgrps)
     
-    allgrps = sort(unique(xs));
     ngrps = numel(allgrps);
     nys = size(ys,2);
     ms = nan(ngrps,nys);
