@@ -1,4 +1,4 @@
-function ps = loadParams(D)
+function ps = setParams(D)
 
     if strcmp(D.datestr,'20120525')
         START_SHUFFLE = 700;
@@ -18,9 +18,6 @@ function ps = loadParams(D)
 
     ps.START_SHUFFLE = START_SHUFFLE;
     ps.START_WASHOUT = START_WASHOUT;
-    ps.MIN_DISTANCE = 50;
-    ps.MAX_DISTANCE = 125;
-    ps.MAX_ANGULAR_ERROR = 20;
-    ps.IDEAL_SPEED = 175;
+    ps.IDEAL_SPEED = 175;    
 
 end

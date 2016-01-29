@@ -17,14 +17,15 @@ function trials = makeTrials(D)
         
         trial.pos = d.decodedPositions{tr};
         trial.vel = d.decodedVelocities{tr};
+        trial.spd = arrayfun(@(ii) norm(trial.vel(ii,:)), 1:ntimes)';
         trial.target = repmat(d.targetLocations(tr, 1:2), ntimes, 1);        
         trial.targetAngle = d.targetAngles(tr)*ones(ntimes,1);
         trial.trial_index = repmat(tr, ntimes, 1);
         trial.block_index = repmat(tblkinds(tr), ntimes, 1);
-        trial = addNewFields(trial, D);        
+        trial = addNewFields(trial, D);
         ts = [ts trial];
     end
-    
+
     % flatten trials so that each timepoint is now a trial
     trials = struct();
     fns = fieldnames(ts);
@@ -32,7 +33,7 @@ function trials = makeTrials(D)
         val = cell2mat(cellfun(@(x) x', {ts.(fns{ii})}, 'uni', 0));
         trials.(fns{ii}) = val';
     end
-    
+
     % add latents
     trials.latents = io.convertRawSpikesToRawLatents(...
         D.simpleData.nullDecoder, trials.spikes')';

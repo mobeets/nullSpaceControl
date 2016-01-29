@@ -24,10 +24,21 @@ function plotHyp(D, H, fldr, doSave, doStick)
             end
         end
     end
-    fig = figure;
-    plot.errorByKinematics(D, H, H.name, 16);
+    
+    % norms by kinematics
+    fig = figure; nm = [D.datestr ' Blk2 - ' H.name];
+    ths = D.blocks(2).thetas + 180;
+    Y1 = D.blocks(2).latents;
+    [ys, xs] = plot.valsByKinematics(D, ths, Y1, [], 8, true, 2);
+    plot.byKinematics(xs, ys, nm, [0.2 0.2 0.8]);
+    Y2 = H.latents;
+    [ys, xs] = plot.valsByKinematics(D, ths, Y2, [], 8, true, 2);
+    plot.byKinematics(xs, ys, nm, [0.8 0.2 0.2]);
+    [ys, xs] = plot.valsByKinematics(D, ths, Y1, Y2, 8, true, 2);
+    plot.byKinematics(xs, ys, nm, [0.2 0.8 0.2]);
+    legend({'true', H.name, 'error'});
     if ~isempty(fldr)
-        saveas(fig, fullfile(fldr, [H.name '_kinErr']), 'png');
+        saveas(fig, fullfile(fldr, [H.name '_kinNorms']), 'png');
     end
     
     if ~doStick

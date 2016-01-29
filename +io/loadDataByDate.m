@@ -21,5 +21,7 @@ function D = loadDataByDate(datestr)
     D.datestr = datestr;
     D.kalmanInitParams = kalmanInitParams;
     D.simpleData = simpleData;
+    D.params = io.setParams(D);
+    D.trials = io.makeTrials(D);    
 
 end
