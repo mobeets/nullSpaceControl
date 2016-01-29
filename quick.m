@@ -10,7 +10,7 @@
 
 % dtstr = '20120601'; % 20120525 20120601 20131125 20131205
 D = io.loadDataByDate(dtstr);
-D.params = io.loadParams(D);
+D.params = io.setFilterDefaults(D.params);
 % D.params.MAX_ANGULAR_ERROR = 360;
 D.blocks = io.getDataByBlock(D);
 D.blocks = pred.addTrainAndTestIdx(D.blocks);
