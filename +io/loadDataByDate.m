@@ -7,5 +7,7 @@ function D = loadDataByDate(datestr)
     end
     data = load(fnm);
     D = data.D;
+    
+    D.params = io.setFilterDefaults(D.params);
 
 end
