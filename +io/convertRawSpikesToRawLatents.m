@@ -19,4 +19,9 @@ function latents = convertRawSpikesToRawLatents(decoder, spikes)
     b = top\(diag(sigma)\-mu);
     latents = bsxfun(@plus, L'*Asp, L'*b);
     
+    if isfield(decoder.FactorAnalysisParams, 'spikeRot')
+        % latents need rotating into new space
+        latents = decoder.FactorAnalysisParams.spikeRot'*latents;
+    end
+    
 end

@@ -10,6 +10,7 @@ function Z = uncContFit(D)
     Zsamps = D.blocks(1).latents(randi(ntB1, nt, 1),:);    
     Zn = Zsamps*(NB2*NB2');
     
+    % n.b. we could actually just stop here, since we have our Zn
     Zr = nan(nt,nn);
     for t = 1:nt
         Zr(t,:) = pred.rowSpaceFit(B2, B2.fDecoder, NB2, RB2, t);

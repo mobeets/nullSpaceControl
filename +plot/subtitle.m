@@ -6,9 +6,12 @@ function [ax,h] = subtitle(text, arg1, val1)
 %           returns handles to both the axis and the title.
 % ax=subtitle(text)
 %           returns a handle to the axis only.
+
     ax=axes('Units','Normal','Position',[.075 .075 .85 .85],'Visible','off');
     set(get(ax,'Title'), 'Visible', 'on');
-    set(ax, arg1, val1);
+    if nargin > 1
+        set(ax, arg1, val1);
+    end
     title(text);
     if (nargout < 2)
         return

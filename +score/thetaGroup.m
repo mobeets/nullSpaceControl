@@ -6,8 +6,9 @@ function grps = thetaGroup(xs, centers, theta_tol)
     bnds = [centers - theta_tol centers + theta_tol];
     bnds(bnds < 0) = 360 + bnds(bnds < 0);
 
-    grps = nan(size(bnds,1),1);
+    grps = nan(size(xs,1),1);
     for ii = 1:size(bnds,1)
         grps(tools.isInRange(xs, bnds(ii,:))) = centers(ii);
     end
+
 end

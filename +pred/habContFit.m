@@ -8,17 +8,15 @@ function Z = habContFit(D)
     [nt, nn] = size(B2.latents);
     
     Zr = nan(nt,nn);
-    Zn = nan(nt,nn);
+    Zsamp = nan(nt,nn);
     for t = 1:nt
         % sample Z uniformly from times t in T1 where theta_t is
         % within 15 degs of theta
-        Zsamp = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1);
-%         Z(t,:) = Zsamp;
-        Zn(t,:) = Zsamp*(NB2*NB2');
-%         Zn(t,:) = Zsamp*(NR1*NR1')*(NB2*NB2');
+        Zsamp(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1);
         Zr(t,:) = pred.rowSpaceFit(B2, B2.fDecoder, NB2, RB2, t);
     end
-
+    
+    Zn = Zsamp*(NB2*NB2'); % = Zsamp*(NR1*NR1')*(NB2*NB2');
     Z = Zr + Zn;
 
 end

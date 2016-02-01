@@ -1,10 +1,10 @@
 function z = quadFireFit(Blk, t, f, decoder, fitInLatent)
 % 
 % Each u(t) in U is solution (using quadprog) to:
-%   min_u(t) norm(u(t))^2
+%   min_u norm(u + f)^2
 %      s.t.
-%         (1) u(t) ? 0
-%         (2) x1 = A2*x0 + B2*z(u(t)) + c2
+%         (1) u ? 0
+%         (2) x1 = A2*x0 + B2*u + c2
 % i.e.
 %   min_u (1/2)*u'*H*u + f'*u
 %      s.t.
@@ -19,7 +19,7 @@ function z = quadFireFit(Blk, t, f, decoder, fitInLatent)
     cc = decoder.M0;
         
     if ~fitInLatent
-        nd = size(Blk.nDecoder.M2, 2);
+        nd = size(decoder.M2, 2);
         H = eye(nd);
         A = -eye(nd);
         b = zeros(nd,1);
