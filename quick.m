@@ -23,7 +23,8 @@ D = tools.rotateLatentsUpdateDecoders(D);
 D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
 D.hyps = pred.addPrediction(D, 'zero', pred.meanFit(D, 'zero'));
 D.hyps = pred.addPrediction(D, 'best mean', pred.meanFit(D, 'best'));
-D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D));
+D.hyps = pred.addPrediction(D, 'kinematics mean (lts)', pred.cvMeanFit(D, false));
+D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D, true));
 
 %%
 
@@ -37,6 +38,13 @@ D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
 D.hyps = pred.addPrediction(D, 'habitual + rotated', ...
     pred.rotatedFit(D, pred.getHyp(D, 'habitual')));
 D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
+
+%%
+
+D.hyps = pred.addPrediction(D, 'volitional', pred.volContFit(D, true, 4));
+D = pred.nullActivity(D);
+D = score.scoreAll(D);
+[pred.getHyp(D, 'volitional').errOfMeans pred.getHyp(D, 'volitional + 2PCs').errOfMeans]
 
 %%
 

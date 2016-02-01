@@ -1,4 +1,4 @@
-function Z = cvMeanFit(D)
+function Z = cvMeanFit(D, doNull)
 % using the training set, take the mean latent activity
 %   for each kinematics condition
 % 
@@ -10,19 +10,29 @@ function Z = cvMeanFit(D)
     
     % mean for each kinematics condition
     ths = Blk.thetas(ix0,:) + 180;
-    ys = Blk.latents(ix0,:)*NB;
     cnts = score.thetaCenters(8);
+    ys = Blk.latents(ix0,:);
+    if doNull
+        ys = ys*NB;
+    end
     mus = score.avgByThetaGroup(ths, ys, cnts);
     
     % find kinematics condition for each point in test data
     xs = Blk.thetas(ix1,:) + 180;
     grps = score.thetaGroup(xs, cnts);
     
-    inds = 1:numel(ix1); inds = inds(ix1);
-    Zn = nan(size(Blk.latents,1), size(NB,2));
-    for ii = 1:numel(grps)
-        Zn(inds(ii),:) = mus(cnts == grps(ii),:);
+    if doNull
+        Z = nan(size(Blk.latents,1), size(NB,2));
+    else
+        Z = nan(size(Blk.latents));
     end
-    Z = Zn*NB';
+    
+    inds = 1:numel(ix1); inds = inds(ix1);
+    for ii = 1:numel(grps)
+        Z(inds(ii),:) = mus(cnts == grps(ii),:);
+    end
+    if doNull
+        Z = Z*NB';
+    end
     
 end
