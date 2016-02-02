@@ -8,14 +8,14 @@
 
 %% load and prepare data
 
-dtstr = '20131205'; % 20120525 20120601 20131125 20131205
+dtstr = '20120601'; % 20120525 20120601 20131125 20131205
 D = io.loadDataByDate(dtstr);
 D.params = io.setFilterDefaults(D.params);
 % D.params.MAX_ANGULAR_ERROR = 360;
 D.blocks = io.getDataByBlock(D);
 D.blocks = pred.addTrainAndTestIdx(D.blocks);
 D = io.addDecoders(D);
-D = tools.rotateLatentsUpdateDecoders(D);
+% D = tools.rotateLatentsUpdateDecoders(D);
 
 %% make predictions
 
@@ -62,9 +62,9 @@ D.hyps = pred.addPrediction(D, 'volitional + 4PCs', ...
 
 D = pred.nullActivity(D);
 D = score.scoreAll(D);
-[D.hyps.errOfMeans]%; F.hyps(1:numel(D.hyps)).errOfMeans]
+[D.hyps.errOfMeans]
 figure; plot.errOfMeans(D.hyps(2:end));
-% figure; plot.errOfMeans(F.hyps(2:end));
+figure; plot.covRatio(D.hyps(2:end));
 
 %% visualize
 
