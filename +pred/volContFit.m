@@ -33,13 +33,8 @@ function Z = volContFit(D, addPrecursor, useL)
         end
         
         if useL > 2 % meet kinematics, minimize to baseline
-            oldDec = decoder;
             decoder.M2 = decoder.M2*RB1;
             z = pred.quadFireFit(B2, t, [], decoder, false);
-            if isempty(z)
-                Zvol(t,:) = pred.rowSpaceFit(B2, oldDec, NB1, RB1, t);
-                continue;
-            end
             Zvol(t,:) = RB1*z;
         else
             Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, RB1, t);

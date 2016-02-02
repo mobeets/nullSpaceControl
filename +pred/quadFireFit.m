@@ -40,5 +40,10 @@ function z = quadFireFit(Blk, t, f, decoder, fitInLatent)
     if ~exitflag
         warning('quadprog optimization incomplete, but stopped.');
     end
+    if isempty(z)
+%         warning('Relaxing non-negative constraint.');
+        z = quadprog(H, f, [], [], Aeq, beq, ...
+            [],[],[], options);
+    end
     
 end
