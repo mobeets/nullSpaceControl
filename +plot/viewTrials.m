@@ -1,7 +1,7 @@
 
-F = io.loadRawDataByDate('20120601'); % '20131205');
-ps = F.simpleData.decodedPositions;
-trg = F.simpleData.targetLocations;
+D = io.loadRawDataByDate('20120601'); % '20131205');
+ps = D.simpleData.decodedPositions;
+trg = D.simpleData.targetLocations;
 trgs = unique(trg, 'rows');
 
 %%
@@ -29,16 +29,24 @@ end
 
 %% distribution of trial lengths, by target angle
 
+ix0 = D.trials.block_index == 2;
+ix0 = unique(D.trials.trial_index(ix0));
+ts = 1:numel(ps);
+ts = ts(ix0);
+
 tms = arrayfun(@(ii) size(ps{ii},1), 1:numel(ps));
-gls = F.simpleData.targetAngles;
+gls = D.simpleData.targetAngles;
 allgls = sort(unique(gls));
+
+tms = tms(ts);
+gls = gls(ts);
 
 mxtm = 150;
 figure; set(gcf, 'color', 'w');
 for ii = 1:numel(allgls)
     subplot(numel(allgls), 1, ii); hold on;
     box off; set(gca, 'FontSize', 14);
-    ys = tms(gls == allgls(ii) & tms' < mxtm);
+    ys = tms(gls == allgls(ii) & tms' < mxtm & ix0);
     hist(ys, linspace(0, mxtm, 30));
     plot([median(ys) median(ys)], ylim, 'r', 'LineWidth', 3);
     xlim([0 mxtm]);
@@ -124,31 +132,105 @@ legend(arrayfun(@(g) num2str(g), allgls, 'uni', 0));
 
 fignm = '';
 
-B = D.blocks(1);
+B = D.blocks(2);
 gls = B.thetaGrps;
-NB = D.blocks(1).fDecoder.RowM2;
+NB = D.blocks(2).fDecoder.NulM2;
+RB = D.blocks(2).fDecoder.RowM2;
 
 % B = D.trials;
 % gls = B.thetaGrps(B.block_index == 1);
 
 allgls = sort(unique(gls(~isnan(gls))));
-fig = figure; plot.subtitle(fignm);
+fig = figure; hold on;
+% plot.subtitle(fignm);
 for ii = 1:numel(allgls)
-	subplot(3, 3, ii);
-    hold on; set(gcf, 'color', 'w'); box off;
+% 	subplot(3, 3, ii);
+%     hold on;
+    set(gcf, 'color', 'w'); box off;
     set(gca, 'FontSize', 14);
-    xlabel('angular error');
-    ylabel(['\theta = ' num2str(allgls(ii))]);
+    xlabel('\theta');
+%     xlabel('angular error');
+%     ylabel(['\theta = ' num2str(allgls(ii))]);
     ix = gls == allgls(ii);% & ix0;
     xs = B.angError(ix);
-    lts = B.latents(ix,:);%*NB;
+    lts = B.latents(ix,:)*NB;
 %     lts = mean(lts);
 %     vals = norm(lts)*ones(size(xs));
     vals = arrayfun(@(ii) norm(lts(ii,:)), 1:size(lts,1));
-    plot(xs, vals, '.');
-    plot(xlim, [mean(vals) mean(vals)], 'k', 'LineWidth', 3);
-    xlim([-20 20]);
-    ylim([0 10]);
-    set(gca, 'YTick', 0:10);
+%     plot(xs, vals, '.');
+%     plot(xlim, [mean(vals) mean(vals)], 'k', 'LineWidth', 3);
+    plot(allgls(ii), mean(vals), 'ko', 'MarkerFaceColor', [0.2 0.2 0.8]);
+    
+    lts = B.latents(ix,:)*RB;
+    vals = arrayfun(@(ii) norm(lts(ii,:)), 1:size(lts,1));
+    plot(allgls(ii), mean(vals), 'ko', 'MarkerFaceColor', [0.2 0.8 0.2]);
+    
+    lts = B.latents(ix,:);
+    vals = arrayfun(@(ii) norm(lts(ii,:)), 1:size(lts,1));
+    plot(allgls(ii), mean(vals), 'ko', 'MarkerFaceColor', [0.8 0.2 0.2]);
+%     xlim([-20 20]);
+%     ylim([0 10]);
+    ylim([0 3]);
+%     set(gca, 'YTick', 0:10);
 end
 % saveas(fig, ['plots/' fignm], 'png');
+
+%%
+
+B = D.blocks(1);
+valf = @(lts) arrayfun(@(ii) norm(lts(ii,:)), 1:size(lts,1));
+Y = valf(B.latents);
+YN = valf(B.latents*B.fDecoder.NulM2);
+YR = valf(B.latents*B.fDecoder.RowM2);
+figure; hold on;
+plot(Y, '.', 'Color', [0.8 0.2 0.2]);
+plot(YN, '.', 'Color', [0.2 0.8 0.2]);
+plot(YR, '.', 'Color', [0.2 0.2 0.8]);
+plot(xlim, [mean(Y) mean(Y)], 'Color', [0.8 0.2 0.2]);
+plot(xlim, [mean(YN) mean(YN)], 'Color', [0.2 0.8 0.2]);
+plot(xlim, [mean(YR) mean(YR)], 'Color', [0.2 0.2 0.8]);
+
+%%
+
+
+fignm = '';
+bind = 2;
+nbind = 2;
+B = D.blocks(bind);
+gls = B.thetaGrps;
+NB = D.blocks(nbind).fDecoder.NulM2;
+RB = D.blocks(nbind).fDecoder.RowM2;
+
+Y = nan(size(allgls));
+YN = nan(size(allgls));
+YR = nan(size(allgls));
+
+allgls = sort(unique(gls(~isnan(gls))));
+for ii = 1:numel(allgls)    
+    ix = gls == allgls(ii);
+    lts = B.latents(ix,:)*NB;
+    YN(ii) = mean(arrayfun(@(ii) norm(lts(ii,:)), 1:size(lts,1)));
+    lts = B.latents(ix,:)*RB;
+    YR(ii) = mean(arrayfun(@(ii) norm(lts(ii,:)), 1:size(lts,1)));
+    lts = B.latents(ix,:);
+    Y(ii) = mean(arrayfun(@(ii) norm(lts(ii,:)), 1:size(lts,1)));
+end
+
+% fig = figure; hold on;
+lw = 3;
+set(gcf, 'color', 'w'); box off;
+set(gca, 'FontSize', 14);
+xlabel('\theta');
+ylabel('mean(norm)');
+clrs = cbrewer('qual', 'Set2', 3);
+nms = {'full', 'null', 'row'};
+plot(allgls, Y, 'k', 'Color', clrs(1,:), 'MarkerFaceColor', clrs(1,:), ...
+    'LineWidth', lw);
+plot(allgls, YN, 'k', 'Color', clrs(2,:), 'MarkerFaceColor', clrs(2,:), ...
+    'LineWidth', lw);
+plot(allgls, YR, 'k', 'Color', clrs(3,:), 'MarkerFaceColor', clrs(3,:), ...
+    'LineWidth', lw);
+legend(nms);
+ylim([0 4]);
+% title(['Blk1 in Blk1 (' D.datestr ')']);
+title(['Blk1/Blk2 in Blk2 (' D.datestr ')']);

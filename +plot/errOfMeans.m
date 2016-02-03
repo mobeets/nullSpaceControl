@@ -1,4 +1,7 @@
-function errOfMeans(hyps)
+function errOfMeans(hyps, nm)
+    if nargin < 2
+        nm = '';
+    end
 
     ys = [hyps.errOfMeans];
     nms = {hyps.name};
@@ -16,5 +19,6 @@ function errOfMeans(hyps)
     set(gca, 'XTickLabelRotation', 45);
     
     ylabel('Error of means');
+    title(nm);
 
 end

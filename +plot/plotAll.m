@@ -1,9 +1,12 @@
-function plotAll(D, Hs, doSave, isMaster)
+function plotAll(D, Hs, doSave, isMaster, doSolos)
     if nargin < 3
         doSave = false;
     end
     if nargin < 4
         isMaster = false;
+    end
+    if nargin < 5
+        doSolos = true;
     end
     if doSave
         fldr = plot.getFldr(D, isMaster);
@@ -13,8 +16,10 @@ function plotAll(D, Hs, doSave, isMaster)
     
     close all;
     
-    for ii = 1:numel(Hs)
-        plot.plotHyp(D, Hs(ii), fldr); 
+    if doSolos
+        for ii = 1:numel(Hs)
+            plot.plotHyp(D, Hs(ii), fldr); 
+        end
     end
     
     % Plot error of means

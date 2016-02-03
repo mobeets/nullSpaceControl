@@ -23,7 +23,7 @@ function covRatio(hyps)
     set(gca, 'YScale', 'log');
     set(gca,'YMinorTick','off');
 %     set(gca, 'YTick', 10.^(-4:2));
-%     axis([0 numel(nms)+1 10^-1 10^1]);
+    axis([0 numel(nms)+1 10^-1 10^1]);
     
     ylabel('Covariance ratio');
 
