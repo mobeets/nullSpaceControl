@@ -15,7 +15,7 @@ D.params.MAX_ANGULAR_ERROR = 360;
 D.blocks = io.getDataByBlock(D);
 D.blocks = pred.addTrainAndTestIdx(D.blocks);
 D = io.addDecoders(D);
-D = tools.rotateLatentsUpdateDecoders(D, false);
+D = tools.rotateLatentsUpdateDecoders(D, true);
 
 %% make predictions
 
@@ -36,7 +36,6 @@ D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D));
 D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
 % D.hyps = pred.addPrediction(D, 'habitual + rotated', ...
 %     pred.rotatedFit(D, pred.getHyp(D, 'habitual')));
-D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
 
 %%
 
@@ -64,7 +63,7 @@ D = pred.nullActivity(D);
 D = score.scoreAll(D);
 [D.hyps.errOfMeans]
 figure; plot.errOfMeans(D.hyps(2:end), D.datestr);
-% figure; plot.covRatio(D.hyps(2:end));
+figure; plot.covRatio(D.hyps(2:end));
 
 %% visualize
 

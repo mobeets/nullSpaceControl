@@ -14,7 +14,7 @@ function [vals, cnts] = valsByKinematics(D, xs, Y1, Y2, nbins, ...
         nbind = bind;
     end
         
-    cnts = score.thetaCenters(nbins);    
+    cnts = score.thetaCenters(nbins);
     
     % filter out nans
     ix = ~isnan(sum(Y1,2));
