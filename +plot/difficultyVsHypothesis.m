@@ -54,15 +54,16 @@ ratsDiff = arrayfun(@(ii) ratsEnd{ii} - ratsInit{ii}, ...
 
 %% compare a hypothesis with a difficulty metric
 
-xs0 = ysHab;
-vs0 = ratsDiff;
+xs0 = ysVol;
+vs0 = ratsInit;
 xnm = 'volitional';
-ynm = 'endDiff - initDiff';
+ynm = 'initDiff';
 clrByDt = true;
 
+nm = [xnm ' - ' ynm];
 dtnms = dts;
 knnms = arrayfun(@(x) num2str(x), cnts, 'uni', 0);
-[ndts, nkins] = size(ysHab);
+[ndts, nkins] = size(xs0);
 clrs1 = cbrewer('qual', 'Set2', ndts);
 clrs2 = cbrewer('div', 'RdYlGn', nkins);
 
@@ -78,7 +79,7 @@ else
     clrs = clrs1;
 end
 
-figure; hold on; set(gcf, 'color', 'w');
+fig = figure; hold on; set(gcf, 'color', 'w');
 
 for ii = 1:numel(vs)
     subplot(numel(vs), 1, ii); hold on; box off; 
@@ -86,7 +87,7 @@ for ii = 1:numel(vs)
     xlabel([xnm ' error']);
     ylabel(fns{ii});
     if ii == 1
-        title([xnm ' - ' ynm]);
+        title(nm);
     end
     v = vs{ii};
     for jj = 1:size(xs,1)
@@ -99,3 +100,6 @@ for ii = 1:numel(vs)
     legend(nms, 'Location', 'BestOutside');
 end
 
+set(fig, 'Position', [100, 100, 400, 600]);
+fig.PaperPositionMode = 'auto';
+print(fullfile('plots', 'diffVsError', nm), '-dpng', '-r0');

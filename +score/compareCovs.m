@@ -16,4 +16,8 @@ function [s, s2, s3] = compareCovs(D1, D2)
     s = 2*sum((v11 - v21).^2 + (v12 - v22).^2); % s = s2 + s3
     s2 = sum(((v11 + v22) - (v12 + v21)).^2); % orientation
     s3 = sum(((v11 + v12) - (v21 + v22)).^2); % shape
+    
 end
+
+% || v11 - v21 ||^2 + || v12 - v22 ||^2 = overall
+% || (v11 - v12) + (v22 - v21) ||^2 = orientation

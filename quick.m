@@ -8,7 +8,7 @@
 
 %% load and prepare data
 
-dtstr = '20120601'; % 20120525 20120601 20131125 20131205
+dtstr = '20120525'; % 20120525 20120601 20131125 20131205
 D = io.loadDataByDate(dtstr);
 D.params = io.setFilterDefaults(D.params);
 D.params.MAX_ANGULAR_ERROR = 360;
@@ -51,6 +51,12 @@ D.hyps = pred.addPrediction(D, 'volitional', pred.volContFit(D, true, 0));
 %     pred.volContFit(D, true, 1));
 D.hyps = pred.addPrediction(D, 'volitional + 2PCs', ...
     pred.volContFit(D, true, 2));
+
+% D.hyps = pred.addPrediction(D, 'volitional + 2PCs v2', ...
+%     pred.volContFit(D, true, 2));
+
+% D.hyps = pred.addPrediction(D, 'volitional + 2PCs + noPre', ...
+%     pred.volContFit(D, false, 2));
 % D.hyps = pred.addPrediction(D, 'volitional + 3PCs', ...
 %     pred.volContFit(D, true, 3));
 % D.hyps = pred.addPrediction(D, 'volitional + 4PCs', ...
@@ -62,12 +68,18 @@ D.hyps = pred.addPrediction(D, 'volitional + 2PCs', ...
 D = pred.nullActivity(D);
 D = score.scoreAll(D);
 [D.hyps.errOfMeans]
+% [D.hyps(2).covError D.hyps(end).covError]
+
+%%
 figure; plot.errOfMeans(D.hyps(2:end), D.datestr);
 figure; plot.covRatio(D.hyps(2:end));
+figure; plot.covError(D.hyps(2:end), D.datestr);
+figure; plot.covError(D.hyps(2:end), D.datestr, 'covErrorOrient');
+figure; plot.covError(D.hyps(2:end), D.datestr, 'covErrorShape');
 
 %% visualize
 
-plot.plotAll(D, D.hyps(2:end), true, false, false);
+plot.plotAll(D, D.hyps(2:end), true, false, true);
 % tmp(D, D.hyps(2:end));
 
 %%

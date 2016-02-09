@@ -12,6 +12,9 @@ function D = scoreAll(D)
         if ix(ii)
             D.hyps(ii).errOfMeans = nan;
             D.hyps(ii).covRatio = nan;
+            D.hyps(ii).covError = nan;
+            D.hyps(ii).covErrorOrient = nan;
+            D.hyps(ii).covErrorShape = nan;
         end
         hyp = D.hyps(ii).null(bind);
         zNull0 = hyp.zNullBin;
@@ -28,6 +31,10 @@ function D = scoreAll(D)
         end
         D.hyps(ii).errOfMeans = score.errOfMeans(zMu, zMu0);
         D.hyps(ii).covRatio = score.covRatio(zCov, zCov0);
+        [s,s2,s3] = score.covError(zNull, zNull0);
+        D.hyps(ii).covError = s;
+        D.hyps(ii).covErrorOrient = s2;
+        D.hyps(ii).covErrorShape = s3;
     end
 
 end

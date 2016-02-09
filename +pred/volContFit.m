@@ -29,6 +29,7 @@ function Z = volContFit(D, addPrecursor, useL)
         decoder = B2.fDecoder;
         if addPrecursor
             Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, nan, true);
+%             Zpre(t,:) = pred.randZIfNearbyMinTheta(B2.thetas(t) + 180, B1, 10);
             decoder.M0 = decoder.M0 + decoder.M2*Zpre(t,:)';
         end
         
