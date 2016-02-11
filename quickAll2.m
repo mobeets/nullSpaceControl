@@ -1,6 +1,7 @@
 
 dts = {'20120525', '20120601', '20131125', '20131205'};
 Bs = cell(numel(dts),1);
+scs = cell(numel(dts),1);
 for ii = 1:numel(dts)
     dtstr = dts{ii}
     D = io.loadDataByDate(dtstr);
@@ -13,14 +14,28 @@ for ii = 1:numel(dts)
     
     D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
     D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
+    D.hyps = pred.addPrediction(D, 'volitional w/ 2Fs', ...
+        pred.volContFit(D, true, 2));
+    D.hyps = pred.addPrediction(D, 'volitional w/ 2Fs (s=5)', ...
+        pred.volContFit(D, true, 2, 5));
     
+    D = pred.nullActivity(D);
+    D = score.scoreAll(D);
+    scs{ii} = [D.hyps.errOfMeans; D.hyps.covErrorOrient; D.hyps.covErrorShape];
+
     B = D.blocks(2);
+    B.datestr = D.datestr;
     B = rmfield(B, 'spikes');
     B.habitual = D.hyps(2).latents;
+    B.volitional = D.hyps(3).latents;
+    B.volitionalScale = D.hyps(4).latents;
+%     B.angErrorOG = D.blocks(1).angError;
+%     B.thetaGrpsOG = D.blocks(1).thetaGrps;
     Bs{ii} = B;
+    
 end
 
-%%
+%% add null activity
 
 for ii = 1:numel(Bs)
     B = Bs{ii};
@@ -30,6 +45,7 @@ for ii = 1:numel(Bs)
     B.Nul = NB;
     B.habitualNul = B.habitual*NB;
     B.latentsNul = B.latents*NB;
+    B.volitionalNul = B.volitional*NB;
     B.errorNul = B.habitualNul - B.latentsNul;
     B.normErrNul = arrayfun(@(ii) norm(B.errorNul(ii,:)), 1:size(B.errorNul,1))';
     B.progress = arrayfun(@(ii) B.movementVector(ii,:)*B.vec2target(ii,:)', 1:size(B.vec2target,1))';

@@ -12,6 +12,7 @@ function plotHyp(D, H, fldr, doSave, doStick)
         fldr = plot.getFldr(D);
     end
     doRotate = true;
+    disp('1');
     
     % plot all combos of doSolo and doTranspose
     for doSolo = 0:1
@@ -25,6 +26,7 @@ function plotHyp(D, H, fldr, doSave, doStick)
         end
     end
     
+    disp('2');
     % norms by kinematics
     fig = figure; nm = [D.datestr ' Blk2 - ' H.name];
     ths = D.blocks(2).thetas + 180;
@@ -45,6 +47,7 @@ function plotHyp(D, H, fldr, doSave, doStick)
         return;
     end
     
+    disp('3');
     % stick plot
     fig = figure;
     plot.stickPlot(D.hyps(1).nullOG(2).zMu, H.null(2).zMu, H.name);

@@ -2,7 +2,7 @@ function D = saveDataByDate(dtstr)
 
     DATADIR = getpref('factorSpace', 'data_directory');
 
-    D = loadRawDataByDate(dtstr);
+    D = io.loadRawDataByDate(dtstr);
     D.params = io.setParams(D);
     D.trials = io.makeTrials(D);
     timestamp = datetime();

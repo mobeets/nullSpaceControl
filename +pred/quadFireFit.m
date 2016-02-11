@@ -29,6 +29,8 @@ function z = quadFireFit(Blk, t, f, decoder, fitInLatent)
         A = []; % -ALinv
         b = []; % mu
     end
+    lb = [];
+    ub = [];
     
     Aeq = Bc; % s.t. Aeq*u = Bc*z(u); might need to add term to beq
     beq = x1 - Ac*x0 - cc;
@@ -36,7 +38,7 @@ function z = quadFireFit(Blk, t, f, decoder, fitInLatent)
     options = optimset('Algorithm', 'interior-point-convex', ...
         'Display', 'off');
     [z, ~, exitflag] = quadprog(H, f, A, b, Aeq, beq, ...
-        [],[],[], options);
+        lb, ub, [], options);
     if ~exitflag
         warning('quadprog optimization incomplete, but stopped.');
     end

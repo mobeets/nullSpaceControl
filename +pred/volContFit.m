@@ -1,6 +1,9 @@
-function Z = volContFit(D, addPrecursor, useL)
+function [Z, Zpre, Zvol] = volContFit(D, addPrecursor, useL, scaleVol)
     if nargin < 3
         useL = false;
+    end
+    if nargin < 4
+        scaleVol = 1;
     end
 
     B1 = D.blocks(1);
@@ -26,7 +29,16 @@ function Z = volContFit(D, addPrecursor, useL)
     for t = 1:nt
         % sample Z uniformly from times t in T1 where theta_t is
         % within 15 degs of theta
+        if mod(t, 100) == 0
+            disp([num2str(t) ' of ' num2str(nt)]);
+        end
         decoder = B2.fDecoder;
+        
+        Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, nan, true);
+        Zvol(t,:) = solveInBounds2(B2, t, decoder, RB1, B1, Zpre(t,:));
+        Zpre(t,:) = zeros(1,nn);
+        continue;
+        
         if addPrecursor
             Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, nan, true);
 %             Zpre(t,:) = pred.randZIfNearbyMinTheta(B2.thetas(t) + 180, B1, 10);
@@ -34,13 +46,116 @@ function Z = volContFit(D, addPrecursor, useL)
         end
         
         if useL > 2 % meet kinematics, minimize to baseline
-            decoder.M2 = decoder.M2*RB1;
-            z = pred.quadFireFit(B2, t, [], decoder, false);
-            Zvol(t,:) = RB1*z;
+            Zvol(t,:) = solveInBounds(B2, t, decoder, RB1, B1, Zpre(t,:));
+%             decoder.M2 = decoder.M2*RB1;            
+%             z = pred.quadFireFit(B2, t, [], decoder, false);
+%             Zvol(t,:) = RB1*z;
         else
             Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, RB1, t);
-        end
+        end        
     end
-    Z = Zvol + Zpre;
+    Z = Zvol/scaleVol + Zpre;
     
 end
+
+function x = solveInBounds1(Blk, t, decoder, RB, Blk0, zPre)
+    x1 = Blk.vel(t,:)';
+    x0 = Blk.velPrev(t,:)';
+    Ac = decoder.M1;
+    Bc = decoder.M2;
+    cc = decoder.M0;
+    
+    cc = cc + Bc*zPre';
+    Aeq = Bc*RB;
+    beq = x1 - Ac*x0 - cc;
+    
+    % combine all inequality constraints
+    lb = min(Blk0.latents) - zPre;
+    ub = max(Blk0.latents) - zPre;
+    A = [-RB; RB];
+    b = [-lb'; ub'];
+    
+    z0 = Aeq \ beq;
+    if all(A*z0 < b)
+        x = RB*z0 + zPre';
+        return;
+    end
+    z0 = zeros(size(A,2),1);
+    options = optimset('Display', 'off');
+    
+    % find closest to solution to obeying cursor that stays in bounds
+    obj = @(x) norm(beq - Aeq*x);
+    x = zPre' + RB*fmincon(obj, z0, A, b, [], [], [], [], [], options);
+end
+
+function x = solveInBounds2(Blk, t, decoder, RB, Blk0, zPre)
+    x1 = Blk.vel(t,:)';
+    x0 = Blk.velPrev(t,:)';
+    Ac = decoder.M1;
+    Bc = decoder.M2;
+    cc = decoder.M0;
+    
+    cc = cc + Bc*zPre';
+    Aeq = Bc*RB;
+    beq = x1 - Ac*x0 - cc;
+    
+    % combine all inequality constraints
+    lb = min(Blk0.latents) - zPre;
+    ub = max(Blk0.latents) - zPre;
+    A = [-RB; RB];
+    b = [-lb'; ub'];
+    
+    z0 = Aeq \ beq;
+    options = optimset('Display', 'off');
+    
+    % find minimum-norm solution obeying cursor and bounds
+    obj = @(x) norm(zPre' + RB*x);
+    x = zPre' + RB*fmincon(obj, z0, A, b, Aeq, beq, [], [], [], options);
+
+end
+
+function x = solveInBounds(Blk, t, decoder, RB, Blk0, zPre)
+    x1 = Blk.vel(t,:)';
+    x0 = Blk.velPrev(t,:)';
+    Ac = decoder.M1;
+    Bc = decoder.M2;
+    cc = decoder.M0;
+    
+    % combine all inequality constraints
+    lb = min(Blk0.latents);
+    ub = max(Blk0.latents);
+    A = [-RB; RB];
+    b = [-lb'; ub'];
+    
+    % check if we already have valid solution
+    ccOG = cc;
+    cc = cc + Bc*zPre';
+    Aeq = Bc*RB;
+    beq = x1 - Ac*x0 - cc;
+    z0 = Aeq \ beq;
+    if all(A*z0 + [zPre'; zPre'] < b)
+        x = RB*z0 + zPre';
+        return;
+    else
+        cc = ccOG;
+        Aeq = Bc*RB;
+        beq = x1 - Ac*x0 - cc;
+    end
+
+    % find closest solution to precursor activity that obeys cursor and
+    % bounds
+    options = optimset('Display', 'off');
+    obj = @(x) norm(zPre' - RB*x);
+    x = RB*fmincon(obj, z0, A, b, Aeq, beq, [], [], [], options);
+    
+%     nd = size(Aeq, 2);
+%     H = eye(nd);
+%     A = -eye(nd);
+%     b = zeros(nd,1);
+%     [z, ~, exitflag] = quadprog(H, f, A, b, Aeq, beq, ...
+%         lb, ub, [], options);
+
+end
+
+
+

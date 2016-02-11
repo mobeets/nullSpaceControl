@@ -8,7 +8,7 @@
 
 %% load and prepare data
 
-dtstr = '20120525'; % 20120525 20120601 20131125 20131205
+dtstr = '20120601'; % 20120525 20120601 20131125 20131205
 D = io.loadDataByDate(dtstr);
 D.params = io.setFilterDefaults(D.params);
 D.params.MAX_ANGULAR_ERROR = 360;
@@ -49,8 +49,21 @@ D.hyps = pred.addPrediction(D, 'volitional', pred.volContFit(D, true, 0));
 
 % D.hyps = pred.addPrediction(D, 'volitional + 2PCsV2', ...
 %     pred.volContFit(D, true, 1));
-D.hyps = pred.addPrediction(D, 'volitional + 2PCs', ...
+D.hyps = pred.addPrediction(D, 'volitional w/ 2Fs', ...
     pred.volContFit(D, true, 2));
+D.hyps = pred.addPrediction(D, 'volitional w/ 2FsB (s=5)', ...
+    pred.volContFit(D, true, 2, 5));
+
+%%
+
+D.hyps = pred.addPrediction(D, 'volitional w/ 3Fs2b', ...
+    pred.volContFit(D, true, 3));
+
+% 
+% D.hyps = pred.addPrediction(D, 'precursor + 2Fs', ...
+%     pred.volContFit(D, true, 2));
+% D.hyps = pred.addPrediction(D, '2Fs', ...
+%     pred.volContFit(D, false, 2));
 
 % D.hyps = pred.addPrediction(D, 'volitional + 2PCs v2', ...
 %     pred.volContFit(D, true, 2));
@@ -65,9 +78,12 @@ D.hyps = pred.addPrediction(D, 'volitional + 2PCs', ...
 %% calculate mean activity in null space of shuffle basis
 %   and assess errors in hypotheses
 
+disp('-----');
 D = pred.nullActivity(D);
 D = score.scoreAll(D);
 [D.hyps.errOfMeans]
+[D.hyps.covErrorOrient]
+[D.hyps.covErrorShape]
 % [D.hyps(2).covError D.hyps(end).covError]
 
 %%
@@ -79,13 +95,13 @@ figure; plot.covError(D.hyps(2:end), D.datestr, 'covErrorShape');
 
 %% visualize
 
-plot.plotAll(D, D.hyps(2:end), true, false, true);
+plot.plotAll(D, D.hyps(2:end), false, false, true);
 % tmp(D, D.hyps(2:end));
 
 %%
 
 % figure; plot.errOfMeans(D.hyps(2:end));
 % figure; plot.errOfMeans(F.hyps(2:end));
-plot.plotHyp(F, pred.getHyp(F, 'volitional + 2PCs'));
-plot.plotHyp(D, pred.getHyp(D, 'volitional + 2PCs'));
+% plot.plotHyp(F, pred.getHyp(F, 'volitional + 2PCs'));
+plot.plotHyp(D, pred.getHyp(D, 'volitional w/ 2Fs (s=5)'));
 
