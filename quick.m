@@ -8,7 +8,7 @@
 
 %% load and prepare data
 
-dtstr = '20120601'; % 20120525 20120601 20131125 20131205
+dtstr = '20131205'; % 20120525 20120601 20131125 20131205
 D = io.loadDataByDate(dtstr);
 D.params = io.setFilterDefaults(D.params);
 D.params.MAX_ANGULAR_ERROR = 360;
@@ -18,6 +18,20 @@ D = io.addDecoders(D);
 D = tools.rotateLatentsUpdateDecoders(D, true);
 
 %% make predictions
+
+D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
+D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
+D.hyps = pred.addPrediction(D, 'cloud min', pred.sameCloudFit(D));
+D.hyps = pred.addPrediction(D, 'cloud theta', pred.sameCloudFit(D, nan, 15));
+D.hyps = pred.addPrediction(D, 'cloud', pred.sameCloudFit(D, 0.5, 15));
+D = pred.nullActivity(D);
+D = score.scoreAll(D);
+close all;
+figure; plot.errOfMeans(D.hyps(2:end), D.datestr);
+figure; plot.covError(D.hyps(2:end), D.datestr, 'covErrorOrient');
+figure; plot.covError(D.hyps(2:end), D.datestr, 'covErrorShape');
+
+%%
 
 % D = rmfield(D, 'hyps');
 D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
@@ -30,6 +44,11 @@ D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D, true));
 D.hyps = pred.addPrediction(D, 'minimum', pred.minFireFit(D));
 D.hyps = pred.addPrediction(D, 'baseline', pred.baseFireFit(D));
 D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D));
+
+%%
+
+D.hyps = pred.addPrediction(D, 'cloud', pred.sameCloudFit(D, 2));
+D.hyps = pred.addPrediction(D, 'cloud min', pred.sameCloudFit(D));
 
 %%
 
@@ -88,8 +107,8 @@ D = score.scoreAll(D);
 
 %%
 figure; plot.errOfMeans(D.hyps(2:end), D.datestr);
-figure; plot.covRatio(D.hyps(2:end));
-figure; plot.covError(D.hyps(2:end), D.datestr);
+% figure; plot.covRatio(D.hyps(2:end));
+% figure; plot.covError(D.hyps(2:end), D.datestr);
 figure; plot.covError(D.hyps(2:end), D.datestr, 'covErrorOrient');
 figure; plot.covError(D.hyps(2:end), D.datestr, 'covErrorShape');
 

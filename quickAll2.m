@@ -12,6 +12,11 @@ for ii = 1:numel(dts)
     D = io.addDecoders(D);
     D = tools.rotateLatentsUpdateDecoders(D, true);
     
+    B = D.blocks(2);
+    B.datestr = D.datestr;
+    Bs3{ii} = B;
+    continue;
+    
     D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
     D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
     D.hyps = pred.addPrediction(D, 'volitional w/ 2Fs', ...
