@@ -43,7 +43,7 @@ end
 
 % show cursor
 close all;
-figure;
+figure; set(gcf, 'color', 'w'); box off; axis off;
 lb = max(abs(ps(:))); lb = 1.05*lb;
 for t = 1:nt
     scatter(ps(t,1), ps(t,2), 'o');
