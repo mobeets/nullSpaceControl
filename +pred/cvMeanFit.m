@@ -18,8 +18,9 @@ function Z = cvMeanFit(D, doNull)
     [mus, ses, covs] = score.avgByThetaGroup(ths, ys, cnts);
     
     % find kinematics condition for each point in test data
-    xs = Blk.thetas(ix1,:) + 180;
-    grps = score.thetaGroup(xs, cnts);
+%     xs = Blk.thetas(ix1,:) + 180;
+%     grps = score.thetaGroup(xs, cnts);
+    grps = score.thetaGroup(Blk.thetas + 180, cnts);
     
     if doNull
         Z = nan(size(Blk.latents,1), size(NB,2));
@@ -29,8 +30,7 @@ function Z = cvMeanFit(D, doNull)
     
     for ii = 1:numel(cnts)
         ix = cnts(ii) == grps;
-%         Z(ix,:) = mvnrnd(mus(ii,:), diag(ses(ii,:)), sum(ix));
-        Z(ix,:) = mvnrnd(mus(ii,:), covs{ii}, sum(ix));
+        Z(ix & ix1,:) = mvnrnd(mus(ii,:), covs{ii}, sum(ix & ix1));
     end
     if doNull
         Z = Z*NB';

@@ -1,6 +1,6 @@
 function Blks = addTrainAndTestIdx(Blks0, trainPct)
     if nargin < 2
-        trainPct = 0.8;
+        trainPct = 0.5;
     end
     Blks = struct([]);
     for ii = 1:numel(Blks0)

@@ -1,4 +1,4 @@
-function Z = sameCloudFit(D, d_min, theta_tol, fnms, threshes, rotTheta)
+function Z = sameCloudFit(D, d_min, theta_tol, fnms, threshes, rotThetas)
     if nargin < 2
         d_min = nan;
     end
@@ -12,7 +12,7 @@ function Z = sameCloudFit(D, d_min, theta_tol, fnms, threshes, rotTheta)
         threshes = {};
     end
     if nargin < 6
-        rotTheta = 0;
+        rotThetas = 0;
     end
     
     B1 = D.blocks(1);
@@ -50,6 +50,14 @@ function Z = sameCloudFit(D, d_min, theta_tol, fnms, threshes, rotTheta)
 %             bnds = mod([theta - theta_tol theta + theta_tol], 360);
 %             nearbyIdxs = tools.isInRange(B1.thetas + 180, bnds);
 %             ds(~nearbyIdxs) = inf;
+            if numel(rotThetas) == 1
+                rotTheta = rotThetas;
+            else
+                assert(numel(rotThetas) == 8);
+                ind = score.thetaGroup(B2.thetas(t)+180, ...
+                    score.thetaCenters(8)) == score.thetaCenters(8);
+                rotTheta = rotThetas(ind);
+            end
             th = mod(B2.thetas(t)+180+rotTheta, 360);
             dsThetas = getAngleDistance(B1.thetas+180, th);
             ds(dsThetas > theta_tol) = inf;

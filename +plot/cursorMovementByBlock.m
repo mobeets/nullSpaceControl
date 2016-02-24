@@ -1,16 +1,23 @@
-function cursorMovementByBlock(D)
-
+function cursorMovementByBlock(D, base)
+    
     B1 = D.blocks(1);
     B2 = D.blocks(2);
     RB1 = B1.fDecoder.RowM2;
     RB2 = B2.fDecoder.RowM2;
 
+    if any(base == '2')
+        baseRB = RB2;
+    else
+        baseRB = RB1;
+    end
+
     Z1 = B1.latents;
     Z2 = B2.latents;
 
-    figure; set(gcf, 'color', 'w');
+%     figure;
+    set(gcf, 'color', 'w');
     hold on; axis off;
-    title(D.datestr);
+    title([D.datestr ' in Map ' base]);
 
     trgs = sort(unique(B2.targetAngle, 'rows'));
     xs = B2.trial_index;
@@ -30,15 +37,15 @@ function cursorMovementByBlock(D)
         ix3 = ix & (xs >= xsb(2));
 
         ix = gs1 == grps(ii);
-        z = mean(Z1(ix,:)); v0 = z*RB1; vf = z*RB1;
+        z = mean(Z1(ix,:)); v0 = z*baseRB; vf = z*RB1;
 
-        z = mean(Z2(ix1,:)); v1 = z*RB1;
+        z = mean(Z2(ix1,:)); v1 = z*baseRB;
         plot(v1(1), v1(2), 'o', 'Color', clrs(ii,:), 'MarkerFaceColor', clrs(ii,:));
 
-        z = mean(Z2(ix2,:)); v2 = z*RB1;
+        z = mean(Z2(ix2,:)); v2 = z*baseRB;
         plot(v2(1), v2(2), 'o', 'Color', clrs(ii,:), 'MarkerFaceColor', clrs(ii,:));
 
-        z = mean(Z2(ix3,:)); v3 = z*RB1;
+        z = mean(Z2(ix3,:)); v3 = z*baseRB;
         plot(v3(1), v3(2), 'o', 'Color', clrs(ii,:), 'MarkerFaceColor', clrs(ii,:));        
 
         vs = [v0; v1; v2; v3];
@@ -48,8 +55,8 @@ function cursorMovementByBlock(D)
 
         t = trgs(ii);% - 90;
         tx = cosd(t); ty = sind(t);
-        plot(2*tx, 2*ty, 'x', 'Color', clrs(ii,:));
-        plot(2*tx, 2*ty, 'o', 'Color', clrs(ii,:));
+        plot(2*tx, 2*ty, 'x', 'Color', 'k');% clrs(ii,:));
+        plot(2*tx, 2*ty, 'o', 'Color', 'k');%clrs(ii,:));
     end
 end
     

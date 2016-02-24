@@ -1,9 +1,6 @@
-function [ms, ses, covs, grp, grps] = avgByThetaGroup(xs, ys, centers, theta_tol)
-    if nargin < 4
-        theta_tol = nan;
-    end
+function [ms, ses, covs, grp, grps] = avgByThetaGroup(xs, ys, centers)
 
-    grps = score.thetaGroup(xs, centers, theta_tol);
+    grps = score.thetaGroup(xs, centers);
     [ms, ses, covs, grp] = score.calcGroupMeanAndSE(grps, ys, centers);
 
 end
