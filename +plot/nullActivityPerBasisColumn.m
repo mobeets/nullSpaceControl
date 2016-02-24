@@ -23,7 +23,7 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
     nps_r = round(npanels/nps_c);
     
     grps = sort(unique(zs));
-    [Gms, Gses, Gs] = score.avgByThetaGroup(xs, ys, grps);
+    [Gms, Gses, ~, Gs] = score.avgByThetaGroup(xs, ys, grps);
         
     if doScatter
         ymx = ceil(max(abs(ys(:))));        

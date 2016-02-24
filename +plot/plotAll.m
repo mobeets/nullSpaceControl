@@ -24,14 +24,21 @@ function plotAll(D, Hs, doSave, isMaster, doSolos)
     
     % Plot error of means
     fig = figure;
-    plot.errOfMeans(Hs);
+    plot.errOfMeans(Hs, D.datestr);
     if ~isempty(fldr)
         saveas(fig, fullfile(fldr, 'errOfMeans'), 'png');
     end
 
-    % Plot covariance ratios
+    % Plot error of covariance orientation
     fig = figure;
-    plot.covRatio(Hs);
+    plot.covError(Hs, D.datestr, 'covErrorOrient');
+    if ~isempty(fldr)
+        saveas(fig, fullfile(fldr, 'covRatio'), 'png');
+    end
+
+    % Plot error of covariance shape
+    fig = figure;
+    plot.covError(Hs, D.datestr, 'covErrorShape');
     if ~isempty(fldr)
         saveas(fig, fullfile(fldr, 'covRatio'), 'png');
     end

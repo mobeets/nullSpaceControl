@@ -22,23 +22,20 @@ function D = fitByDate(dtstr, doPred, doPlot, params)
     D.blocks = io.getDataByBlock(D);
     D.blocks = pred.addTrainAndTestIdx(D.blocks);
     D = io.addDecoders(D);
-    D = tools.rotateLatentsUpdateDecoders(D, false);
+    D = tools.rotateLatentsUpdateDecoders(D, true);
 
     if doPred
         D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
-        D.hyps = pred.addPrediction(D, 'zero', pred.meanFit(D, 'zero'));
-        D.hyps = pred.addPrediction(D, 'best mean', pred.meanFit(D, 'best'));
         D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D, true));
         D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
-        D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
-        D.hyps = pred.addPrediction(D, 'volitional', pred.volContFit(D, true, 0));
+        D.hyps = pred.addPrediction(D, 'cloud-hab', pred.sameCloudFit(D, 0.35, 30));
         D.hyps = pred.addPrediction(D, 'volitional + 2PCs', ...
             pred.volContFit(D, true, 2));
         D = pred.nullActivity(D);
         D = score.scoreAll(D);
         
         if doPlot
-            figure; plot.errOfMeans(D.hyps(2:end));
+            plot.plotAll(D, D.hyps(2:end), true, true, true);
         end
     end
 end
