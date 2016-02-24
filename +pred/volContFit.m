@@ -29,15 +29,15 @@ function [Z, Zpre, Zvol] = volContFit(D, addPrecursor, useL, scaleVol)
     for t = 1:nt
         % sample Z uniformly from times t in T1 where theta_t is
         % within 15 degs of theta
-        if mod(t, 100) == 0
-            disp([num2str(t) ' of ' num2str(nt)]);
-        end
+%         if mod(t, 100) == 0
+%             disp([num2str(t) ' of ' num2str(nt)]);
+%         end
         decoder = B2.fDecoder;
         
-        Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, nan, true);
-        Zvol(t,:) = solveInBounds2(B2, t, decoder, RB1, B1, Zpre(t,:));
-        Zpre(t,:) = zeros(1,nn);
-        continue;
+%         Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, nan, true);
+%         Zvol(t,:) = solveInBounds2(B2, t, decoder, RB1, B1, Zpre(t,:));
+%         Zpre(t,:) = zeros(1,nn);
+%         continue;
         
         if addPrecursor
             Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, nan, true);
@@ -46,10 +46,10 @@ function [Z, Zpre, Zvol] = volContFit(D, addPrecursor, useL, scaleVol)
         end
         
         if useL > 2 % meet kinematics, minimize to baseline
-            Zvol(t,:) = solveInBounds(B2, t, decoder, RB1, B1, Zpre(t,:));
-%             decoder.M2 = decoder.M2*RB1;            
-%             z = pred.quadFireFit(B2, t, [], decoder, false);
-%             Zvol(t,:) = RB1*z;
+%             Zvol(t,:) = solveInBounds(B2, t, decoder, RB1, B1, Zpre(t,:));
+            decoder.M2 = decoder.M2*RB1;
+            z = pred.quadFireFit(B2, t, [], decoder, false);
+            Zvol(t,:) = RB1*z;
         else
             Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, RB1, t);
         end        

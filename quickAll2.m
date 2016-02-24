@@ -12,22 +12,28 @@ for ii = 1:numel(dts)
     D = io.addDecoders(D);
     D = tools.rotateLatentsUpdateDecoders(D, true);
     
-    B = D.blocks(2);
-    B.datestr = D.datestr;
-    Bs3{ii} = B;
-    continue;
-    
     D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
     D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
+    D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D));
+    D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D, true));
+    D.hyps = pred.addPrediction(D, 'cloud-hab', pred.sameCloudFit(D, 0.35, 30));
     D.hyps = pred.addPrediction(D, 'volitional w/ 2Fs', ...
         pred.volContFit(D, true, 2));
-    D.hyps = pred.addPrediction(D, 'volitional w/ 2Fs (s=5)', ...
-        pred.volContFit(D, true, 2, 5));
+%     D.hyps = pred.addPrediction(D, 'volitional w/ 2Fs (s=5)', ...
+%         pred.volContFit(D, true, 2, 5));
     
     D = pred.nullActivity(D);
     D = score.scoreAll(D);
-    scs{ii} = [D.hyps.errOfMeans; D.hyps.covErrorOrient; D.hyps.covErrorShape];
+    figure;
+    subplot(1,3,1); hold on;
+    plot.errOfMeans(D.hyps(2:end), D.datestr);
+    subplot(1,3,2); hold on;
+    plot.covError(D.hyps(2:end), D.datestr, 'covErrorOrient');
+    subplot(1,3,3); hold on;
+    plot.covError(D.hyps(2:end), D.datestr, 'covErrorShape');
+    continue;
 
+    scs{ii} = [D.hyps.errOfMeans; D.hyps.covErrorOrient; D.hyps.covErrorShape];
     B = D.blocks(2);
     B.datestr = D.datestr;
     B = rmfield(B, 'spikes');

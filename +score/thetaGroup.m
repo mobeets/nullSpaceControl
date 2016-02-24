@@ -1,7 +1,7 @@
-function grps = thetaGroup(xs, centers, theta_tol)
-    if nargin < 3 || isnan(theta_tol)
-        theta_tol = 22.5;
-    end
+function grps = thetaGroup(xs, centers)
+    dfs = diff(centers)/2;
+    theta_tol = dfs(1);
+    assert(norm(dfs - theta_tol) < 1e-4);
 
     bnds = mod([centers - theta_tol centers + theta_tol], 360);
 

@@ -1,6 +1,6 @@
 
 dts = {'20120525', '20120601', '20131125', '20131205'};
-for ii = 1:numel(dts)
+for ii = 1:1%1:numel(dts)
     dtstr = dts{ii};
     D = io.loadRawDataByDate(dtstr);
     D.params = io.setParams(D);
@@ -15,25 +15,106 @@ for ii = 1:numel(dts)
     D = io.addDecoders(D);
     D = tools.rotateLatentsUpdateDecoders(D, true);
     D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
-    
-    B = D.blocks(2);
-    B.datestr = D.datestr;
-    B = rmfield(B, 'spikes');
-    Bs2{ii} = B;
+
+    plot.cursorMovementByBlock(D);
+%     B = D.blocks(1);
+%     B.datestr = D.datestr;
+%     B = rmfield(B, 'spikes');
+%     Bs1{ii} = B;
 end
 
 %%
 
-Bsc = Bs3;
+Bsc = Bs1;
 for jj = 1:numel(Bsc)
     B = Bsc{jj};
     Y = B.latents;
     NB = B.fDecoder.NulM2;
+    RB = B.fDecoder.RowM2;
     [~,~,v] = svd(Y*NB);
+    B.NB0 = NB;
     NB = NB*v;
-    B.NB = NB;
+    B.NB = NB;    
+    B.RB = RB;
+    
     Bsc{jj} = B;
 end
+
+%%
+
+Bsc = Bs1;
+% figure; set(gcf, 'color', 'w');
+for jj = 1:numel(Bsc)
+    B = Bsc{jj};
+    B2 = Bs2{jj};
+    
+    Y = B.latents;
+    
+    xs = B.trial_index;
+    xsb = [1 prctile(xs, [25 50 75]) size(xs,1)];
+    xsbl = [25 50 75 100];
+    ysr = Y*B2.RB;
+    ysn = Y*B2.NB;
+    
+    gs = B.thetaGrps;
+    grps = sort(unique(gs));
+    clrs = cbrewer('div', 'RdYlGn', numel(grps));
+    
+    figure; set(gcf, 'color', 'w');    
+    hold on; box off; set(gca, 'FontSize', 14);
+    
+    vs1 = nan(numel(grps), numel(xsb)-1);
+    vs2 = nan(size(vs1));
+    vs3 = nan(size(vs1));
+    vs4 = nan(size(vs1));
+    for ii = 1:numel(grps)
+        subplot(2,4,ii); hold on;
+        ixg = gs == grps(ii);
+        for kk = 1:numel(xsb)-1
+            ixt = xs >= xsb(kk) & xs <= xsb(kk+1);
+            ix = ixt & ixg;
+            vs1(ii,kk) = corr(ysr(ix,1), ysn(ix,1));
+            vs2(ii,kk) = corr(ysr(ix,1), ysn(ix,2));
+            vs3(ii,kk) = corr(ysr(ix,2), ysn(ix,1));
+            vs4(ii,kk) = corr(ysr(ix,2), ysn(ix,2));
+        end
+%         plot(xsbl, vs1(ii,:), '-', 'Color', clrs(ii,:), 'LineWidth', 3);
+%         plot(xsbl, vs1(ii,:), 'o', 'MarkerFaceColor', clrs(ii,:), 'Color', clrs(ii,:));
+        
+        vsc = vs1;
+        plot([xsbl(1) xsbl(end)], [vsc(ii,1) vsc(ii,end)], '-', 'Color', clrs(ii,:), 'LineWidth', 3);
+        plot([xsbl(1) xsbl(end)], [vsc(ii,1) vsc(ii,end)], '+', 'MarkerFaceColor', clrs(ii,:), 'Color', clrs(ii,:));
+        vsc = vs2;
+        plot([xsbl(1) xsbl(end)], [vsc(ii,1) vsc(ii,end)], '-', 'Color', clrs(ii,:), 'LineWidth', 3);
+        plot([xsbl(1) xsbl(end)], [vsc(ii,1) vsc(ii,end)], 'x', 'MarkerFaceColor', clrs(ii,:), 'Color', clrs(ii,:));
+        vsc = vs3;
+        plot([xsbl(1) xsbl(end)], [vsc(ii,1) vsc(ii,end)], '-', 'Color', clrs(ii,:), 'LineWidth', 3);
+        plot([xsbl(1) xsbl(end)], [vsc(ii,1) vsc(ii,end)], '*', 'MarkerFaceColor', clrs(ii,:), 'Color', clrs(ii,:));
+        vsc = vs4;
+        plot([xsbl(1) xsbl(end)], [vsc(ii,1) vsc(ii,end)], '-', 'Color', clrs(ii,:), 'LineWidth', 3);
+        plot([xsbl(1) xsbl(end)], [vsc(ii,1) vsc(ii,end)], 'o', 'MarkerFaceColor', clrs(ii,:), 'Color', clrs(ii,:));
+        plot(xsbl, zeros(numel(xsb)-1), 'k--');
+        ylim([-1 1]);
+        set(gca, 'YTick', -1:0.5:1);
+    end    
+%     plot(grps, vs1, '-', 'Color', [0.8 0.2 0.2], 'LineWidth', 3);
+%     plot(grps, vs2, '-', 'Color', [0.8 0.6 0.6], 'LineWidth', 3);
+%     plot(grps, vs3, '-', 'Color', [0.2 0.2 0.8], 'LineWidth', 3);
+%     plot(grps, vs4, '-', 'Color', [0.6 0.6 0.8], 'LineWidth', 3);
+%     plot(grps, zeros(size(grps)), 'k--');
+%     legend({'R1-N1', 'R1-N2', 'R2-N1', 'R2-N2'}, 'Location', 'BestOutside');
+%     set(gca, 'XTick', grps);
+%     set(gca, 'XTickLabelRotation', 45);
+    plot(xsbl, zeros(numel(xsb)-1), 'k--');
+    ylim([-1 1]);
+    set(gca, 'YTick', -1:0.5:1);
+    title(B.datestr);
+%     xlabel('\theta');
+    xlabel('percentile');
+    ylabel('corr(YR, YN)');
+end
+
+
 
 %%
 for jj = 1:numel(Bs2)

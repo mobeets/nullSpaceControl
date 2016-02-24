@@ -1,4 +1,4 @@
-function Z = sameCloudFit(D, d_min, theta_tol, fnms, threshes, rotTheta)
+function Z = volCloudFit(D, d_min, theta_tol, fnms, threshes)
     if nargin < 2
         d_min = nan;
     end
@@ -11,19 +11,17 @@ function Z = sameCloudFit(D, d_min, theta_tol, fnms, threshes, rotTheta)
     if nargin < 5
         threshes = {};
     end
-    if nargin < 6
-        rotTheta = 0;
-    end
     
     B1 = D.blocks(1);
     B2 = D.blocks(2);
     NB2 = B2.fDecoder.NulM2;
     RB2 = B2.fDecoder.RowM2;
+    Vol = eye(size(RB2,1)); Vol = Vol(:,1:2);
     
     Z1 = B1.latents;
     Z2 = B2.latents;
-    R1 = Z1*RB2;
-    R2 = Z2*RB2;
+    R1 = Z1*Vol;
+    R2 = Z2*Vol;
     [nt, nn] = size(Z2);
 
     Zn = nan(nt,nn);
@@ -41,22 +39,10 @@ function Z = sameCloudFit(D, d_min, theta_tol, fnms, threshes, rotTheta)
                 ds(ds1 > threshes{jj}) = inf;
             end
         end
-            
-%         ds(B2.thetaGrps(t) ~= B1.thetaGrps) = inf;
-%         ds(abs(B2.rs(t) - B1.rs) > 25) = inf;
-        
-        if ~isnan(theta_tol) % make distance inf if theta is too different
-%             theta = B2.thetas(t) + 180;
-%             bnds = mod([theta - theta_tol theta + theta_tol], 360);
-%             nearbyIdxs = tools.isInRange(B1.thetas + 180, bnds);
-%             ds(~nearbyIdxs) = inf;
-            th = mod(B2.thetas(t)+180+rotTheta, 360);
-            dsThetas = getAngleDistance(B1.thetas+180, th);
+        if ~isnan(theta_tol) % make distance inf if theta is too different            
+            dsThetas = getAngleDistance(B1.thetas+180, B2.thetas(t)+180);
             ds(dsThetas > theta_tol) = inf;
         end
-        
-        % somehow weight ds and dsThetas? they should both be similar maybe
-
         if isnan(d_min) || sum(ds <= d_min) == 0 % take nearest activity
             [~,ind] = min(ds);
             zf = Z1(ind,:);

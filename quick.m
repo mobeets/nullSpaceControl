@@ -8,7 +8,7 @@
 
 %% load and prepare data
 
-dtstr = '20131205'; % 20120525 20120601 20131125 20131205
+dtstr = '20120601'; % 20120525 20120601 20131125 20131205
 D = io.loadDataByDate(dtstr);
 D.params = io.setFilterDefaults(D.params);
 D.params.MAX_ANGULAR_ERROR = 360;
@@ -19,17 +19,73 @@ D = tools.rotateLatentsUpdateDecoders(D, true);
 
 %% make predictions
 
+% D = rmfield(D, 'hyps');
 D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
 D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
-D.hyps = pred.addPrediction(D, 'cloud min', pred.sameCloudFit(D));
-D.hyps = pred.addPrediction(D, 'cloud theta', pred.sameCloudFit(D, nan, 15));
-D.hyps = pred.addPrediction(D, 'cloud', pred.sameCloudFit(D, 0.5, 15));
+D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D, true));
+% D.hyps = pred.addPrediction(D, 'volitional w/ 2Fs', ...
+%     pred.volContFit(D, true, 2));
+% D.hyps = pred.addPrediction(D, 'kNN', pred.kNNFit(D, 100, {'rs'}));
+% D.hyps = pred.addPrediction(D, 'cloud min', pred.sameCloudFit(D));
+% D.hyps = pred.addPrediction(D, 'cloud theta', pred.sameCloudFit(D, nan, 15));
+% D.hyps = pred.addPrediction(D, 'vol w/ 2Fs', pred.volContFit(D, true, 2));
+D.hyps = pred.addPrediction(D, 'cloud-hab', pred.sameCloudFit(D, 0.35, 30));
+% D.hyps = pred.addPrediction(D, 'cloud-vol', pred.volCloudFit(D, nan, nan));
+
+% D.hyps = pred.addPrediction(D, 'regRowOnNul', pred.regRowOnNulFit(D));
+
+% D.hyps = pred.addPrediction(D, 'cloud', pred.sameCloudFit(D, 0.35));
 D = pred.nullActivity(D);
 D = score.scoreAll(D);
-close all;
-figure; plot.errOfMeans(D.hyps(2:end), D.datestr);
-figure; plot.covError(D.hyps(2:end), D.datestr, 'covErrorOrient');
-figure; plot.covError(D.hyps(2:end), D.datestr, 'covErrorShape');
+% close all;
+figure; set(gcf, 'color', 'w');
+subplot(1,3,1); hold on; plot.errOfMeans(D.hyps(2:end), D.datestr);
+subplot(1,3,2); hold on; plot.covError(D.hyps(2:end), D.datestr, 'covErrorOrient');
+subplot(1,3,3); hold on; plot.covError(D.hyps(2:end), D.datestr, 'covErrorShape');
+
+%%
+
+ys = -45:5:30;
+for rotTheta = ys
+    D.hyps = pred.addPrediction(D, ['cloud-hab-' num2str(rotTheta)], ...
+        pred.sameCloudFit(D, 0.35, 30, {}, {}, rotTheta));
+end
+D = pred.nullActivity(D);
+D = score.scoreAll(D);
+
+%%
+
+xs = score.thetaCenters(8);
+% ys = -90:15:90;
+vs = [];
+for rotTheta = ys
+    hyp = pred.getHyp(D, ['cloud-hab-' num2str(rotTheta)]);
+    vs = [vs; hyp.errOfMeansByKin];
+end
+
+rs = nan(size(vs,2), 2);
+for ii = 1:size(vs,2)
+    vs(:,ii) = vs(:,ii) - min(vs(:,ii));
+    [~,ix] = min(vs(:,ii));
+    rs(ii,:) = [xs(ii) ys(ix)];
+end
+
+figure; imagesc(xs, ys, vs);
+set(gca, 'XTick', xs);
+set(gca, 'YTick', ys);
+caxis([0 round(max(vs(:)))]);
+
+figure; hold on; set(gcf, 'color', 'w'); axis off;
+plot(0,0,'k+'); plot(0,0,'ko');
+clrs = cbrewer('div', 'RdYlGn', numel(xs));
+for ii = 1:size(rs,1)
+    v1 = rs(ii,1);
+    v2 = v1 + rs(ii,2) + 0.67;
+    plot(cosd(v1), sind(v1), 'o', 'Color', clrs(ii,:), 'MarkerFaceColor', clrs(ii,:));
+    plot(cosd(v2), sind(v2), 'o', 'Color', clrs(ii,:));
+end
+
+plot.cursorMovementByBlock(D);
 
 %%
 
@@ -122,5 +178,5 @@ plot.plotAll(D, D.hyps(2:end), false, false, true);
 % figure; plot.errOfMeans(D.hyps(2:end));
 % figure; plot.errOfMeans(F.hyps(2:end));
 % plot.plotHyp(F, pred.getHyp(F, 'volitional + 2PCs'));
-plot.plotHyp(D, pred.getHyp(D, 'volitional w/ 2Fs (s=5)'));
+plot.plotHyp(D, pred.getHyp(D, 'cloud-hab'));
 

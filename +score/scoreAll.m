@@ -29,7 +29,8 @@ function D = scoreAll(D)
         else
             D.hyps(ii).errOfMeansFull = nan;
         end
-        D.hyps(ii).errOfMeans = score.errOfMeans(zMu, zMu0);
+        [D.hyps(ii).errOfMeans, e2] = score.errOfMeans(zMu, zMu0);
+        D.hyps(ii).errOfMeansByKin = e2;
         D.hyps(ii).covRatio = score.covRatio(zCov, zCov0);
         [s,s2,s3] = score.covError(zNull, zNull0);
         D.hyps(ii).covError = s;

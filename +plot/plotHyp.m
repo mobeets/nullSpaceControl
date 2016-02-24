@@ -14,11 +14,15 @@ function plotHyp(D, H, fldr, doSave, doStick)
     doRotate = true;
     disp('1');
     
+    NB = D.blocks(2).fDecoder.NulM2;
+    [~,~,v] = svd(D.blocks(2).latents*NB);
+    NB = NB*v;
+    
     % plot all combos of doSolo and doTranspose
     for doSolo = 0:1
         for doTranspose = 0:1
             fig = figure;
-            plot.blkSummaryPredicted(D, H, doRotate, doSolo, doTranspose);
+            plot.blkSummaryPredicted(D, H, doRotate, doSolo, doTranspose, NB);
             fnm = getFnm(H.name, fldr, doRotate, doSolo, doTranspose);
             if ~isempty(fldr)
                 saveas(fig, fnm, 'png');

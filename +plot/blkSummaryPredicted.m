@@ -1,4 +1,4 @@
-function blkSummaryPredicted(D, H, doRotate, doSolo, doTrans)
+function blkSummaryPredicted(D, H, doRotate, doSolo, doTrans, NB)
     if nargin < 3
         doRotate = false;
     end
@@ -8,16 +8,21 @@ function blkSummaryPredicted(D, H, doRotate, doSolo, doTrans)
     if nargin < 5
         doTrans = false;
     end
+    if nargin < 6
+        NB = [];
+    end
 
     % figure;
     clr1 = [0.2 0.2 0.8];
     clr2 = [0.8 0.2 0.2];
 
     % project onto axes of maximum variance in observed data
-    NB = D.blocks(2).fDecoder.NulM2;
-    if doRotate
-        [~,~,v] = svd(D.blocks(2).latents*NB);
-        NB = NB*v;
+    if isempty(NB)
+        NB = D.blocks(2).fDecoder.NulM2;
+        if doRotate
+            [~,~,v] = svd(D.blocks(2).latents*NB);
+            NB = NB*v;
+        end
     end
     
     if doSolo
