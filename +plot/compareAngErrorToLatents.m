@@ -10,9 +10,9 @@ end
 % F is normal D; D is D without any filtering on angError
 ys = F.hyps(1).latents*NB;
 ysh = F.hyps(9).latents*NB;
-grps0 = score.thetaGroup(F.blocks(2).thetas + 180, sort(unique(cnts)));
+grps0 = score.thetaGroup(F.blocks(2).thetas, sort(unique(cnts)));
 
-xs = B.thetas + 180;
+xs = B.thetas;
 cnts = B.targetAngle;
 grps = score.thetaGroup(xs, sort(unique(cnts)));
 allgrps = sort(unique(grps));

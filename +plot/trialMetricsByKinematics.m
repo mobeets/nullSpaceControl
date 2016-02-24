@@ -6,7 +6,7 @@ function trialMetricsByKinematics(B, fldr, nm)
         nm = '';
     end
 
-    xs = B.thetas + 180;
+    xs = B.thetas;
     cnts = score.thetaCenters(8);
 
     Ys = {B.spd; abs(B.angError); B.angError};

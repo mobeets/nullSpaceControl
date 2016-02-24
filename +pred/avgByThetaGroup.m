@@ -1,6 +1,6 @@
 function [zMu, zCov, zStd, zNullBin] = avgByThetaGroup(B, zNull)
 
-    xs = B.thetas + 180;
+    xs = B.thetas;
     centers = score.thetaCenters(8);
     ntargs = numel(centers);
     

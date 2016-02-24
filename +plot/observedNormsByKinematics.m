@@ -10,7 +10,7 @@ function observedNormsByKinematics(D, fldr)
             end
             fig = figure;
             for jj = 1:3
-                ths = D.blocks(bind).thetas + 180;
+                ths = D.blocks(bind).thetas;
                 Y1 = D.blocks(bind).latents;
 
                 nm = ['Blk' num2str(bind) ' in Blk' num2str(nbind)];

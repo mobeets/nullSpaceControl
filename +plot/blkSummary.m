@@ -24,7 +24,7 @@ function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr, NB, ix0, doTrans)
         doTrans = false;
     end
 
-    xs = Blk.thetas + 180;
+    xs = Blk.thetas;
     ys = Y.latents*NB;
     grps = Blk.targetAngle;
     

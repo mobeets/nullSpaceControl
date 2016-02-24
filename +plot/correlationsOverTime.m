@@ -7,7 +7,7 @@ for ii = 1:1%1:numel(dts)
     D.params.START_SHUFFLE = nan;
     D.trials = io.makeTrials(D);
     D.params = io.setFilterDefaults(D.params);
-    D.trials.thetaGrps = score.thetaGroup(D.trials.thetas + 180, ...
+    D.trials.thetaGrps = score.thetaGroup(D.trials.thetas, ...
         score.thetaCenters(8));
     D.params.MAX_ANGULAR_ERROR = 360;
     D.blocks = io.getDataByBlock(D);

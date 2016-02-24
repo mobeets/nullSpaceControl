@@ -33,7 +33,7 @@ function plotHyp(D, H, fldr, doSave, doStick)
     disp('2');
     % norms by kinematics
     fig = figure; nm = [D.datestr ' Blk2 - ' H.name];
-    ths = D.blocks(2).thetas + 180;
+    ths = D.blocks(2).thetas;
     Y1 = D.blocks(2).latents;
     [ys, xs] = plot.valsByKinematics(D, ths, Y1, [], 8, true, 2);
     plot.byKinematics(xs, ys, nm, [0.2 0.2 0.8]);

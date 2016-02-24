@@ -46,20 +46,20 @@ function Z = sameCloudFit(D, d_min, theta_tol, fnms, threshes, rotThetas)
 %         ds(abs(B2.rs(t) - B1.rs) > 25) = inf;
         
         if ~isnan(theta_tol) % make distance inf if theta is too different
-%             theta = B2.thetas(t) + 180;
+%             theta = B2.thetas(t);
 %             bnds = mod([theta - theta_tol theta + theta_tol], 360);
-%             nearbyIdxs = tools.isInRange(B1.thetas + 180, bnds);
+%             nearbyIdxs = tools.isInRange(B1.thetas, bnds);
 %             ds(~nearbyIdxs) = inf;
             if numel(rotThetas) == 1
                 rotTheta = rotThetas;
             else
                 assert(numel(rotThetas) == 8);
-                ind = score.thetaGroup(B2.thetas(t)+180, ...
+                ind = score.thetaGroup(B2.thetas(t), ...
                     score.thetaCenters(8)) == score.thetaCenters(8);
                 rotTheta = rotThetas(ind);
             end
-            th = mod(B2.thetas(t)+180+rotTheta, 360);
-            dsThetas = getAngleDistance(B1.thetas+180, th);
+            th = mod(B2.thetas(t)+rotTheta, 360);
+            dsThetas = getAngleDistance(B1.thetas, th);
             ds(dsThetas > theta_tol) = inf;
         end
         

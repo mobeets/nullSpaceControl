@@ -21,7 +21,7 @@ for ii = 1:numel(dts)
         pred.volContFit(D, true, 2));
 
     B = D.blocks(2);
-    ths = B.thetas + 180;
+    ths = B.thetas;
     Y1 = B.latents;
     Y2 = D.hyps(2).latents;
     Y3 = D.hyps(3).latents;

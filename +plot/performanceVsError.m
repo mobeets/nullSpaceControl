@@ -1,7 +1,7 @@
 function performanceVsError(D, H)
 
     B = D.blocks(2);
-    ths = B.thetas + 180;
+    ths = B.thetas;
     Y1 = B.latents;
     Y2 = H.latents;
     [ys, xs] = plot.valsByKinematics(D, ths, Y1, Y2, 8, true, 2);

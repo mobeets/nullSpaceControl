@@ -7,7 +7,7 @@ function Zsamp = randZIfNearbyTheta(theta, B, theta_tol, takeTheMean)
     end
 
     bnds = mod([theta - theta_tol theta + theta_tol], 360);    
-    nearbyIdxs = tools.isInRange(B.thetas + 180, bnds);
+    nearbyIdxs = tools.isInRange(B.thetas, bnds);
     if takeTheMean
         Zsamp = mean(B.latents(nearbyIdxs,:));
         return;

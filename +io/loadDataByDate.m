@@ -9,9 +9,7 @@ function D = loadDataByDate(dtstr)
     D = data.D;
     
     D.params = io.setFilterDefaults(D.params);
-    D.trials.thetaGrps = score.thetaGroup(D.trials.thetas + 180, ...
+    D.trials.thetaGrps = score.thetaGroup(mod(D.trials.thetas, 360), ...
         score.thetaCenters(8));
-%     D.trials.thetaGrps = score.thetaGroup(mod(trials.thetas, 360), ...
-%         score.thetaCenters(8));
 
 end

@@ -10,7 +10,7 @@ clrA = clr1;
 BlkA = B1;
 BlkB = B2;
 
-T = BlkA.thetas + 180;
+T = BlkA.thetas;
 Z = BlkA.latents;
 % Z = D.hyps(7).latents;
 targs = BlkA.targetAngle;

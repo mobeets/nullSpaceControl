@@ -9,20 +9,7 @@ function D = fitByDate(dtstr, doPred, doPlot, params)
     if nargin < 4
         params = struct();
     end
-
-    if isa(dtstr, 'double')
-        dts = {'20120525', '20120601', '20131125', '20131205'};
-        dtstr = dts{dtstr};
-    end
-
-    D = io.loadDataByDate(dtstr);
-    D.params = io.setFilterDefaults(D.params);
-    D.params = io.updateParams(D.params, params);
-    
-    D.blocks = io.getDataByBlock(D);
-    D.blocks = pred.addTrainAndTestIdx(D.blocks);
-    D = io.addDecoders(D);
-    D = tools.rotateLatentsUpdateDecoders(D, true);
+    D = io.quickLoadByDate(dtstr, params);
 
     if doPred
         D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);

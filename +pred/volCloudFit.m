@@ -40,7 +40,7 @@ function Z = volCloudFit(D, d_min, theta_tol, fnms, threshes)
             end
         end
         if ~isnan(theta_tol) % make distance inf if theta is too different            
-            dsThetas = getAngleDistance(B1.thetas+180, B2.thetas(t)+180);
+            dsThetas = getAngleDistance(B1.thetas, B2.thetas(t));
             ds(dsThetas > theta_tol) = inf;
         end
         if isnan(d_min) || sum(ds <= d_min) == 0 % take nearest activity
