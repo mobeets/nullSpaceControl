@@ -1,7 +1,7 @@
 %% make sure colors align
 
 % toggle "D = tools.rotateLatentsUpdateDecoders(D, true);"
-D = io.quickLoadByDate(1);
+D = io.quickLoadByDate(2);
 B1 = D.blocks(1);
 close all;
 figure; set(gcf, 'color', 'w'); axis off;
@@ -16,7 +16,7 @@ for ii = 1:size(trgs,1)
     ix = B1.target(:,1) == trgs(ii,1) & B1.target(:,2) == trgs(ii,2);
     y = mean(B1.latents(ix,:)*B1.fDecoder.RowM2);
     y = y./norm(y);
-    plot(-y(1), y(2), 'ks', 'MarkerFaceColor', clrs(ii,:), 'MarkerSize', 20);
+    plot(y(1), y(2), 'ks', 'MarkerFaceColor', clrs(ii,:), 'MarkerSize', 20);
 end
 
 %%

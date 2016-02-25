@@ -22,12 +22,21 @@ function D = rotateLatentsUpdateDecoders(D, doStretch)
     for ii = 1:numel(D.blocks) 
         Z = D.blocks(ii).latents;
         M2 = D.blocks(ii).fDecoder.M2;
+        N2 = D.blocks(ii).fDecoder.NulM2;
+        R2 = D.blocks(ii).fDecoder.RowM2;
 
         Znew = Z*spikeRot; % L = USV', u = Lz
         M2new = M2*inv(spikeRot)';
-        assert(norm(Znew*M2new' - Z*M2') < 1e-10);
+        assert(norm(Znew*M2new' - Z*M2') < 1e-10, 'Activity not preserved');
         
         [NulM2, RowM2] = tools.getNulRowBasis(M2new);
+        assert(norm(Znew*RowM2 - Z*R2) < 1e-10, ...
+            ['Row activity not preserved, err = ' ...
+            num2str(norm(Znew*RowM2 - Z*R2))]);
+        assert(norm(Znew*NulM2 - Z*N2) < 1e-10, ...
+            ['Nul activity not preserved, err = ' ...
+            num2str(norm(Znew*NulM2 - Z*N2))]);
+
         D.blocks(ii).latents = Znew;
         D.blocks(ii).fDecoder.M2 = M2new;
         D.blocks(ii).fDecoder.NulM2 = NulM2;
