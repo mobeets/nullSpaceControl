@@ -34,7 +34,8 @@ function trials = makeTrials(D)
         trials.(fns{ii}) = val';
     end
     
-    trials.thetaGrps = score.thetaGroup(trials.thetas + 180, ...
+    trials.thetas = mod(trials.thetas, 360);
+    trials.thetaGrps = score.thetaGroup(trials.thetas, ...
         score.thetaCenters(8));
 
     % add latents
@@ -58,6 +59,7 @@ function trial = addNewFields(trial, D)
     trial.angError = nan(ntimes,1);
     trial.velStar = nan(ntimes,2);
     trial.velPrev = nan(ntimes,2);
+    trial.progress = nan(ntimes,1);
     % we must skip last entry so we can use movementVector
     for t = 1:ntimes-1
         vec2trg = trial.vec2target(t,:);
@@ -65,6 +67,7 @@ function trial = addNewFields(trial, D)
         r = norm(vec2trg);
         theta = tools.computeAngle(vec2trg, [1; 0]);
         thetaActual = tools.computeAngle(movVec, [1; 0]);
+        prog = movVec*vec2trg'/norm(vec2trg);
         angErr = tools.computeAngle(movVec, vec2trg);
         velStar = D.params.IDEAL_SPEED*vec2trg/norm(vec2trg);
         if t > 1
@@ -72,7 +75,7 @@ function trial = addNewFields(trial, D)
         else
             velPrev = [0 0];
         end
-
+        trial.progress(t) = prog;
         trial.rs(t) = r;        
         trial.thetas(t) = theta;
         trial.thetaActuals(t) = thetaActual;

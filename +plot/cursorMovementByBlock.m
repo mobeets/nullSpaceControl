@@ -56,7 +56,7 @@ function cursorMovementByBlock(D, base)
         t = trgs(ii);% - 90;
         tx = cosd(t); ty = sind(t);
         plot(2*tx, 2*ty, 'x', 'Color', 'k');% clrs(ii,:));
-        plot(2*tx, 2*ty, 'o', 'Color', 'k');%clrs(ii,:));
+        plot(2*tx, 2*ty, 'o', 'Color', clrs(ii,:));
     end
 end
     

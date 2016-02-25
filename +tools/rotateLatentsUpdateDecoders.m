@@ -5,13 +5,16 @@ function D = rotateLatentsUpdateDecoders(D, doStretch)
 
     L = D.simpleData.nullDecoder.FactorAnalysisParams.L;
 
-    [U,S,V] = svd(L, 'econ');    
+    [U,S,V] = svd(L, 'econ');
     if doStretch
         Lrot = U;
         spikeRot = V*S;
     else
         Lrot = U*S;
         spikeRot = V;
+    end
+    if det(spikeRot) < 0
+        spikeRot(:,1) = -spikeRot(:,1);
     end
     
     % random unitary rotation
@@ -23,13 +26,24 @@ function D = rotateLatentsUpdateDecoders(D, doStretch)
         Z = D.blocks(ii).latents;
         M2 = D.blocks(ii).fDecoder.M2;
         N2 = D.blocks(ii).fDecoder.NulM2;
-        R2 = D.blocks(ii).fDecoder.RowM2;
+        R2 = D.blocks(ii).fDecoder.RowM2;        
 
         Znew = Z*spikeRot; % L = USV', u = Lz
         M2new = M2*inv(spikeRot)';
         assert(norm(Znew*M2new' - Z*M2') < 1e-10, 'Activity not preserved');
+                
+        [NulM2, RowM2] = tools.getNulRowBasis(M2new); % neg 1st col
         
-        [NulM2, RowM2] = tools.getNulRowBasis(M2new);
+        a1 = Znew*RowM2(:,1); a2 = Znew*RowM2(:,2);
+        b1 = Z*R2(:,1); b2 = Z*R2(:,2);
+        [norm(a1-b1) norm(a2-b2) norm(a1-b2) norm(a2-b1) ...
+            norm(a1+b1) norm(a2+b2) norm(a1+b2) norm(a2+b1)]
+
+        % bit of a hack to make sure columns have correct sign
+        if norm(a1-b1) > 1e-10 && norm(a1+b1) < 1e-10
+            RowM2(:,1) = -RowM2(:,1);
+        end
+
         assert(norm(Znew*RowM2 - Z*R2) < 1e-10, ...
             ['Row activity not preserved, err = ' ...
             num2str(norm(Znew*RowM2 - Z*R2))]);
