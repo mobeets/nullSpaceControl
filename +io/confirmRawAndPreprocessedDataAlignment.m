@@ -1,9 +1,10 @@
-function confirmRawAndPreprocessedDataAlignment(dtstr)
-
-    D = io.loadRawDataByDate(dtstr);
-    D.params = io.setParams(D);
-    D.trials = io.makeTrials(D);
-    E = io.quickLoadByDate(dtstr);
+function confirmRawAndPreprocessedDataAlignment(dtstr, D, E)
+    if nargin < 2 || isempty(E) && isempty(E)
+        D = io.loadRawDataByDate(dtstr);
+        D.params = io.setParams(D);
+        D.trials = io.makeTrials(D);
+        E = io.quickLoadByDate(dtstr);
+    end
 
     Dt = D.trials;
     Et = E.trials;

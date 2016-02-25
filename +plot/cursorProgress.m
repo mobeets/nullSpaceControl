@@ -1,14 +1,16 @@
-function cursorProgress(D)
+function cursorProgress(B, smth)
+    if nargin < 2
+        smth = 100;
+    end
 
-    xs = D.trials.trial_index;
-    ys = D.trials.progress;
-    gs = D.trials.thetaGrps;
+    xs = B.trial_index;
+    ys = B.progress;
+    gs = B.thetaGrps;
     grps = sort(unique(gs(~isnan(gs))));
     clrs = cbrewer('div', 'RdYlGn', numel(grps));
 %     xsa = unique(xs);
 
-    close all;
-    figure; set(gcf, 'color', 'w');
+    set(gcf, 'color', 'w');
     for jj = 1:numel(grps)
         ix = grps(jj) == gs;
         ysc = ys(ix);
@@ -17,8 +19,8 @@ function cursorProgress(D)
     %     for ii = 1:numel(xsa)
     %         plot(xsa(ii), nanmean(ysc(xsc == xsa(ii))), '.', 'Color', clrs(jj,:));
     %     end
-        plot(xsc, smooth(xsc, ysc, 100), '-', 'Color', clrs(jj,:));
-        ylim([-10 10]);
+        plot(xsc, smooth(xsc, ysc, smth), '-', 'Color', clrs(jj,:));
+        ylim([-15 15]);
     end
 
 end

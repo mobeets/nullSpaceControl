@@ -9,18 +9,20 @@ function tblk = getSuccessfulTrialsByBlock(D)
     firstWashoutTrial = find(~isShuffle & ...
         1:ntrials > firstShuffleTrial, 1, 'first');
     
-    if ~isnan(D.params.START_SHUFFLE)
-        realFirstShuffleTrial = D.params.START_SHUFFLE;
-    else
-        realFirstShuffleTrial = firstShuffleTrial;
-    end
-    if ~isnan(D.params.START_WASHOUT)
-        realFirstWashoutTrial = D.params.START_WASHOUT;
-    else
-        realFirstWashoutTrial = firstWashoutTrial;
-    end
-    assert(firstShuffleTrial <= realFirstShuffleTrial);
-    assert(firstWashoutTrial <= realFirstWashoutTrial);
+    realFirstShuffleTrial = firstShuffleTrial;
+    realFirstWashoutTrial = firstWashoutTrial;
+%     if ~isnan(D.params.START_SHUFFLE)
+%         realFirstShuffleTrial = D.params.START_SHUFFLE;
+%     else
+%         realFirstShuffleTrial = firstShuffleTrial;
+%     end
+%     if ~isnan(D.params.START_WASHOUT)
+%         realFirstWashoutTrial = D.params.START_WASHOUT;
+%     else
+%         realFirstWashoutTrial = firstWashoutTrial;
+%     end
+%     assert(firstShuffleTrial <= realFirstShuffleTrial);
+%     assert(firstWashoutTrial <= realFirstWashoutTrial);
 
     tblk = nan(ntrials, 1);
     tblk(1:firstShuffleTrial-1) = 1;    
