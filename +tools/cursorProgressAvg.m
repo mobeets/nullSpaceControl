@@ -1,8 +1,12 @@
 function [ysa, xsa] = cursorProgressAvg(B, grpName)
-    if nargin < 2 || isempty(grpName)
+    if nargin < 2
         grpName = 'thetaGrps';
     end
-    gs = B.(grpName);
+    if isempty(grpName)
+        gs = true(size(B.time));
+    else
+        gs = B.(grpName);
+    end
     grps = sort(unique(gs(~isnan(gs))));
     
     xs = B.trial_index;

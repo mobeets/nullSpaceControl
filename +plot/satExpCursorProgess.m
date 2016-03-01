@@ -1,5 +1,5 @@
 function prms = satExpCursorProgess(B, grpName, yThresh, xStart)
-    if nargin < 2 || isempty(grpName)
+    if nargin < 2
         grpName = 'targetAngle';
     end
     if nargin < 3
@@ -10,6 +10,11 @@ function prms = satExpCursorProgess(B, grpName, yThresh, xStart)
     X = xsa - min(xsa);
     xmx = find(~isnan(X), 1, 'last');
     clrs = cbrewer('div', 'RdYlGn', size(ysa,2));
+    if size(ysa,2) == 1
+        ncols = 1; nrows = 1;
+    else
+        ncols = 2; nrows = 4;
+    end
 
     set(gcf, 'color', 'w');
     prms = nan(size(ysa,2),4);
@@ -21,7 +26,7 @@ function prms = satExpCursorProgess(B, grpName, yThresh, xStart)
         x0 = [nanmin(Y) nanmax(Y) numel(Y)/2];
         xm = fmincon(obj, x0);
 
-        subplot(4,2,ii); hold on;
+        subplot(nrows,ncols,ii); hold on;
         set(gca, 'FontSize', 14);
         plot(X, Y, 'k.');
         plot(X, satexp(xm), '-', 'Color', clrs(ii,:), 'LineWidth', 3);

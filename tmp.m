@@ -15,17 +15,19 @@ F = E;
 
 %%
 
-close all
+% close all
 vs = cell(numel(dts),1);
-for ii = 1:2%numel(dts)
+for ii = 1%:numel(dts)
     dt = dts{ii}
-    D = io.quickLoadByDate(ii);
-    a = D.trials.trial_index(find(D.trials.block_index == 2, 1, 'first'));
-    b = D.params.START_SHUFFLE;
+%     D = io.quickLoadByDate(ii);
+%     a = D.trials.trial_index(find(D.trials.block_index == 2, 1, 'first'));
+%     b = D.params.START_SHUFFLE;
+%     c = D.trials.trial_index(find(D.trials.block_index == 2, 1, 'last'));
+%     [dt ': ' num2str(b-a+1) ' ' num2str(c-a+1)]
     D = io.quickLoadByDate(ii, ...
-        struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360));
+        struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 40));
     figure;
-    vs{ii} = plot.satExpCursorProgess(D.blocks(2), '', 0.85, b-a+1);
+    vs{ii} = plot.satExpCursorProgess(D.blocks(2), 'targetAngle', 0.85);%, b-a+1);
     plot.subtitle(dt);
 end
 
