@@ -1,5 +1,5 @@
 
-D = io.quickLoadByDate(1, ...
+D = io.quickLoadByDate(2, ...
     struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360));
 B = D.blocks(2);
 
@@ -23,6 +23,7 @@ xbs = round(prctile(tinds, linspace(1,100,nbins)));
 
 rrs = nan(numel(xbs)-1, numel(grps));
 rns = nan(size(rrs));
+prgs = nan(size(rrs));
 for ii = 1:numel(xbs)-1
     ixt = xs >= xbs(ii) & xs <= xbs(ii+1);    
     for jj = 1:numel(grps)
@@ -36,6 +37,7 @@ for ii = 1:numel(xbs)-1
         [An,Bn,rn,Un,Vn] = canoncorr(ysc, ync);
         rrs(ii,jj) = rr;
         rns(ii,jj) = rn;
+        prgs(ii,jj) = median(ysc);
     end
 end
 
@@ -65,12 +67,31 @@ xlabel('trial #');
 ylabel('corr(YN, progress)');
 
 subplot(2,2,2);
+% figure; set(gcf, 'color', 'w');
 set(gca, 'FontSize', 14);
 hold on;
 for jj = 1:numel(grps)
-    plot(rrs(:,jj), rns(:,jj), 'ko', 'MarkerFaceColor', clrs(jj,:));
+%     clf;
+    plot3(rrs(:,jj), rns(:,jj), 1:size(rns,1), 'ko', 'MarkerFaceColor', clrs(jj,:));
+    plot3(rrs(:,jj), rns(:,jj), 1:size(rns,1), 'k-', 'Color', clrs(jj,:));
+%     plot3(diff(rrs(:,jj)), diff(rns(:,jj)), 1:size(rns,1)-1, 'ko', 'MarkerFaceColor', clrs(jj,:));
+%     plot3(diff(rrs(:,jj)), diff(rns(:,jj)), 1:size(rns,1)-1, 'k-', 'Color', clrs(jj,:));
+%     pause;
 end
 xlabel('corr(YR, progress)');
 ylabel('corr(YN, progress)');
 
-plot.subtitle(D.datestr);
+subplot(2,2,4);
+set(gca, 'FontSize', 14);
+hold on;
+for jj = 1:numel(grps)    
+    plot(xbs(2:end), prgs(:,jj) + jj*5, '-', 'Color', clrs(jj,:), 'LineWidth', 3);
+    plot(xbs(2:end), prgs(:,jj) + jj*5, 'ko', 'MarkerFaceColor', clrs(jj,:));
+%     plot(xbs(3:end), diff(prgs(:,jj)), '-', 'Color', clrs(jj,:), 'LineWidth', 3);
+%     plot(xbs(3:end), diff(prgs(:,jj)), 'ko', 'MarkerFaceColor', clrs(jj,:));
+end
+xlabel('time');
+% ylabel('\Delta cursor progress');
+ylabel('cursor progress');
+
+% plot.subtitle(D.datestr);

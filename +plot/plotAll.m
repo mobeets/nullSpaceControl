@@ -14,8 +14,6 @@ function plotAll(D, Hs, doSave, isMaster, doSolos)
         fldr = '';
     end
     
-    close all;
-    
     if doSolos
         for ii = 1:numel(Hs)
             plot.plotHyp(D, Hs(ii), fldr); 

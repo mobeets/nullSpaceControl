@@ -1,7 +1,7 @@
 function D = fitByDate(dtstr, plotArgs, params)
 % 20120525 20120601 20131125 20131205
     if nargin < 2
-        plotArgs = [];
+        plotArgs = [false false false]; % doSave, isMaster, doSolos
     end
     if nargin < 3
         params = struct();
