@@ -36,8 +36,8 @@ function D = rotateLatentsUpdateDecoders(D, doStretch)
         
         a1 = Znew*RowM2(:,1); a2 = Znew*RowM2(:,2);
         b1 = Z*R2(:,1); b2 = Z*R2(:,2);
-        [norm(a1-b1) norm(a2-b2) norm(a1-b2) norm(a2-b1) ...
-            norm(a1+b1) norm(a2+b2) norm(a1+b2) norm(a2+b1)]
+%         [norm(a1-b1) norm(a2-b2) norm(a1-b2) norm(a2-b1) ...
+%             norm(a1+b1) norm(a2+b2) norm(a1+b2) norm(a2+b1)]
 
         % bit of a hack to make sure columns have correct sign
         if norm(a1-b1) > 1e-10 && norm(a1+b1) < 1e-10

@@ -4,7 +4,7 @@ function D = addDecoders(D)
     sd = D.simpleData.shuffles;
     nMap1 = nd.rawSpikes;
     nMap2 = sd.rawSpikes;
-    fMap1 = getFactorNullDecoder(nd, D.kalmanInitParams);
+    fMap1 = getFactorNullDecoder(D.kalmanInitParams);
     fMap2 = getFactorShuffleDecoder(sd, nd, fMap1, D.kalmanInitParams);
     
     assert(numel(D.blocks) == 3);
@@ -17,7 +17,7 @@ function D = addDecoders(D)
 
 end
 
-function fm = getFactorNullDecoder(nd, kalmanInitParams)
+function fm = getFactorNullDecoder(kalmanInitParams)
 
     [fm.M0, fm.M1, fm.M2, fm.k] = tools.simplifyKalman2(kalmanInitParams);
     [fm.NulM2, fm.RowM2] = tools.getNulRowBasis(fm.M2);
