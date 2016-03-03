@@ -4,6 +4,9 @@ function trials = filterTrialsByParams(trials, params)
         abs(trials.angError) >= params.MIN_ANGULAR_ERROR & ...
         trials.rs >= params.MIN_DISTANCE & ...
         trials.rs <= params.MAX_DISTANCE;
+    if params.REMOVE_INCORRECTS
+        ix = ix & trials.isCorrect;
+    end
     trials = io.filterTrialsByIdx(trials, ix);
     
     % filter out shuffle and washout trials prior to 'START_' params

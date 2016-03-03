@@ -28,6 +28,6 @@ function tblk = getSuccessfulTrialsByBlock(D)
     tblk(1:firstShuffleTrial-1) = 1;    
     tblk(realFirstShuffleTrial:firstWashoutTrial-1) = 2;
     tblk(realFirstWashoutTrial:end) = 3;
-    tblk(~D.simpleData.trialStatus) = nan; % unsuccessful trials
+%     tblk(~D.simpleData.trialStatus) = nan; % unsuccessful trials
 
 end

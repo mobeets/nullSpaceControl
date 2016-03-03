@@ -6,7 +6,7 @@ function trials = makeTrials(D)
     ntrials = numel(d.spikeBins);
     tblkinds = io.getSuccessfulTrialsByBlock(D);
     for tr = 1:ntrials        
-        trial = struct();
+        trial = struct();        
         ntimes = size(d.spikeBins{tr},1);
         
 %         trial.spikes = d.spikeBins{tr};
@@ -20,6 +20,8 @@ function trials = makeTrials(D)
         trial.spd = arrayfun(@(ii) norm(trial.vel(ii,:)), 1:ntimes)';
         trial.target = repmat(d.targetLocations(tr, 1:2), ntimes, 1);        
         trial.targetAngle = d.targetAngles(tr)*ones(ntimes,1);
+        trial.trial_length = repmat(ntimes, ntimes, 1);
+        trial.isCorrect = repmat(d.trialStatus(tr), ntimes, 1);
         trial.trial_index = repmat(tr, ntimes, 1);
         trial.block_index = repmat(tblkinds(tr), ntimes, 1);
         trial = addNewFields(trial, D);
