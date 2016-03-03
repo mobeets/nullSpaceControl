@@ -1,4 +1,4 @@
-function prms = satExpCursorProgess(B, grpName, yThresh, xStart)
+function [prms, ysa, xsa] = satExpCursorProgess(B, grpName, yThresh, xStart)
     if nargin < 2
         grpName = 'targetAngle';
     end
@@ -43,6 +43,7 @@ function prms = satExpCursorProgess(B, grpName, yThresh, xStart)
         end        
         prms(ii,:) = [xm xth];
         xlim([0 max(X)+1]);
+        ylim([min(ysa(:)) max(ysa(:))]);
         if nargin > 3
             plot([xStart xStart], ylim, 'r--');
         end

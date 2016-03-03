@@ -5,7 +5,7 @@ B = D.blocks(2);
 RB = B.fDecoder.RowM2;
 NB = B.fDecoder.NulM2;
 
-B = D.trials;
+% B = D.trials;
 Y = B.latents;
 YR = Y*RB;
 YN = Y*NB;
@@ -53,8 +53,8 @@ for ii = 1:numel(xbs)-1
         rb_all(ii,jj,:) = rb;
 %         [~,~,rr,~,~] = canoncorr(Va, yrc);
 %         [~,~,rn,~,~] = canoncorr(Va, ync);
-        rr = rr/ra;
-        rn = rn/ra;
+%         rr = rr/ra;
+%         rn = rn/ra;
         
         rrs(ii,jj) = rr;
         rns(ii,jj) = rn;
