@@ -39,8 +39,8 @@ function behaviorAndNulRowCorr(D, blockInd, mapInd, grpName, doScatter)
     
 %     nms = {'progress', 'isCorrect', 'trial_length', 'angError'};
 %     zs = [100, 100, 100, 100];
-    nms = {'progress', 'angError'};
-    zs = [100 100];
+    nms = {'progress', 'angError', 'trial_length', 'isCorrect'};
+    zs = 100*ones(size(nms));
     
     Z = cell(numel(nms),1);
     for ii = 1:numel(nms)
@@ -55,7 +55,7 @@ function behaviorAndNulRowCorr(D, blockInd, mapInd, grpName, doScatter)
     xs = B.trial_index;
     xs1 = D.trials.trial_index(find(D.trials.block_index == 2, 1, 'first'));
     xs2 = D.trials.trial_index(find(D.trials.block_index == 2, 1, 'last'));
-    nTrsPerBin = 16;
+    nTrsPerBin = 32;
     for ii = 1:numel(grps)
         subplot(ncols, nrows, ii); set(gca, 'FontSize', 14);
         hold on;
@@ -76,6 +76,8 @@ function behaviorAndNulRowCorr(D, blockInd, mapInd, grpName, doScatter)
             if sum(ix) == 0
                 continue;
             end
+%             disp(['Group ' num2str(ii) ', Block ' num2str(kk)]);
+            
             YNc = YN(ix,:);
             YRc = YR(ix,:);
             xsc = xs(ix);
@@ -90,7 +92,7 @@ function behaviorAndNulRowCorr(D, blockInd, mapInd, grpName, doScatter)
             yscs = nan(numel(xsb)-1, numel(Z));
             for jj = 1:numel(xsb)-1
                 iy = xsc >= xsb(jj) & xsc <= xsb(jj+1);
-                if sum(iy) <= 20
+                if sum(iy) <= 30
                     continue;
                 end
                 for ll = 1:numel(Z)
@@ -98,7 +100,8 @@ function behaviorAndNulRowCorr(D, blockInd, mapInd, grpName, doScatter)
                     ysc = ysc(ix);
                     yscs(jj,ll) = nanmean(ysc(iy));
                 end
-                [~,~,rrs(jj,:),~,~] = canoncorr(YRc(iy,:), YNc(iy,:));                
+                iz = ~any(isnan(YRc),2) & ~any(isnan(YNc),2);
+                [~,~,rrs(jj,:),~,~] = canoncorr(YRc(iz&iy,:), YNc(iz&iy,:));                
             end
             
 %             % smooth behavior
@@ -112,21 +115,24 @@ function behaviorAndNulRowCorr(D, blockInd, mapInd, grpName, doScatter)
 %                 plot(xsc, ysc, 'Color', cs(jj,:));
 %             end
             
+            rhos = nan(numel(Z),1);
             for jj = 1:numel(Z)
                 ysc = yscs(:,jj);                
                 if isempty(ysc)
                     continue;
                 end
                 iz = ~isnan(rrs(:,1)) & ~isnan(ysc);
-                [A,B,~,~,~] = canoncorr(rrs(iz,1), ysc(iz));
+                [A,B,r,~,~] = canoncorr(rrs(iz,1), ysc(iz));
+                rhos(jj) = r;
+%                 disp(['corr(corr(YN,YR), ' nms{jj} ') = ' num2str(r)]);
                 ysc = (ysc - nanmean(ysc))*B/A + nanmean(rrs(:,1));
 %                 ysc = ysc./max(abs(ysc)); % normalize
                 if doScatter
-                    plot(rrs(:,1), ysc, 'ko', 'MarkerFaceColor', cs(jj,:));
+                    plot(rrs(:,1), ysc, 'ko', 'MarkerFaceColor', cs(jj,:));                                        
                 else
                     plot(xsb(1:end-1), ysc, 'Color', cs(jj,:), 'LineWidth', 3);
                 end
-            end            
+            end
             if ~doScatter
                 plot(xsb(1:end-1), rrs(:,1), '-', 'Color', clr1, 'LineWidth', 3);
                 plot([xs1 xs1], ylim, '-', 'Color', [0.5 0.5 0.5], 'LineWidth', 1);
@@ -134,6 +140,13 @@ function behaviorAndNulRowCorr(D, blockInd, mapInd, grpName, doScatter)
             else
                 plot([min(rrs(:,1)) max(rrs(:,1))], ...
                     [min(rrs(:,1)) max(rrs(:,1))], 'k--');
+            end
+            if kk == 2
+                for jj = 1:numel(rhos)
+                    xl = xlim; yl = ylim;
+                    text(xl(1) + jj*0.8*diff(xl)/numel(Z), yl(2), ...
+                        sprintf('%0.2f', rhos(jj)), 'Color', cs(jj,:));
+                end
             end
         end
     end

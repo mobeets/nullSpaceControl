@@ -1,8 +1,11 @@
-function [ysa, xsa] = cursorProgressAvg(B, grpName, nbins)
+function [ysa, xsa] = avgPerTrial(B, yNm, grpName, nbins)
     if nargin < 2
+        yNm = 'progress';
+    end
+    if nargin < 3
         grpName = 'targetAngle';
     end
-    if nargin < 3 || isnan(nbins)
+    if nargin < 4 || isnan(nbins)
         doBin = false;
     elseif ~isnan(nbins)
         doBin = true;
@@ -15,7 +18,7 @@ function [ysa, xsa] = cursorProgressAvg(B, grpName, nbins)
     grps = sort(unique(gs(~isnan(gs))));
     
     xs = B.trial_index;
-    ys = B.progress;
+    ys = B.(yNm);
     xsa = unique(xs);
     if doBin
         xsa = prctile(xsa, 0:(100/nbins):100)';

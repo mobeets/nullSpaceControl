@@ -1,12 +1,21 @@
-function [prms, ysa, xsa] = satExpCursorProgess(B, grpName, yThresh, xStart)
+function [prms, ysa, xsa] = satExpActivity(B, yNm, grpName, yThresh, xStart, isGrowth)
     if nargin < 2
-        grpName = 'targetAngle';
+        yNm = 'progress';
     end
     if nargin < 3
+        grpName = 'targetAngle';
+    end
+    if nargin < 4 || isnan(yThresh)
         yThresh = 0.85;
     end
+    if nargin < 5
+        xStart = nan;
+    end
+    if nargin < 6
+        isGrowth = true;
+    end
 
-    [ysa, xsa] = tools.cursorProgressAvg(B, grpName);
+    [ysa, xsa] = tools.avgPerTrial(B, yNm, grpName);
     X = xsa - min(xsa);
     xmx = find(~isnan(X), 1, 'last');
     clrs = cbrewer('div', 'RdYlGn', size(ysa,2));
@@ -31,11 +40,16 @@ function [prms, ysa, xsa] = satExpCursorProgess(B, grpName, yThresh, xStart)
         plot(X, Y, 'k.');
         plot(X, satexp(xm), '-', 'Color', clrs(ii,:), 'LineWidth', 3);
 
-        if xm(1) < xm(2)
+        if isGrowth && xm(1) < xm(2)
+            xth = nan;
+        elseif isGrowth
+            xth = find(satexp(xm)-xm(2) > (xm(1) - xm(2))*yThresh, 1, 'first');
+        elseif ~isGrowth && xm(2) < xm(1)
             xth = nan;
         else
-            xth = find(satexp(xm) > xm(1)*yThresh, 1, 'first');
+            xth = find(satexp(xm)-xm(2) < (xm(1) - xm(2))*yThresh, 1, 'first');
         end
+        
         if ~isempty(xth)
             plot([xth xth], ylim, 'k--');
         else
@@ -44,11 +58,11 @@ function [prms, ysa, xsa] = satExpCursorProgess(B, grpName, yThresh, xStart)
         prms(ii,:) = [xm xth];
         xlim([0 max(X)+1]);
         ylim([min(ysa(:)) max(ysa(:))]);
-        if nargin > 3
+        if ~isnan(xStart)
             plot([xStart xStart], ylim, 'r--');
         end
     end    
     xlabel('trials');
-    ylabel('cursor progress');
+    ylabel(yNm);
 
 end
