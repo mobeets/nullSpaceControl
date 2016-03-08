@@ -1,4 +1,4 @@
-function [prms, ysa, xsa] = satExpActivity(B, yNm, grpName, yThresh, xStart, isGrowth)
+function [prms, xths, ysa, xsa] = satExpActivity(B, yNm, grpName, yThresh, xStart)
     if nargin < 2
         yNm = 'progress';
     end
@@ -11,13 +11,10 @@ function [prms, ysa, xsa] = satExpActivity(B, yNm, grpName, yThresh, xStart, isG
     if nargin < 5
         xStart = nan;
     end
-    if nargin < 6
-        isGrowth = true;
-    end
-
+    
     [ysa, xsa] = tools.avgPerTrial(B, yNm, grpName);
-    X = xsa - min(xsa);
-    xmx = find(~isnan(X), 1, 'last');
+    [prms, xths] = tools.satExpFit(xsa, ysa, yThresh);
+    X = xsa;
     clrs = cbrewer('div', 'RdYlGn', size(ysa,2));
     if size(ysa,2) == 1
         ncols = 1; nrows = 1;
@@ -26,36 +23,20 @@ function [prms, ysa, xsa] = satExpActivity(B, yNm, grpName, yThresh, xStart, isG
     end
 
     set(gcf, 'color', 'w');
-    prms = nan(size(ysa,2),4);
     for ii = 1:size(ysa,2)
-        Y = ysa(:,ii);
-        satexp = @(x) x(1) - (x(1)-x(2))*exp(-X/x(3));
-        obj= @(x) nanmean((satexp(x) - Y).^2);
-%         x0 = [nanmean(Y(end-20:end)) nanmean(Y(1:20)) numel(Y)/2];
-        x0 = [nanmin(Y) nanmax(Y) numel(Y)/2];
-        xm = fmincon(obj, x0);
-
         subplot(nrows,ncols,ii); hold on;
         set(gca, 'FontSize', 14);
+        
+        Y = ysa(:,ii);
+        th = prms(ii,:);
+        xth = xths(ii) + min(X);
         plot(X, Y, 'k.');
-        plot(X, satexp(xm), '-', 'Color', clrs(ii,:), 'LineWidth', 3);
-
-        if isGrowth && xm(1) < xm(2)
-            xth = nan;
-        elseif isGrowth
-            xth = find(satexp(xm)-xm(2) > (xm(1) - xm(2))*yThresh, 1, 'first');
-        elseif ~isGrowth && xm(2) < xm(1)
-            xth = nan;
-        else
-            xth = find(satexp(xm)-xm(2) < (xm(1) - xm(2))*yThresh, 1, 'first');
-        end
+        plot(X, tools.satExp(X - min(X), th), '-', ...
+            'Color', clrs(ii,:), 'LineWidth', 3);
         
         if ~isempty(xth)
             plot([xth xth], ylim, 'k--');
-        else
-            xth = nan;
-        end        
-        prms(ii,:) = [xm xth];
+        end
         xlim([0 max(X)+1]);
         ylim([min(ysa(:)) max(ysa(:))]);
         if ~isnan(xStart)
@@ -66,3 +47,4 @@ function [prms, ysa, xsa] = satExpActivity(B, yNm, grpName, yThresh, xStart, isG
     ylabel(yNm);
 
 end
+
