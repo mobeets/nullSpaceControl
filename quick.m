@@ -33,6 +33,9 @@ D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D));
 D.hyps = pred.addPrediction(D, 'cloud', pred.sameCloudFit(D, 2));
 D.hyps = pred.addPrediction(D, 'cloud min', pred.sameCloudFit(D));
 D.hyps = pred.addPrediction(D, 'cloud-hab', pred.sameCloudFit(D, 0.35, 30));
+rotThetas = pred.findReaimingAnglesWithIntuitive(D);
+D.hyps = pred.addPrediction(D, 'cloud-hab-rot', pred.sameCloudFit(D, ...
+    0.35, 30, {}, {}, rotThetas));
 D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
 D.hyps = pred.addPrediction(D, 'habitual + rotated', ...
     pred.rotatedFit(D, pred.getHyp(D, 'habitual')));

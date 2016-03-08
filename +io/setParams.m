@@ -13,7 +13,9 @@ function ps = setParams(D)
         START_SHUFFLE = 400;
         START_WASHOUT = 800;
     else
-        error('Date not supported yet')
+        warning('New date: START_SHUFFLE and START_WASHOUT are ''nan''.');
+        START_SHUFFLE = nan;
+        START_WASHOUT = nan;
     end
 
     ps.START_SHUFFLE = START_SHUFFLE;

@@ -33,7 +33,7 @@ function [Y,X,N, figs] = allBehaviorsByTrial(D, nms, blockInd, grpName, ...
             fcn = fcns{ii};
         end
         [Y{ii}, X{ii}, N{ii}, grps] = tools.behaviorByTrial(D, nms{ii}, ...
-            blockInd, grpName, binSz, ptsPerBin, collapseTrials, fcn);
+            blockInd, grpName, binSz, ptsPerBin, collapseTrials(ii), fcn);
     end
     
     xs1 = D.trials.trial_index(find(D.trials.block_index == 2, 1, 'first'));

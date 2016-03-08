@@ -3,33 +3,39 @@ params = struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360, ...
     'REMOVE_INCORRECTS', false);
 ccaFcn = @(ys) tools.canoncorr_r(ys{1}, ys{2});
 
-dts = io.getDates();
+dts = io.getDates(true);
 
 nms = {'progress', 'progressOrth', 'angErrorAbs', 'angError', ...
-    'trial_length', 'isCorrect'}
-%     {'YN', 'YR'}, {'YN', 'YR'}};
-fcns = {[], [], [], [], [], []}%, ccaFcn, ccaFcn};
-collapseTrials = [true true true true true true]% true false];
+    'trial_length', 'isCorrect'};
+fcns = {[], [], [], [], [], []};
+collapseTrials = [true true true true true true];
+nm = '';
 
-% nms = {{'YN', 'YR'}};
-% fcns = {ccaFcn};
-% collapseTrials = [false];
+% nms = {{'YN', 'YR'}, {'YN', 'YR'}};
+% fcns = {ccaFcn, ccaFcn};
+% collapseTrials = [false true];
+% nm = '-CCA';
 
-% nms = {'angError', 'progress'};
+% nms = {{'Y1', 'Y2'}, 'progress'};
+% fcns = {ccaFcn, []};
+% collapseTrials = [true, true];
+
+% nms = {'spd', 'progress'};
 % fcns = {[], []};
-% collapseTrials = [true true];
+% collapseTrials = [true, true];
 
 blockInd = 0;
+% grpName = '';
 grpName = 'targetAngle';
 % binSz = 500; ptsPerBin = 40;
 % binSz = 150; ptsPerBin = 50;
 binSz = 150; ptsPerBin = 10;
 
-close all;
+% close all;
 
-for ii = 4%:numel(dts)
+for ii = 1%:numel(dts)
     dtstr = dts{ii};
-    D = io.quickLoadByDate(dtstr, params);
+%     D = io.quickLoadByDate(dtstr, params);
     
     % update fields
     D.trials.progressOrth = nan(size(D.trials.progress));
@@ -42,18 +48,30 @@ for ii = 4%:numel(dts)
     end
     D.trials.angErrorAbs = abs(D.trials.angError);
     Y = D.trials.latents;
+    B = D.blocks(1);
+    NB = B.fDecoder.NulM2;
+    RB = B.fDecoder.RowM2;
+    YN = Y*NB;
+    YR = Y*RB;
+    D.trials.Y = Y;
+    D.trials.YN = YN;
+    D.trials.YR = YR;
+    
     B = D.blocks(2);
     NB = B.fDecoder.NulM2;
     RB = B.fDecoder.RowM2;
     YN = Y*NB;
     YR = Y*RB;
-    D.trials.YN = YN;
-    D.trials.YR = YR;
+    D.trials.YN2 = YN;
+    D.trials.YR2 = YR;
+    
+    D.trials.Y1 = Y(:,1);
+    D.trials.Y2 = Y(:,2);
 
     [Y,X,N, figs] = plot.allBehaviorsByTrial(D, nms, blockInd, grpName, ...
         binSz, ptsPerBin, collapseTrials, fcns, true);
     for jj = 1:numel(figs)
         saveas(figs(jj).fig, ...
-            fullfile('plots', 'behaviorByTrial', figs(jj).name), 'png');
+            fullfile('plots', 'behaviorByTrial', [figs(jj).name nm]), 'png');
     end
 end

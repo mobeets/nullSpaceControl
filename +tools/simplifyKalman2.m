@@ -25,7 +25,7 @@ function [M0, M1, M2, k] = simplifyKalman2(kalmanParams)
 
 end
 
-function getConvergedKalmanGain(sigpr, H, Q, A, W)
+function k = getConvergedKalmanGain(sigpr, H, Q, A, W)
     TIMESTEPS = 50;
     for i = 1:TIMESTEPS
         k = sigpr*H'*inv(H*sigpr*H'+Q);

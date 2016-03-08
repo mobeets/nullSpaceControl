@@ -39,5 +39,7 @@ function D = loadRawDataByDate(dtstr)
     D.datestr = dtstr;
     D.kalmanInitParams = kalmanInitParams;
     D.simpleData = simpleData;
+    D.params = io.setParams(D);
+    D.trials = io.makeTrials(D);
     
 end
