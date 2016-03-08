@@ -46,7 +46,7 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
     
     if ~isempty(grpName)
         gs = B.(grpName);
-        grps = sort(unique(gs));
+        grps = sort(unique(gs(~isnan(gs))));
     else
         gs = true(size(B.latents,1), 1);
         grps = 1;
@@ -57,7 +57,7 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
     Xs = cell(numel(grps), nblks);
     Ns = cell(numel(grps), nblks);
     for ii = 1:numel(grps)
-        for kk = 1:nblks
+        for kk = 1:nblks            
             if kk == 1
                 ib = xs < xs1;
             elseif kk == 2
@@ -74,7 +74,7 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
             % define trial bins
             xsc = xs(ix);
             if ~isempty(Y)
-                ysc = Y(ix);
+                ysc = Y(ix,:);
                 ysca = {};
             else
                 ysca = cell(size(YA));
@@ -95,9 +95,9 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
             if collapseTrial
 %                 assert(~isempty(Y));
                 if ~isempty(Y)
-                    ysa = nan(size(xsa));
+                    ysa = nan(size(xsa,1), size(ysc,2));
                     for jj = 1:numel(xsa)
-                        ysa(jj) = nanmean(ysc(xsc == xsa(jj)));
+                        ysa(jj,:) = nanmean(ysc(xsc == xsa(jj),:));
                     end
                     ysc = ysa;
                 else
@@ -131,11 +131,11 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
                     continue;
                 end                
                 if ~isempty(Y)
-                    nNonNan = sum(~isnan(ysc(it)));
+                    nNonNan = sum(~any(isnan(ysc(it,:)),2));
                     if nNonNan < ptsPerBin
                         continue;
                     end
-                    ysb(jj) = reduceFcn(ysc(it));
+                    ysb(jj) = reduceFcn(ysc(it,:));
                 else
                     yscb = cell(size(ysca));
                     ixs = nan(size(ysca,1), sum(it));

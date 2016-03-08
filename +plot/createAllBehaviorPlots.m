@@ -2,14 +2,16 @@
 params = struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360, ...
     'REMOVE_INCORRECTS', false);
 ccaFcn = @(ys) tools.canoncorr_r(ys{1}, ys{2});
+normFcn = @(y) norm(nanmean(y));
+varFcn = @(y) norm(nanvar(y));
 
-dts = io.getDates(true);
+dts = io.getDates();
 
 nms = {'progress', 'progressOrth', 'angErrorAbs', 'angError', ...
     'trial_length', 'isCorrect'};
 fcns = {[], [], [], [], [], []};
 collapseTrials = [true true true true true true];
-nm = '';
+nm = '-';
 
 % nms = {{'YN', 'YR'}, {'YN', 'YR'}};
 % fcns = {ccaFcn, ccaFcn};
@@ -20,22 +22,23 @@ nm = '';
 % fcns = {ccaFcn, []};
 % collapseTrials = [true, true];
 
-% nms = {'spd', 'progress'};
-% fcns = {[], []};
-% collapseTrials = [true, true];
+nms = {'trial_length', 'progress', 'Y', 'Y', {'YN2', 'progress'}, {'YR2', 'YN2'}};
+fcns = {[], [], normFcn, varFcn, ccaFcn, ccaFcn};
+collapseTrials = [true, true, true, false, false, false];
 
 blockInd = 0;
 % grpName = '';
-grpName = 'targetAngle';
+% grpName = 'targetAngle';
+grpName = 'thetaGrps';
 % binSz = 500; ptsPerBin = 40;
 % binSz = 150; ptsPerBin = 50;
 binSz = 150; ptsPerBin = 10;
 
-% close all;
+close all;
 
-for ii = 1%:numel(dts)
+for ii = 10%10:numel(dts)
     dtstr = dts{ii};
-%     D = io.quickLoadByDate(dtstr, params);
+    D = io.quickLoadByDate(dtstr, params);
     
     % update fields
     D.trials.progressOrth = nan(size(D.trials.progress));
@@ -58,20 +61,26 @@ for ii = 1%:numel(dts)
     D.trials.YR = YR;
     
     B = D.blocks(2);
-    NB = B.fDecoder.NulM2;
-    RB = B.fDecoder.RowM2;
-    YN = Y*NB;
-    YR = Y*RB;
-    D.trials.YN2 = YN;
-    D.trials.YR2 = YR;
+    NB2 = B.fDecoder.NulM2;
+    RB2 = B.fDecoder.RowM2;
+    YN2 = Y*NB2;
+    YR2 = Y*RB2;
+    D.trials.YN2 = YN2;
+    D.trials.YR2 = YR2;
+    
+    D.trials.YnewR = Y*(NB*NB')*RB2;
+    D.trials.YnewN = Y*(NB*NB')*NB2;
+    
+    D.trials.YsameR = Y*(RB*RB')*RB2;
+    D.trials.YsameN = Y*(RB*RB')*NB2;
     
     D.trials.Y1 = Y(:,1);
     D.trials.Y2 = Y(:,2);
 
     [Y,X,N, figs] = plot.allBehaviorsByTrial(D, nms, blockInd, grpName, ...
         binSz, ptsPerBin, collapseTrials, fcns, true);
-    for jj = 1:numel(figs)
-        saveas(figs(jj).fig, ...
-            fullfile('plots', 'behaviorByTrial', [figs(jj).name nm]), 'png');
-    end
+%     for jj = 1:numel(figs)
+%         saveas(figs(jj).fig, ...
+%             fullfile('plots', 'behaviorByTrial', [figs(jj).name nm]), 'png');
+%     end
 end
