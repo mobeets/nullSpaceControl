@@ -1,5 +1,5 @@
-function [Y,X,N, figs] = allBehaviorsByTrial(D, nms, blockInd, grpName, ...
-    binSz, ptsPerBin, collapseTrials, fcns, showExp)
+function [Y,X,N,fits, figs] = allBehaviorsByTrial(D, nms, blockInd, ...
+    grpName, binSz, ptsPerBin, collapseTrials, fcns, showExp)
     if nargin < 3
         blockInd = 0;
     end
@@ -26,25 +26,17 @@ function [Y,X,N, figs] = allBehaviorsByTrial(D, nms, blockInd, grpName, ...
     X = cell(nflds,1);
     Y = cell(nflds,1);
     N = cell(nflds,1);
+    fits = cell(nflds,1);
     for ii = 1:numel(nms)
-        if isempty(fcns)
-            fcn = nan;
-        else
-            fcn = fcns{ii};
-        end
+        fcn = fcns{ii};
         [Y{ii}, X{ii}, N{ii}, grps] = tools.behaviorByTrial(D, nms{ii}, ...
             blockInd, grpName, binSz, ptsPerBin, collapseTrials(ii), fcn);
     end
     
-    xs1 = D.trials.trial_index(find(D.trials.block_index == 2, 1, 'first'));
-    xs2 = D.trials.trial_index(find(D.trials.block_index == 2, 1, 'last'));    
+    xs1 = D.blocks(2).trial_index(1);
+    xs2 = D.blocks(2).trial_index(end);
     
     [ngrps, nblks] = size(X{end});
-%     if ngrps == 8
-%         ncols = 2; nrows = 4;
-%     else
-%         ncols = floor(sqrt(ngrps)); nrows = ceil(ngrps/ncols);
-%     end
     nrows = floor(sqrt(nflds)); ncols = ceil(nflds/nrows);
     clrs = cbrewer('qual', 'Set2', nflds);
     
@@ -69,6 +61,7 @@ function [Y,X,N, figs] = allBehaviorsByTrial(D, nms, blockInd, grpName, ...
                     'HandleVisibility', vis);
                 if showExp && ~isempty(xc) && ~isempty(yc)
                     [prms, xs0] = tools.satExpFit(xc, yc);
+                    fits{kk}{ii,jj} = [prms xs0+min(xc)];
                     if xs0 >= 0 && xs0 <= range(xc)
                         plot([xs0 + min(xc) xs0 + min(xc)], ylim, '--', ...
                             'Color', clrs(kk,:), 'HandleVisibility', 'off');
@@ -81,7 +74,12 @@ function [Y,X,N, figs] = allBehaviorsByTrial(D, nms, blockInd, grpName, ...
                 'LineWidth', 1, 'HandleVisibility', 'off');
             plot([xs2 xs2], ylim, '-', 'Color', [0.5 0.5 0.5], ...
                 'LineWidth', 1, 'HandleVisibility', 'off');
-            ylabel(nms{kk});
+            ylbl = nms{kk};
+            if ~isempty(fcns{kk})
+                fcnName = func2str(fcns{kk});
+                ylbl = [ylbl ' ' fcnName(5:end)];
+            end
+            ylabel(ylbl);
         end
         xlabel('trial index');        
         ttl = D.datestr;

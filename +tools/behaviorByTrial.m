@@ -31,8 +31,8 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
         B = D.trials;
     end
     xs = B.trial_index;
-    xs1 = D.trials.trial_index(find(D.trials.block_index == 2, 1, 'first'));
-    xs2 = D.trials.trial_index(find(D.trials.block_index == 2, 1, 'last'));
+    xs1 = D.blocks(2).trial_index(1);
+    xs2 = D.blocks(2).trial_index(end);
     if isa(fldNm, 'char')
         Y = double(B.(fldNm));
     else
@@ -48,7 +48,7 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
         gs = B.(grpName);
         grps = sort(unique(gs(~isnan(gs))));
     else
-        gs = true(size(B.latents,1), 1);
+        gs = true(numel(xs), 1);
         grps = 1;
     end
     
@@ -57,13 +57,13 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
     Xs = cell(numel(grps), nblks);
     Ns = cell(numel(grps), nblks);
     for ii = 1:numel(grps)
-        for kk = 1:nblks            
+        for kk = 1:nblks
             if kk == 1
                 ib = xs < xs1;
             elseif kk == 2
-                ib = xs >= xs1 & xs < xs2;
+                ib = xs >= xs1 & xs <= xs2;
             else
-                ib = xs >= xs2;
+                ib = xs > xs2;
             end
             ig = grps(ii) == gs;
             ix = ib & ig;
@@ -152,15 +152,9 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
                 nsb(jj) = nNonNan;
             end
             
-            % smooth behavior
-%             ysc = smooth(xsc, ysc, smth);
-%             ysc = ysc./max(abs(ysc)); % normalize
-%             plot(xsc, ysc, 'Color', clr);
-            
             Xs{ii,kk} = xsb(1:end-1);
             Ys{ii,kk} = ysb;
             Ns{ii,kk} = nsb;
         end
     end
-
 end

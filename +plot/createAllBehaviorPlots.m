@@ -1,10 +1,10 @@
 
 params = struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360, ...
     'REMOVE_INCORRECTS', false);
-ccaFcn = @(ys) tools.canoncorr_r(ys{1}, ys{2});
+ccaFcn = @(y) tools.canoncorr_r(y{1}, y{2});
 normFcn = @(y) norm(nanmean(y));
 varFcn = @(y) norm(nanvar(y));
-
+diffFcn = @(y) norm(nanmean(y{1} - y{2}));
 dts = io.getDates();
 
 nms = {'progress', 'progressOrth', 'angErrorAbs', 'angError', ...
@@ -13,74 +13,43 @@ fcns = {[], [], [], [], [], []};
 collapseTrials = [true true true true true true];
 nm = '-';
 
-% nms = {{'YN', 'YR'}, {'YN', 'YR'}};
-% fcns = {ccaFcn, ccaFcn};
-% collapseTrials = [false true];
+% nms = {{'YN2', 'YR2'}, 'YN2', 'YN2', 'YR2', 'YR2'};
+% fcns = {ccaFcn, varFcn, normFcn, varFcn, normFcn};
+% collapseTrials = [false false false false false];
 % nm = '-CCA';
 
-% nms = {{'Y1', 'Y2'}, 'progress'};
-% fcns = {ccaFcn, []};
-% collapseTrials = [true, true];
+% nms = {{'YN2', 'YR2'}};
+% fcns = {ccaFcn};
+% collapseTrials = [false];
+% nm = '-CCA';
 
-nms = {'trial_length', 'progress', 'Y', 'Y', {'YN2', 'progress'}, {'YR2', 'YN2'}};
-fcns = {[], [], normFcn, varFcn, ccaFcn, ccaFcn};
-collapseTrials = [true, true, true, false, false, false];
+% nms = {{'YN1', 'YR1'}, {'YN2', 'YR2'}, 'progress', 'trial_length'};
+% fcns = {ccaFcn, ccaFcn, [], []};
+% collapseTrials = [false, false, true, true];
 
-blockInd = 0;
 % grpName = '';
-% grpName = 'targetAngle';
-grpName = 'thetaGrps';
+grpName = 'targetAngle';
+% grpName = 'thetaGrps';
+
 % binSz = 500; ptsPerBin = 40;
 % binSz = 150; ptsPerBin = 50;
-binSz = 150; ptsPerBin = 10;
+binSz = 100; ptsPerBin = 10;
 
-close all;
+blockInd = 0;
 
-for ii = 10%10:numel(dts)
+% close all;
+ths = cell(numel(dts),1);
+for ii = 1:numel(dts)
+    close all;
     dtstr = dts{ii};
-    D = io.quickLoadByDate(dtstr, params);
-    
-    % update fields
-    D.trials.progressOrth = nan(size(D.trials.progress));
-    for t = 1:numel(D.trials.progress)
-        vec2trg = D.trials.vec2target(t,:);
-        vec2trgOrth(1) = vec2trg(2);
-        vec2trgOrth(2) = -vec2trg(1);
-        movVec = D.trials.movementVector(t,:);
-        D.trials.progressOrth(t) = -(movVec*vec2trgOrth'/norm(vec2trg));
-    end
-    D.trials.angErrorAbs = abs(D.trials.angError);
-    Y = D.trials.latents;
-    B = D.blocks(1);
-    NB = B.fDecoder.NulM2;
-    RB = B.fDecoder.RowM2;
-    YN = Y*NB;
-    YR = Y*RB;
-    D.trials.Y = Y;
-    D.trials.YN = YN;
-    D.trials.YR = YR;
-    
-    B = D.blocks(2);
-    NB2 = B.fDecoder.NulM2;
-    RB2 = B.fDecoder.RowM2;
-    YN2 = Y*NB2;
-    YR2 = Y*RB2;
-    D.trials.YN2 = YN2;
-    D.trials.YR2 = YR2;
-    
-    D.trials.YnewR = Y*(NB*NB')*RB2;
-    D.trials.YnewN = Y*(NB*NB')*NB2;
-    
-    D.trials.YsameR = Y*(RB*RB')*RB2;
-    D.trials.YsameN = Y*(RB*RB')*NB2;
-    
-    D.trials.Y1 = Y(:,1);
-    D.trials.Y2 = Y(:,2);
-
-    [Y,X,N, figs] = plot.allBehaviorsByTrial(D, nms, blockInd, grpName, ...
-        binSz, ptsPerBin, collapseTrials, fcns, true);
-%     for jj = 1:numel(figs)
-%         saveas(figs(jj).fig, ...
-%             fullfile('plots', 'behaviorByTrial', [figs(jj).name nm]), 'png');
-%     end
+    D = io.quickLoadByDate(dtstr, params, false);
+    D.trials = tools.concatBlocks(D);
+    [X,Y,N,fits] = plot.createBehaviorPlots(D, blockInd, grpName, nms, ...
+        binSz, ptsPerBin, collapseTrials, fcns, false, nm);
+    th = cell2mat(arrayfun(@(ii) cellfun(@(f) f(end), fits{ii}(:,2)), ...
+        1:numel(fits), 'uni', 0));
+    th(th >= max(D.blocks(2).trial_index)) = nan;
+    ths{ii} = th;
 end
+% ths = cell2mat(ths);
+save(fullfile('data', ['behavioralAsymptotes_' grpName '.mat']), 'ths', 'dts', 'nms')
