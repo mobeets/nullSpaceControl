@@ -1,7 +1,7 @@
 function ps = setParams(D)
 
     if strcmp(D.datestr,'20120525')
-        START_SHUFFLE = 700; % 657
+        START_SHUFFLE = 657; % 700
         START_WASHOUT = 1600;
     elseif strcmp(D.datestr, '20120601')
         START_SHUFFLE = 419; % 450
@@ -20,6 +20,12 @@ function ps = setParams(D)
         START_WASHOUT = nan;
     elseif strcmp(D.datestr, '20120327')
         START_SHUFFLE = 453;
+        START_WASHOUT = nan;
+    elseif strcmp(D.datestr, '20120308')
+        START_SHUFFLE = 668;
+        START_WASHOUT = nan;
+    elseif strcmp(D.datestr, '20131211')
+        START_SHUFFLE = 668;
         START_WASHOUT = nan;
     else
         warning('New date: START_SHUFFLE and START_WASHOUT are ''nan''.');

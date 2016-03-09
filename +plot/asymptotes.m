@@ -14,10 +14,15 @@ ths0 = ths0.ths;
 %%
 
 behav = {'progress', 'trial_length'};
+% behav = {'trial_length'};
 behavInds = find(ismember(nms, behav));
 
 close all;
 for jj = 1:numel(ths)
+    if ~strcmp(dts{jj}(4), '3')
+        continue;
+    end
+    
     th = ths{jj};
     th0 = ths0{jj};
     figure; set(gcf, 'color', 'w');
