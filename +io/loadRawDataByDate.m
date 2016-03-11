@@ -19,27 +19,12 @@ function D = loadRawDataByDate(dtstr)
     end
     load(fullfile(dr, fs{1}));
     load(fullfile(dr, fs{2}));
-        
-%     if strcmp(dtstr,'20120525')
-%         load([DATADIR '/Jeffy/20120525/20120525simpleData.mat']);
-%         load([DATADIR '/Jeffy/20120525/kalmanInitParamsFA20120525(1).mat']);
-%     elseif strcmp(dtstr, '20120601')
-%         load([DATADIR '/Jeffy/20120601/20120601simpleData_combined.mat']);
-%         load([DATADIR '/Jeffy/20120601/kalmanInitParamsFA20120601(2).mat']);
-%     elseif strcmp(dtstr, '20131125')
-%         load([DATADIR '/Lincoln/20131125/20131125simpleData.mat']);
-%         load([DATADIR '/Lincoln/20131125/kalmanInitParamsFA20131125_11.mat']);
-%     elseif strcmp(dtstr, '20131205')
-%         load([DATADIR '/Lincoln/20131205/20131205simpleData.mat']);
-%         load([DATADIR '/Lincoln/20131205/kalmanInitParamsFA20131205_11.mat']);
-%     else
-%         error('Date not supported yet')
-%     end
 
     D.datestr = dtstr;
     D.kalmanInitParams = kalmanInitParams;
     D.simpleData = simpleData;
-    D.params = io.setParams(D);
+%     D.params = io.setParams(D.datestr);
+    D.params.IDEAL_SPEED = 175;
     D.trials = io.makeTrials(D);
     
 end

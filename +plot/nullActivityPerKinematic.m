@@ -40,7 +40,7 @@ function nullActivityPerKinematic(lts, thetas, cnts, doScatter, doMean, clr)
             scatter(xs, mean(ys0,1), sz, clr, 'MarkerFaceColor', clr);
         end
 %         YS(ii,:) = mean(ys0,1);
-        ylim([-ymax ymax]);
+%         ylim([-ymax ymax]);
         plot(xlim, [0 0], '--', 'Color', [0.5 0.5 0.5]);
         set(gca, 'XTick', xs);
         set(gca, 'XTickLabel', xs);

@@ -29,10 +29,10 @@ function [Y,X,N,fits] = createBehaviorPlots(D, blockInd, grpName, nms, ...
         if ~exist(outdir, 'dir')
             mkdir(outdir);
         end
-        askedOnce = true;
+        askedOnce = false;
         for jj = 1:numel(figs)
             fnm = fullfile(outdir, [figs(jj).name nm]);
-            if exist(fnm, 'file') && ~askedOnce
+            if exist([fnm '.png'], 'file') && ~askedOnce
                 resp = input(['Similar files in "' outdir '" already exist. Continue? '], 's');
                 if ~strcmpi(resp(1), 'y')
                     return;

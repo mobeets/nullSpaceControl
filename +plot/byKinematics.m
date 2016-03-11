@@ -34,7 +34,7 @@ function byKinematics(xs, ys, nm, clr, ylbl)
             'MarkerFaceColor', clrs, 'HandleVisibility', 'off');
     end    
     xlim([-25 385]);
-    ylim([0 max(1.2*nanmax(ys), 3.5)]);
+%     ylim([0 max(1.2*nanmax(ys), 3.5)]);
     set(gca, 'XTick', xs(1:2:end));
     
     set(gcf, 'color', 'white');

@@ -10,6 +10,6 @@ function D = loadDataByDate(dtstr)
         D = data.D;
     end
     
-    D.params = io.setFilterDefaults(D.params);
+    D.params = io.setFilterDefaults(D.datestr);
 
 end

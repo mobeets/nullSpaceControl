@@ -50,7 +50,7 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
         end
         
         xlim([-50 370]);        
-        ylim([-ymx ymx]);
+%         ylim([-ymx ymx]);
         plot(xlim, [0 0], '--', 'Color', [0.5 0.5 0.5]);
         set(gca, 'XTick', grps(1:2:end));
         set(gca, 'XTickLabel', grps(1:2:end));

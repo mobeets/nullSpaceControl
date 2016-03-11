@@ -12,8 +12,7 @@ function D = fitByDate(dtstr, plotArgs, params)
     D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D, true));
     D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
     D.hyps = pred.addPrediction(D, 'cloud-hab', pred.sameCloudFit(D, 0.35, 30));
-    D.hyps = pred.addPrediction(D, 'volitional + 2PCs', ...
-        pred.volContFit(D, true, 2));
+    D.hyps = pred.addPrediction(D, 'volitional + 2PCs', pred.volContFit(D, true, 2));
     D = pred.nullActivity(D);
     D = score.scoreAll(D);
 

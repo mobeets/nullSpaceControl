@@ -31,14 +31,14 @@ function plotAll(D, Hs, doSave, isMaster, doSolos)
     fig = figure;
     plot.covError(Hs, D.datestr, 'covErrorOrient');
     if ~isempty(fldr)
-        saveas(fig, fullfile(fldr, 'covRatio'), 'png');
+        saveas(fig, fullfile(fldr, 'covErrorOrient'), 'png');
     end
 
     % Plot error of covariance shape
     fig = figure;
     plot.covError(Hs, D.datestr, 'covErrorShape');
     if ~isempty(fldr)
-        saveas(fig, fullfile(fldr, 'covRatio'), 'png');
+        saveas(fig, fullfile(fldr, 'covErrorShape'), 'png');
     end
 
 end

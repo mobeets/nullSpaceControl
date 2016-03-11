@@ -20,5 +20,10 @@ function trials = filterTrialsByParams(trials, params)
         ixt = trials.trial_index <= params.START_WASHOUT;
         trials.block_index(ixb & ixt) = nan;
     end
+    if ~isnan(params.END_SHUFFLE)
+        ixb = trials.block_index == 2;
+        ixt = trials.trial_index > params.END_SHUFFLE;
+        trials.block_index(ixb & ixt) = nan;
+    end
 
 end
