@@ -92,8 +92,9 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
                 end
                 xsb = xsb';
             end
+            
+            % take mean of each value per trial
             if collapseTrial
-%                 assert(~isempty(Y));
                 if ~isempty(Y)
                     ysa = nan(size(xsa,1), size(ysc,2));
                     for jj = 1:numel(xsa)
@@ -118,7 +119,7 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
                 xsc = xsa;                
             end
 
-            % mean of current Y per bin
+            % fcn of current Y per bin
             ysb = nan(numel(xsb)-1, 1);
             nsb = nan(numel(xsb)-1, 1);
             for jj = 1:numel(xsb)-1

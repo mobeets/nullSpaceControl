@@ -1,11 +1,14 @@
 function [Y,X,N,fits] = createBehaviorPlots(D, blockInd, grpName, nms, ...
-    binSz, ptsPerBin, collapseTrials, fcns, doSave, nm)
+    binSz, ptsPerBin, collapseTrials, fcns, doSave, nm, outdir)
     if nargin < 9
         doSave = false;
     end
     if nargin < 10
         nm = '';
-    end    
+    end
+    if nargin < 11
+        outdir = fullfile('plots', 'behaviorByTrial');
+    end
 
     if any(strcmp(nms, 'YBmin')) || any(strcmp(nms, 'YBavg')) || ...
             any(strcmp(nms, 'YBavgNorm'))
@@ -23,8 +26,20 @@ function [Y,X,N,fits] = createBehaviorPlots(D, blockInd, grpName, nms, ...
         grpName, binSz, ptsPerBin, collapseTrials, fcns, true);
     
     if doSave
+        if ~exist(outdir, 'dir')
+            mkdir(outdir);
+        end
+        askedOnce = true;
         for jj = 1:numel(figs)
-            fnm = fullfile('plots', 'behaviorByTrial', [figs(jj).name nm]);
+            fnm = fullfile(outdir, [figs(jj).name nm]);
+            if exist(fnm, 'file') && ~askedOnce
+                resp = input(['Similar files in "' outdir '" already exist. Continue? '], 's');
+                if ~strcmpi(resp(1), 'y')
+                    return;
+                else
+                    askedOnce = true;
+                end
+            end
             saveas(figs(jj).fig, fnm, 'png');
         end
     end
