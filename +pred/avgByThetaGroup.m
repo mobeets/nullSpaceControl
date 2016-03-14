@@ -1,6 +1,10 @@
 function [zMu, zCov, zStd, zNullBin] = avgByThetaGroup(B, zNull)
 
-    xs = B.thetas;
+    if isstruct(B) && isfield(B, 'thetas')
+        xs = B.thetas;
+    else
+        xs = B;
+    end
     centers = score.thetaCenters(8);
     ntargs = numel(centers);
     

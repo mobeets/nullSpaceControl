@@ -5,8 +5,8 @@ ccaFcn = @(y) tools.canoncorr_r(y{1}, y{2});
 normFcn = @(y) norm(nanmean(y));
 varFcn = @(y) norm(nanvar(y));
 diffFcn = @(y) norm(nanmean(y{1} - y{2}));
-dts = io.getDates();
-dts0 = {'20120525', '20120601', '20120709', '20131212'};
+% dts = io.getDates();
+dts = {'20120525', '20120601', '20120709', '20131212'};
 % dts = setdiff(dts, dts0);
 
 nms = {'progress', 'progressOrth', 'angErrorAbs', 'angError', ...
@@ -14,6 +14,10 @@ nms = {'progress', 'progressOrth', 'angErrorAbs', 'angError', ...
 fcns = {[], [], [], [], [], []};
 collapseTrials = [true true true true true true];
 nm = '-';
+
+nms = {'spd'};
+fncs = {[]};
+collapseTrials = [true];
 
 % nms = {'progress', 'trial_length'};
 % fcns = {[], []};
@@ -25,17 +29,17 @@ nm = '-';
 % collapseTrials = [false false false false false];
 % nm = '-CCA';
 
-nms = {{'YN2', 'YR2'}};
-fcns = {ccaFcn};
-collapseTrials = [false];
-nm = '-CCA';
+% nms = {{'YN2', 'YR2'}};
+% fcns = {ccaFcn};
+% collapseTrials = [false];
+% nm = '-CCA';
 
 % nms = {{'YN1', 'YR1'}, {'YN2', 'YR2'}, 'progress', 'trial_length'};
 % fcns = {ccaFcn, ccaFcn, [], []};
 % collapseTrials = [false, false, true, true];
 
-grpNames = {'', 'targetAngle', 'thetaGrps'};
-doSave = true;
+grpNames = {''};%, 'targetAngle', 'thetaGrps'};
+doSave = false;
 
 % binSz = 500; ptsPerBin = 40;
 % binSz = 150; ptsPerBin = 50;
@@ -43,14 +47,14 @@ binSz = 100; ptsPerBin = 4;
 
 blockInd = 0;
 
-dts = {'20131212'};
+% dts = {'20120525'};
 
-close all;
+% close all;
 ths = cell(numel(dts),1);
 for ii = 1:numel(dts)
     for jj = 1:numel(grpNames)
         grpName = grpNames{jj};
-        close all;
+%         close all;
         dtstr = dts{ii};
         outdir = fullfile('plots', 'behaviorAndHypotheses', dtstr);
 %         outdir = fullfile('plots', 'behaviorAndHypotheses', 'behavior');

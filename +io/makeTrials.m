@@ -37,6 +37,7 @@ function trials = makeTrials(D)
     end
     
     trials.thetas = mod(trials.thetas, 360);
+    trials.thetaActuals = mod(trials.thetaActuals, 360);
     trials.thetaGrps = score.thetaGroup(trials.thetas, ...
         score.thetaCenters(8));
 

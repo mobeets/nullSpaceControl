@@ -4,6 +4,8 @@ function rotThetas = findReaimingAnglesWithIntuitive(D)
     B2 = D.blocks(2);
     RB1 = B1.fDecoder.RowM2;
     RB2 = B2.fDecoder.RowM2;
+%     RB1 = B1.fDecoder.M2';
+%     RB2 = B2.fDecoder.M2';
 
     Z1 = B1.latents;
     

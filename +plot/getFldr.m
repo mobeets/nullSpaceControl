@@ -5,7 +5,7 @@ function fldr = getFldr(D, isMaster)
     
     fldr = fullfile('plots', D.datestr);
     if ~isMaster
-        dtstr = datestr(now, 'yyyy-mm-dd_HH');
+        dtstr = datestr(now, 'yyyy-mm-dd_HH-MM');
         fldr = fullfile(fldr, dtstr);
     else
         fldr = fullfile(fldr, 'master');

@@ -1,10 +1,49 @@
+%%
+
+dtstr = '20131212';
+params = struct('MAX_ANGULAR_ERROR', 360);
+D = io.quickLoadByDate(dtstr, params);
+D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
+D.hyps = pred.addPrediction(D, 'cloud-hab-0', pred.sameCloudFit(D, 0.35, 30));
+
+%%
+
+ys = [0];
+isGood = false;
+rotTheta = 5;
+baseInd = 2;
+
+while ~isGood
+    D.hyps = pred.addPrediction(D, ['cloud-hab-' num2str(rotTheta)], ...
+        pred.sameCloudFit(D, 0.35, 30, {}, {}, rotTheta));    
+    D = pred.nullActivity(D);
+    D = score.scoreAll(D);
+    ys = [ys rotTheta];
+    rotTheta
+    baseInd
+    gotBetter = ([D.hyps(baseInd).errOfMeansByKin] - [D.hyps(end).errOfMeansByKin]) > 0
+    if sum(gotBetter) == 0 && rotTheta < 0
+        isGood = true;
+    elseif sum(gotBetter) == 0
+        rotTheta = -5;
+        baseInd = 2;
+    else
+        rotTheta = rotTheta + sign(rotTheta)*5;
+        baseInd = numel(D.hyps);
+    end
+end
+D = pred.nullActivity(D);
+D = score.scoreAll(D);
+
 %% fit at all fixed rotation angles
 
 % ys = 0:5:60; % 20131225
-ys = -45:5:30; % 20120601
+% ys = -45:5:30; % 20120601
 for rotTheta = ys
     D.hyps = pred.addPrediction(D, ['cloud-hab-' num2str(rotTheta)], ...
-        pred.sameCloudFit(D, 0.35, 30, {}, {}, rotTheta));
+        pred.sameCloudFit(D, 0.35, 30, {}, {}, rotTheta));    
+    D = pred.nullActivity(D);
+    D = score.scoreAll(D);
 end
 D = pred.nullActivity(D);
 D = score.scoreAll(D);
@@ -13,20 +52,27 @@ D = score.scoreAll(D);
 
 xs = score.thetaCenters(8);
 vs = [];
+ys = sort(ys);
 for rotTheta = ys
     hyp = pred.getHyp(D, ['cloud-hab-' num2str(rotTheta)]);
     vs = [vs; hyp.errOfMeansByKin];
 end
+vs = bsxfun(@minus, vs, min(vs));
+[~,ix] = min(vs);
+rotThetas = ys(ix);
+rs = [xs rotThetas'];
 
-rs = nan(size(vs,2), 2);
-for ii = 1:size(vs,2)
-    vs(:,ii) = vs(:,ii) - min(vs(:,ii));
-    [~,ix] = min(vs(:,ii));
-    rs(ii,:) = [xs(ii) ys(ix)];
-end
+figure; imagesc(xs, ys, vs);
+set(gca, 'XTick', xs);
+set(gca, 'YTick', ys);
+caxis([0 round(max(vs(:)))]);
+
+rotThetas
+
+%%
 
 D.hyps = pred.addPrediction(D, 'cloud-hab-rot', ...
-    pred.sameCloudFit(D, 0.35, 30, {}, {}, rs(:,2)));
+    pred.sameCloudFit(D, 0.35, 30, {}, {}, rotThetas));
 
 %% visualize alignment with intuitive activity in perturbed mapping
 
@@ -38,11 +84,6 @@ RB1 = B1.fDecoder.RowM2;
 RB2 = B2.fDecoder.RowM2;
 xs1 = B1.thetaGrps;
 xs2 = B2.thetaGrps;
-
-figure; imagesc(xs, ys, vs);
-set(gca, 'XTick', xs);
-set(gca, 'YTick', ys);
-caxis([0 round(max(vs(:)))]);
 
 figure; hold on; set(gcf, 'color', 'w'); axis off;
 plot(0,0,'k+'); plot(0,0,'ko');
