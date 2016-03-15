@@ -21,7 +21,9 @@ function plotAll(D, Hs, doSave, isMaster, doSolos)
     end
     
     % write out params
-    writetable(struct2table(D.params), fullfile(fldr, 'params.csv'));
+    if ~isempty(fldr)
+        writetable(struct2table(D.params), fullfile(fldr, 'params.csv'));
+    end
     
     % Plot error of means
     fig = figure;

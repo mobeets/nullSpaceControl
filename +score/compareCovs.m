@@ -7,6 +7,10 @@ function [s, s2, s3] = compareCovs(D1, D2)
 % s3 = 0 iff cov(D1) and cov(D2) have same shape
 % 
 
+    if any(any(isnan(cov(D1)))) || any(any(isnan(cov(D2))))
+        s=nan; s2=nan; s3=nan;
+        return;
+    end
     [u1,v11,~] = svd(cov(D1), 'econ');
     [u2,v22,~] = svd(cov(D2), 'econ');
     v11 = diag(v11)'; % var(D1*u1);

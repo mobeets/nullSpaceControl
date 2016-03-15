@@ -1,11 +1,15 @@
 
 dts = {'20120525', '20120601', '20120709', '20131212'};
 params = struct('MAX_ANGULAR_ERROR', 360);
+hyps = {'baseline', ...
+    'minimum', 'unconstrained', 'volitional w/ 2FAs', ...
+    'volitional w/ 2FAs (s=5)'};
 
+hyps = {'habitual'};
 for ii = 1:numel(dts)
     close all;
     dtstr = dts{ii};
-    D = fitByDate(dtstr, [true false true], params);
+    D = fitByDate(dtstr, [true false true], params, hyps);
 end
 
 %%
@@ -38,21 +42,11 @@ for jj = 2%1:numel(dts)
         params = struct('MAX_ANGULAR_ERROR', 360, ...
             'START_SHUFFLE', tbins(ii), 'END_SHUFFLE', tbins(ii)+100);
         D = io.quickLoadByDate(dtstr, params);
-        D.blocks(1).thetaActuals = mod(D.blocks(1).thetaActuals, 360);
-        D.blocks(2).thetaActuals = mod(D.blocks(2).thetaActuals, 360);
-%         rotThetas = 20;%pred.findReaimingAnglesWithIntuitive(D);
-%         rotThetas = -[45 0 0 20 0 25 35 45];
-%         rotThetas = [0   -20   -30   -35   -45     5    10   -15]; % 20120601
-%         rotThetas = [20     5     0     5     5   -10   -20   -15]; % 20120525
-%         rotThetas = [0   -20   -20    -5    -5    10    15     5]; % 20120709
-%         rotThetas = [-15   -10   -15   -15     5   -10     5   -10]; % 20131212
-
         D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
         D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D, true));
         D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
         D.hyps = pred.addPrediction(D, 'cloud-hab', pred.sameCloudFit(D, 0.35, 30));
-%         D.hyps = pred.addPrediction(D, 'cloud-hab-rot', pred.sameCloudFit(D, ...
-%             0.35, 30, {}, {}, rotThetas));
+        
         D = pred.nullActivity(D);
         D = score.scoreAll(D);
         errMus(ii,:) = [D.hyps(2:end).errOfMeans];
@@ -66,6 +60,63 @@ for jj = 2%1:numel(dts)
     for ii = 1:size(errMus,2)
         plot(tbins, errMus(:,ii));
     end
+    xlabel('xstart');
+    ylabel('errMus');
+    legend({D.hyps(2:end).name});
+    title(dtstr);
+
+end
+
+%%
+
+% dts = {'20120709'};
+dts = {'20120525', '20120601', '20120709', '20131212', '20131205', '20131125'};
+% dts = {'20120601', '20120709', '20131212', '20131205', '20131125'};
+
+binSz = 100;
+binSkp = binSz/2;
+
+binSz = 15;
+binSkp = 15;
+
+params = struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360);
+for jj = 1:numel(dts)
+    dtstr = dts{jj}
+    D = io.quickLoadByDate(dtstr, params);
+    xs1 = min(D.trials.trial_index(D.trials.block_index == 2));
+    xs2 = max(D.trials.trial_index(D.trials.block_index == 2));
+    
+    xs1 = -120; xs2 = 120;
+    
+    tbins = xs1:binSkp:(xs2-binSz);
+    
+    D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
+    D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D, true));
+    D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
+    D.hyps = pred.addPrediction(D, 'cloud-hab', pred.sameCloudFit(D, 0.35, 30));
+    
+    errMus = nan(numel(tbins), 3);
+    ns = nan(size(errMus,1),1);
+    errCovsShape = nan(size(errMus));
+    errCovsOrient = nan(size(errMus));
+    for ii = 1:numel(tbins)
+        t1 = tbins(ii); t2 = tbins(ii)+binSz;
+%         ts = D.blocks(2).trial_index;
+        ts = D.blocks(2).angError;
+        D.blocks(2).idxScore = ts >= t1 & ts < t2;
+        ns(ii) = sum(D.blocks(2).idxScore);
+        D = pred.nullActivity(D, 'idxScore');
+        D = score.scoreAll(D);
+        errMus(ii,:) = [D.hyps(2:end).errOfMeans];
+    end
+
+    figure; set(gcf, 'color', 'w');
+    hold on; set(gca, 'FontSize', 14);
+
+    for ii = 1:size(errMus,2)
+        plot(tbins, errMus(:,ii));%/ns(ii));
+    end
+    plot(tbins, ns/max(ns));
     xlabel('xstart');
     ylabel('errMus');
     legend({D.hyps(2:end).name});

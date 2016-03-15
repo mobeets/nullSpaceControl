@@ -24,9 +24,10 @@ end
 
 function sc = nullActivityAll(latents, B, NB, idxFld)
     thetas = B.thetas;
-    if ~isempty(idxFld)
+    if ~isempty(idxFld) && isfield(B, idxFld) && ~isempty(B.(idxFld))
         ix = B.(idxFld);
         if numel(ix) ~= numel(thetas)
+            [numel(ix) numel(thetas)]
             error([idxFld ' is not the same size as thetas']);
         end
         thetas = thetas(ix);

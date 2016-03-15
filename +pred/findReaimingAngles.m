@@ -6,6 +6,11 @@ D = io.quickLoadByDate(dtstr, params);
 D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
 D.hyps = pred.addPrediction(D, 'cloud-hab-0', pred.sameCloudFit(D, 0.35, 30));
 
+% rotThetas = [0   -20   -30   -35   -45     5    10   -15]; % 20120601
+% rotThetas = [20     5     0     5     5   -10   -20   -15]; % 20120525
+% rotThetas = [0   -20   -20    -5    -5    10    15     5]; % 20120709
+% rotThetas = [-15   -10   -15   -15     5   -10     5   -10]; % 20131212
+
 %%
 
 ys = [0];
