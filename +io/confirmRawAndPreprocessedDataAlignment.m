@@ -1,5 +1,5 @@
 function confirmRawAndPreprocessedDataAlignment(dtstr, D, E)
-    if nargin < 2 || isempty(E) && isempty(E)
+    if nargin < 2 || (isempty(D) && isempty(E))
         D = io.loadRawDataByDate(dtstr);
         D.params = io.setParams(D);
         D.trials = io.makeTrials(D);

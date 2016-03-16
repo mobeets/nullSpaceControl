@@ -20,7 +20,13 @@ function [Y,X,N,fits] = createBehaviorPlots(D, blockInd, grpName, nms, ...
     D.trials.Y1 = D.trials.latents(:,1);
     D.trials.Y2 = D.trials.latents(:,2);
     D = addLatentsByBlock(D, 1);
-    D = addLatentsByBlock(D, 2);    
+    D = addLatentsByBlock(D, 2);
+    
+    D.trials.YN = D.trials.YN1;
+    D.trials.YR = D.trials.YR1;
+    ib2 = D.trials.block_index == 2;
+    D.trials.YN(ib2,:) = D.trials.YN2(ib2,:);
+    D.trials.YR(ib2,:) = D.trials.YR2(ib2,:);
 
     [Y,X,N,fits,figs] = plot.allBehaviorsByTrial(D, nms, blockInd, ...
         grpName, binSz, ptsPerBin, collapseTrials, fcns, true);

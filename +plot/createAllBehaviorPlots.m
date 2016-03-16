@@ -1,10 +1,14 @@
 
 params = struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360, ...
-    'REMOVE_INCORRECTS', false);
+    'REMOVE_INCORRECTS', true);
 ccaFcn = @(y) tools.canoncorr_r(y{1}, y{2});
 normFcn = @(y) norm(nanmean(y));
 varFcn = @(y) norm(nanvar(y));
 diffFcn = @(y) norm(nanmean(y{1} - y{2}));
+
+innerNorm = @(y) arrayfun(@(ii) norm(y(ii,:)), 1:size(y,1));
+propFcn = @(y) nanmean(innerNorm(y{1})./(innerNorm(y{1}) + innerNorm(y{2})));
+% propFcn = @(y) norm(nanmean(y{1}))./(norm(nanmean(y{1})) + norm(nanmean(y{2})));
 % dts = io.getDates();
 dts = {'20120525', '20120601', '20120709', '20131212'};
 % dts = setdiff(dts, dts0);
@@ -15,9 +19,15 @@ fcns = {[], [], [], [], [], []};
 collapseTrials = [true true true true true true];
 nm = '-';
 
-nms = {'spd'};
-fncs = {[]};
-collapseTrials = [true];
+nms = {'progress', 'progressOrth', 'angErrorAbs', 'angError', ...
+    'trial_length', 'spd', {'YR', 'YN'}, 'YR', 'YN'};
+fcns = {[], [], [], [], [], [], propFcn, normFcn, normFcn};
+collapseTrials = [true true true true true true true false false];
+nm = '-';
+
+% nms = {'spd', 'progress', {'YR', 'YN'}, 'YR', 'YN'};
+% fcns = {[], [], propFcn, normFcn, normFcn};
+% collapseTrials = [true true true false false];
 
 % nms = {'progress', 'trial_length'};
 % fcns = {[], []};
@@ -47,9 +57,9 @@ binSz = 100; ptsPerBin = 4;
 
 blockInd = 0;
 
-% dts = {'20120525'};
+dts = {'20120525'};
 
-% close all;
+close all;
 ths = cell(numel(dts),1);
 for ii = 1:numel(dts)
     for jj = 1:numel(grpNames)

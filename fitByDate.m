@@ -39,10 +39,10 @@ function D = fitHyps(D, nms)
     if ismember('unconstrained', nms)
         D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D));
     end
-    if ismember('volitional w/ 2FAs', nms)
-        D.hyps = pred.addPrediction(D, 'volitional w/ 2FAs', pred.volContFit(D, true, 2));
+    if ismember('volitional-w-2FAs', nms)
+        D.hyps = pred.addPrediction(D, 'volitional-w-2FAs', pred.volContFit(D, true, 2));
     end
-    if ismember('volitional w/ 2FAs (s=5)', nms)
-        D.hyps = pred.addPrediction(D, 'volitional w/ 2FAs', pred.volContFit(D, true, 2, 5));
+    if ismember('volitional-w-2FAs (s=5)', nms)
+        D.hyps = pred.addPrediction(D, 'volitional-w-2FAs (s=5)', pred.volContFit(D, true, 2, 5));
     end
 end
