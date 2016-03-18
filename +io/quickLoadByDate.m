@@ -1,13 +1,19 @@
-function D = quickLoadByDate(dtstr, params, doRotate, doStretch)
+function D = quickLoadByDate(dtstr, params, opts)
+% opts
+%   - doRotate: rotate latents to be orthonormal
+%   - doStretch: stretch latents once orthonormalized
+%   - doSwap: % exchange intuitive and perturbation blocks
+% 
+
     if nargin < 2
         params = struct();
     end
     if nargin < 3
-        doRotate = true;
+        opts = struct();        
     end
-    if nargin < 4
-        doStretch = true;
-    end
+    defopts = struct('doRotate', true, 'doStretch', true, 'doSwap', false);
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
+    
     if isa(dtstr, 'double')
         dts = io.getDates();
         dtstr = dts{dtstr};
@@ -19,7 +25,14 @@ function D = quickLoadByDate(dtstr, params, doRotate, doStretch)
     D.blocks = pred.addTrainAndTestIdx(D.blocks);
     D = io.addDecoders(D);
     
-    if doRotate
-        D = tools.rotateLatentsUpdateDecoders(D, doStretch);
+    if opts.doRotate
+        D = tools.rotateLatentsUpdateDecoders(D, opts.doStretch);
+    end
+    if opts.doSwap
+        B1 = D.blocks(1);        
+        B2 = D.blocks(2);
+        D.blocks(1) = B2;
+        D.blocks(2) = B1;
     end
 end
+

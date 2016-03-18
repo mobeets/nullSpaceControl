@@ -4,12 +4,13 @@ params = struct('MAX_ANGULAR_ERROR', 360);
 hyps = {'kinematics mean', 'habitual', 'cloud-hab', 'baseline', ...
     'minimum', 'unconstrained', 'volitional-w-2FAs', ...
     'volitional-w-2FAs (s=5)'};
+plotOpts = struct('doSolos', true);
 
 % hyps = {'habitual'};
 for ii = 1:numel(dts)
     close all;
     dtstr = dts{ii};
-    D = fitByDate(dtstr, [true false true], params, hyps);
+    D = fitByDate(dtstr, params, hyps, plotOpts);
 end
 
 %%
@@ -20,7 +21,7 @@ for ii = 1:numel(dts)
     ps = io.setFilterDefaults(dtstr);
     ps0 = struct('START_SHUFFLE', nan, ...
         'END_SHUFFLE', ps.START_SHUFFLE, 'MAX_ANGULAR_ERROR', 360)
-    D = fitByDate(dtstr, [true false true], ps0);
+    D = fitByDate(dtstr, ps0, {}, plotOpts);
 end
 
 %%

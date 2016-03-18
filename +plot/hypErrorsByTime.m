@@ -20,10 +20,7 @@ doKins = true;
 
 params = struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360);
 for jj = 1:numel(dts)
-    dtstr = dts{jj}
-    D = io.quickLoadByDate(dtstr, params);
-    D = pred.fitHyps(D, nms);
-%     D.blocks(2) = D.blocks(1);
+    D = fitByDate(dts{jj}, params, nms);
 
     xs1 = min(D.blocks(2).trial_index);
     xs2 = max(D.blocks(2).trial_index);

@@ -1,10 +1,11 @@
-function [errMus, ns, allErrMus, errMusKins, allErrMusKins] = hypothesisErrorByField(D, binNm, tbins, binSz)
+function [errMus, ns, allErrMus, errMusKins, allErrMusKins] = ...
+    hypothesisErrorByField(D, binNm, tbins, binSz)
     
     D = pred.nullActivity(D);
     D = score.scoreAll(D);
     allErrMus = [D.hyps(2:end).errOfMeans];
     allErrMusKins = cell2mat({D.hyps(2:end).errOfMeansByKin}');
-        
+
     nhyps = numel(D.hyps)-1;
     errMus = nan(numel(tbins), nhyps);
     nkins = numel([D.hyps(2).errOfMeansByKin]);

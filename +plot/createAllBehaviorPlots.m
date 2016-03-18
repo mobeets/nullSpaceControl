@@ -29,29 +29,6 @@ fcnNms = {'', 'cca(YR,YN)', 'norm_mean YR/(YR+YN)', 'norm_var YR/(YR+YN)', '||YR
 collapseTrials = [true false true true true true];
 nm = '-CCA';
 
-% nms = {'spd', 'progress', {'YR', 'YN'}, 'YR', 'YN'};
-% fcns = {[], [], propFcn, normFcn, normFcn};
-% collapseTrials = [true true true false false];
-
-% nms = {'progress', 'trial_length'};
-% fcns = {[], []};
-% collapseTrials = [true true];
-% nm = '-';
-
-% nms = {{'YN2', 'YR2'}, 'YN2', 'YN2', 'YR2', 'YR2'};
-% fcns = {ccaFcn, varFcn, normFcn, varFcn, normFcn};
-% collapseTrials = [false false false false false];
-% nm = '-CCA';
-
-% nms = {{'YN2', 'YR2'}};
-% fcns = {ccaFcn};
-% collapseTrials = [false];
-% nm = '-CCA';
-
-% nms = {{'YN1', 'YR1'}, {'YN2', 'YR2'}, 'progress', 'trial_length'};
-% fcns = {ccaFcn, ccaFcn, [], []};
-% collapseTrials = [false, false, true, true];
-
 grpNames = {''};%, 'targetAngle', 'thetaGrps'};
 doSave = true;
 
@@ -72,7 +49,7 @@ for ii = 1:numel(dts)
         dtstr = dts{ii};
 %         outdir = fullfile('plots', 'behaviorAndHypotheses', dtstr);
         outdir = fullfile('plots', 'behaviorAndHypotheses', 'behavior');
-        D = io.quickLoadByDate(dtstr, params, false);
+        D = io.quickLoadByDate(dtstr, params, struct('doRotate', false));
         D.trials = tools.concatBlocks(D);
         [Y,X,N,fits,askedOnce] = plot.createBehaviorPlots(D, blockInd, grpName, nms, ...
             binSz, ptsPerBin, collapseTrials, fcns, fcnNms, doSave, nm, outdir, askedOnce);
