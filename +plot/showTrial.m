@@ -1,21 +1,19 @@
 function showTrial(B, tis, flds)
+% tis: list of trial indices of trials to show
+
     if nargin < 3
         flds = {};
     end
     
     clr = [0.2 0.2 0.8];
-    if isfield(B, 'pos')
-        mn = min(B.pos); mx = max(B.pos);
-    else
-        mn = min(B.targetLocations(:,1:2));
-        mx = max(B.targetLocations(:,1:2));
-        mn(mn < 0) = 1.2*mn(mn < 0);
-        mn(mn > 0) = 0.8*mn(mn > 0);
-        mx(mx < 0) = 0.8*mx(mx < 0);
-        mx(mx > 0) = 1.2*mx(mx > 0);
-    end
-    xl = [mn(1) mx(1)];
-    yl = [mn(2) mx(2)];
+    xl = tools.getLims(B.target(:,1), 0.2);
+    yl = tools.getLims(B.target(:,2), 0.2);
+%     mn = min(B.target); mx = max(B.target);
+%     xl = [mn(1) mx(1)];
+%     yl = [mn(2) mx(2)];
+%     xl = tools.addMarginToLimits(xl, 0.2);
+%     yl = tools.addMarginToLimits(yl, 0.2);
+    
     if isfield(B, 'target')
         st = median(B.target);
     else
