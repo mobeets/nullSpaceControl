@@ -7,23 +7,27 @@ varFcn = @(y) norm(nanvar(y));
 diffFcn = @(y) norm(nanmean(y{1} - y{2}));
 
 innerNorm = @(y) arrayfun(@(ii) norm(y(ii,:)), 1:size(y,1));
+normFcn2 = @(y) nanmean(innerNorm(y));
 propFcn = @(y) nanmean(innerNorm(y{1})./(innerNorm(y{1}) + innerNorm(y{2})));
+propVarFcn = @(y) nanvar(innerNorm(y{1})./(innerNorm(y{1}) + innerNorm(y{2})));
 % propFcn = @(y) norm(nanmean(y{1}))./(norm(nanmean(y{1})) + norm(nanmean(y{2})));
+
 % dts = io.getDates();
-dts = {'20120525', '20120601', '20120709', '20131212'};
+% dts = {'20120525', '20120601', '20120709', '20131212'};
+dts = {'20131125', '20131205'};
 % dts = setdiff(dts, dts0);
 
-nms = {'progress', 'progressOrth', 'angErrorAbs', 'angError', ...
-    'trial_length', 'isCorrect'};
-fcns = {[], [], [], [], [], []};
-collapseTrials = [true true true true true true];
-nm = '-';
+% nms = {'progress', 'progressOrth', 'angErrorAbs', 'angError', ...
+%     'trial_length', 'isCorrect'};
+% fcns = {[], [], [], [], [], []};
+% collapseTrials = [true true true true true true];
+% nm = '-';
 
-nms = {'progress', 'progressOrth', 'angErrorAbs', 'angError', ...
-    'trial_length', 'spd', {'YR', 'YN'}, 'YR', 'YN'};
-fcns = {[], [], [], [], [], [], propFcn, normFcn, normFcn};
-collapseTrials = [true true true true true true true false false];
-nm = '-';
+nms = {'progress', {'YR', 'YN'}, {'YR', 'YN'}, {'YR', 'YN'}, 'YR', 'YN'};
+fcns = {[], ccaFcn, propFcn, propVarFcn, normFcn2, normFcn2};
+fcnNms = {'', 'cca(YR,YN)', 'norm_mean YR/(YR+YN)', 'norm_var YR/(YR+YN)', '||YR||', '||YN||'};
+collapseTrials = [true false true true true true];
+nm = '-CCA';
 
 % nms = {'spd', 'progress', {'YR', 'YN'}, 'YR', 'YN'};
 % fcns = {[], [], propFcn, normFcn, normFcn};
@@ -49,15 +53,15 @@ nm = '-';
 % collapseTrials = [false, false, true, true];
 
 grpNames = {''};%, 'targetAngle', 'thetaGrps'};
-doSave = false;
+doSave = true;
 
 % binSz = 500; ptsPerBin = 40;
 % binSz = 150; ptsPerBin = 50;
 binSz = 100; ptsPerBin = 4;
 
 blockInd = 0;
-
-dts = {'20120525'};
+askedOnce = false;
+% dts = {'20120525'};
 
 close all;
 ths = cell(numel(dts),1);
@@ -66,12 +70,12 @@ for ii = 1:numel(dts)
         grpName = grpNames{jj};
 %         close all;
         dtstr = dts{ii};
-        outdir = fullfile('plots', 'behaviorAndHypotheses', dtstr);
-%         outdir = fullfile('plots', 'behaviorAndHypotheses', 'behavior');
+%         outdir = fullfile('plots', 'behaviorAndHypotheses', dtstr);
+        outdir = fullfile('plots', 'behaviorAndHypotheses', 'behavior');
         D = io.quickLoadByDate(dtstr, params, false);
         D.trials = tools.concatBlocks(D);
-        [Y,X,N,fits] = plot.createBehaviorPlots(D, blockInd, grpName, nms, ...
-            binSz, ptsPerBin, collapseTrials, fcns, doSave, nm, outdir);
+        [Y,X,N,fits,askedOnce] = plot.createBehaviorPlots(D, blockInd, grpName, nms, ...
+            binSz, ptsPerBin, collapseTrials, fcns, fcnNms, doSave, nm, outdir, askedOnce);
         th = cell2mat(arrayfun(@(ii) cellfun(@(f) f(end), fits{ii}(:,2)), ...
             1:numel(fits), 'uni', 0));
         th(th >= max(D.blocks(2).trial_index)) = nan;

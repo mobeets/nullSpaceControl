@@ -6,6 +6,12 @@ function Blks = addTrainAndTestIdx(Blks0, trainPct)
     for ii = 1:numel(Blks0)
         Blk = Blks0(ii);
         N = size(Blk.latents,1);
+%         if N <= 1
+%             Blk.idxTrain = [];
+%             Blk.idxTest = [];
+%             Blks = [Blks Blk];
+%             continue;
+%         end
         cvobj = cvpartition(N, 'HoldOut', 1-trainPct);
         Blk.idxTrain = cvobj.training(1);
         Blk.idxTest = cvobj.test(1);

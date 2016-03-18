@@ -1,7 +1,7 @@
 %%
 
-dtstr = '20131212';
-params = struct('MAX_ANGULAR_ERROR', 360);
+dtstr = '20131125';
+params = struct('MAX_ANGULAR_ERROR', 360, 'START_SHUFFLE', 500);
 D = io.quickLoadByDate(dtstr, params);
 D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
 D.hyps = pred.addPrediction(D, 'cloud-hab-0', pred.sameCloudFit(D, 0.35, 30));
@@ -10,6 +10,7 @@ D.hyps = pred.addPrediction(D, 'cloud-hab-0', pred.sameCloudFit(D, 0.35, 30));
 % rotThetas = [20     5     0     5     5   -10   -20   -15]; % 20120525
 % rotThetas = [0   -20   -20    -5    -5    10    15     5]; % 20120709
 % rotThetas = [-15   -10   -15   -15     5   -10     5   -10]; % 20131212
+% rotThetas = [-25   -30   -35   -25   -10   -45   -40   -35]; % 20131125
 
 %%
 

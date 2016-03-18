@@ -1,5 +1,5 @@
 function [Y,X,N,fits, figs] = allBehaviorsByTrial(D, nms, blockInd, ...
-    grpName, binSz, ptsPerBin, collapseTrials, fcns, showExp)
+    grpName, binSz, ptsPerBin, collapseTrials, fcns, fcnNms, showExp)
     if nargin < 3
         blockInd = 0;
     end
@@ -19,6 +19,9 @@ function [Y,X,N,fits, figs] = allBehaviorsByTrial(D, nms, blockInd, ...
         fcns = [];
     end
     if nargin < 9
+        fcnNms = {};
+    end
+    if nargin < 10
         showExp = false;
     end
     
@@ -38,7 +41,7 @@ function [Y,X,N,fits, figs] = allBehaviorsByTrial(D, nms, blockInd, ...
     
     [ngrps, nblks] = size(X{end});
     nrows = floor(sqrt(nflds)); ncols = ceil(nflds/nrows);
-    clrs = cbrewer('qual', 'Set2', nflds);
+    clrs = cbrewer('qual', 'Set1', nflds);    
     
     figs = struct([]);
     for ii = 1:ngrps
@@ -73,11 +76,15 @@ function [Y,X,N,fits, figs] = allBehaviorsByTrial(D, nms, blockInd, ...
             plot([xs1 xs1], ylim, '-', 'Color', [0.5 0.5 0.5], ...
                 'LineWidth', 1, 'HandleVisibility', 'off');
             plot([xs2 xs2], ylim, '-', 'Color', [0.5 0.5 0.5], ...
-                'LineWidth', 1, 'HandleVisibility', 'off');
+                'LineWidth', 1, 'HandleVisibility', 'off');            
             ylbl = nms{kk};
             if ~isempty(fcns{kk})
                 fcnName = func2str(fcns{kk});
-                ylbl = [ylbl ' ' fcnName(5:end)];
+                fcnName = fcnName(5:end);
+                ylbl = [ylbl ' ' fcnName];
+            end
+            if ~isempty(fcns{kk}) && ~isempty(fcnNms{kk})
+                ylbl = fcnNms{kk};
             end
             ylabel(ylbl);
         end
