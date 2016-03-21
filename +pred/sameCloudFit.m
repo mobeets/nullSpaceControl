@@ -1,18 +1,16 @@
-function Z = sameCloudFit(D, d_min, theta_tol, fnms, threshes, rotThetas)
+function Z = sameCloudFit(D, opts)
     if nargin < 2
-        d_min = nan;
+        opts = struct();
     end
-    if nargin < 3
-        theta_tol = nan;
+    defopts = struct('thetaTol', 30, 'rotThetas', 0, 'minDist', 0.35, ...
+        'kNN', nan, 'doSample', true);
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
+    if numel(opts.rotThetas) == 1
+        opts.rotThetas = opts.rotThetas*ones(8,1);
     end
-    if nargin < 4
-        fnms = {};
-    end
-    if nargin < 5
-        threshes = {};
-    end
-    if nargin < 6
-        rotThetas = 0;
+    assert(numel(opts.rotThetas) == 8);
+    if ~isnan(opts.kNN) && ~isnan(opts.minDist)
+        warning('Ignoring kNN option because minDist is set.');
     end
     
     B1 = D.blocks(1);
@@ -22,61 +20,70 @@ function Z = sameCloudFit(D, d_min, theta_tol, fnms, threshes, rotThetas)
     
     Z1 = B1.latents;
     Z2 = B2.latents;
+    Zr = Z2*(RB2*RB2');
     R1 = Z1*RB2;
     R2 = Z2*RB2;
     [nt, nn] = size(Z2);
 
-    Zn = nan(nt,nn);
+    invalidCount = 0;
+    Zsamp = nan(nt,nn);
     for t = 1:nt        
         % calculate distance in current row space
         %   of all intuitive activity from current activity
         ds = getDistances(R1, R2(t,:));
         
-        if ~isempty(fnms)
-            for jj = 1:numel(fnms)
-                fnm = fnms{jj};
-                v2 = B2.(fnm);
-                v1 = B1.(fnm);
-                ds1 = getDistances(v2(t), v1);
-                ds(ds1 > threshes{jj}) = inf;
-            end
-        end
-            
-%         ds(B2.thetaGrps(t) ~= B1.thetaGrps) = inf;
-%         ds(abs(B2.rs(t) - B1.rs) > 25) = inf;
-        
-        if ~isnan(theta_tol) % make distance inf if theta is too different
-%             theta = B2.thetas(t);
-%             bnds = mod([theta - theta_tol theta + theta_tol], 360);
-%             nearbyIdxs = tools.isInRange(B1.thetas, bnds);
-%             ds(~nearbyIdxs) = inf;
-            if numel(rotThetas) == 1
-                rotTheta = rotThetas;
-            else
-                assert(numel(rotThetas) == 8);
-                ind = score.thetaGroup(B2.thetas(t), ...
-                    score.thetaCenters(8)) == score.thetaCenters(8);
-                rotTheta = rotThetas(ind);
-            end
+        if ~isnan(opts.thetaTol) % make distance inf if theta is too different
+            ind = B2.thetaGrps(t) == score.thetaCenters(8);
+            rotTheta = opts.rotThetas(ind);
             th = mod(B2.thetas(t)+rotTheta, 360);
             dsThetas = getAngleDistance(B1.thetas, th);
-            ds(dsThetas > theta_tol) = inf;
+            ds(dsThetas > opts.thetaTol) = inf;
+        end
+        if isnan(opts.minDist)
+            if ~isnan(opts.kNN)
+                [~,ix] = sort(ds);
+                kNNinds = ix(1:opts.kNN); % take nearest neighbors
+                Zsamp(t,:) = meanOrSample(Z1(kNNinds,:), opts);
+            else
+                Zsamp(t,:) = meanOrSample(Z1(~isinf(ds),:), opts);
+            end
+            continue;
         end
         
-        % somehow weight ds and dsThetas? they should both be similar maybe
-
-        if isnan(d_min) || sum(ds <= d_min) == 0 % take nearest activity
+        ix = ds <= opts.minDist;
+        
+        if sum(ix) == 0 % pick the nearest point
             [~,ind] = min(ds);
-            zf = Z1(ind,:);
-        else % sample from nearby activity
-            zfa = Z1(ds <= d_min, :);
-            ind = randi(size(zfa,1),1);
-            zf = zfa(ind,:);
+            ix(ind) = true;
+            invalidCount = invalidCount + 1;
         end
-        Zn(t,:) = zf;
+%         % add to minimum distance until there is at least one point in range
+%         c = 2;
+%         while sum(ix) == 0
+%             ix = ds <= c*opts.minDist;
+%             c = c + 1;
+%         end
+%         if c > 2
+%             invalidCount = invalidCount + 1;
+%         end
+        
+        Zsamp(t,:) = meanOrSample(Z1(ix, :), opts);
     end
-    Z = Z2*(RB2*RB2') + Zn*(NB2*NB2');
+    if invalidCount > 0
+        warning([num2str(invalidCount) ' of ' num2str(nt) ' adjusted cloud samples.']);
+    end
+    Zn = Zsamp*(NB2*NB2');
+    Z = Zr + Zn;
 
+end
+
+function z = meanOrSample(zs, opts)
+    if opts.doSample
+        ind = randi(size(zs,1),1);
+        z = zs(ind,:);
+    else
+        z = nanmean(zs);
+    end
 end
 
 function ds = getDistances(Z, z)
@@ -86,6 +93,5 @@ end
 
 function ds = getAngleDistance(Z, z)
     dst = @(d1,d2) abs(mod((d1-d2 + 180), 360) - 180);
-%     dst = @(d1,d2) min(abs(d1-360 - d2), abs(d1-d2));
     ds = bsxfun(dst, Z, z);
 end

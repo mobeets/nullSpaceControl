@@ -8,6 +8,6 @@ function Z = minFireFit(D)
     for t = 1:nt
         U(t,:) = pred.quadFireFit(B2, t, [], B2.nDecoder, false);
     end
-    Z = io.convertRawSpikesToRawLatents(Dc, U')';
+    Z = tools.convertRawSpikesToRawLatents(Dc, U');
 
 end

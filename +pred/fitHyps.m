@@ -7,7 +7,7 @@ function D = fitHyps(D, nms)
         D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
     end
     if ismember('cloud-hab', nms)
-        D.hyps = pred.addPrediction(D, 'cloud-hab', pred.sameCloudFit(D, 0.35, 30));
+        D.hyps = pred.addPrediction(D, 'cloud-hab', pred.sameCloudFit(D));
     end
     if ismember('baseline', nms)
         D.hyps = pred.addPrediction(D, 'baseline', pred.baseFireFit(D));

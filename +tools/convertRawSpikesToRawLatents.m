@@ -15,13 +15,12 @@ function latents = convertRawSpikesToRawLatents(decoder, spikes)
 
     % See Eqn. 5 of DAP.pdf
     top = (L*L'+diag(ph));
-    Asp = top\(diag(sigma)\spikes);
-    b = top\(diag(sigma)\-mu);
-    latents = bsxfun(@plus, L'*Asp, L'*b);
+    u = diag(sigma)\(bsxfun(@plus, spikes, -mu)); % normalize
+    latents = (L'*(top\u))';
     
     if isfield(decoder.FactorAnalysisParams, 'spikeRot')
         % latents need rotating into new space
-        latents = decoder.FactorAnalysisParams.spikeRot'*latents;
+        latents = latents*decoder.FactorAnalysisParams.spikeRot;
     end
     
 end

@@ -42,8 +42,8 @@ function trials = makeTrials(D)
         score.thetaCenters(8));
 
     % add latents
-    trials.latents = io.convertRawSpikesToRawLatents(...
-        D.simpleData.nullDecoder, trials.spikes')';
+    trials.latents = tools.convertRawSpikesToRawLatents(...
+        D.simpleData.nullDecoder, trials.spikes');
 	
 end
 
