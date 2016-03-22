@@ -13,7 +13,7 @@ function D = fitByDate(dtstr, params, nms, plotOpts, opts)
         opts = struct();
     end    
     
-    D = io.quickLoadByDate(dtstr, params, opts);    
+    D = io.quickLoadByDate(dtstr, params, opts);
     D = pred.fitHyps(D, nms);
     D = pred.nullActivity(D);
     D = score.scoreAll(D);

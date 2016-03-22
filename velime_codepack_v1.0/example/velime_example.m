@@ -14,6 +14,19 @@ dtstr = '20120601';
 [U, Y, Xtarget] = prep(dtstr);
 cd /Users/mobeets/code/nullSpaceControl/velime_codepack_v1.0/
 
+% 
+% Q1: removed the first 7 time-points per trial?
+% Q2: how to compare to true decoder?
+% Q3: simplest way to predict next cursor location under IME
+% Q4: remove incorrects? 
+%
+% Notes:
+% - movement onset as first point where computed cursor velocity exceeds
+%       15% of baseline
+% - angular error includes the target radius
+%       (sum of cursor and target radii)
+% 
+
 %% Fit velocity-IME model
 init_method = 'current_regression';
 verbose = true;
@@ -22,6 +35,7 @@ max_iters = 500; % I recommend 5,000 iterations for all real applications.
 TAU = 3;
 T_START = TAU + 2; % "whiskers" from each trial are well-defined beginning at timestep T_START
 TARGET_RADIUS = 0.016;
+TARGET_RADIUS = 20 + 18;
 
 [estParams,LL] = velime_fit(U,Y,Xtarget,TAU,...
     'INIT_METHOD',init_method,...
@@ -35,7 +49,7 @@ TARGET_RADIUS = 0.016;
 result = velime_evaluate(U, Y, Xtarget, estParams, 'TARGET_RADIUS', TARGET_RADIUS, 'T_START', T_START);
 
 %% Generate whisker plot
-trialNo = 98;
+trialNo = 798;
 figure; hold on;
 fill_circle(Xtarget{trialNo},TARGET_RADIUS,'g');
 plot(Y{trialNo}(1,:),Y{trialNo}(2,:),'k-o');

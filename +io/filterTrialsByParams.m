@@ -1,9 +1,18 @@
 function trials = filterTrialsByParams(trials, params)
     
-    ix = abs(trials.angError) < params.MAX_ANGULAR_ERROR & ...
-        abs(trials.angError) >= params.MIN_ANGULAR_ERROR & ...
-        trials.rs >= params.MIN_DISTANCE & ...
-        trials.rs <= params.MAX_DISTANCE;
+    ix = true(size(trials.angError));
+    if ~isnan(params.MIN_ANGULAR_ERROR)
+        ix = ix & abs(trials.angError) >= params.MIN_ANGULAR_ERROR;
+    end
+    if ~isnan(params.MAX_ANGULAR_ERROR)
+        ix = ix & abs(trials.angError) < params.MAX_ANGULAR_ERROR;
+    end
+    if ~isnan(params.MIN_DISTANCE)
+        ix = ix & trials.rs >= params.MIN_DISTANCE;
+    end
+    if ~isnan(params.MAX_DISTANCE)
+        ix = ix & trials.rs <= params.MAX_DISTANCE;
+    end
     if params.REMOVE_INCORRECTS
         ix = ix & trials.isCorrect;
     end
