@@ -3,8 +3,11 @@ function spikes = latentsToSpikes(latents, decoder, addNoise)
         addNoise = false;
     end
     
+    if isfield(decoder.FactorAnalysisParams, 'spikeRot')
+        latents = latents/decoder.FactorAnalysisParams.spikeRot;
+    end
     L = decoder.FactorAnalysisParams.L;
-    ph = decoder.FactorAnalysisParams.ph;    
+    ph = decoder.FactorAnalysisParams.ph;
     spikes = (L*latents')';
     if addNoise
         nse = mvnrnd(zeros(size(spikes,2),1), ph', size(spikes,1));

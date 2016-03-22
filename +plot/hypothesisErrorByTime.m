@@ -1,7 +1,7 @@
 function [doSave, askedOnce] = hypothesisErrorByTime(D, binNm, tbins, ...
     binSz, doKins, fldr, doSave, askedOnce)
 
-    [errMus, ns, allErrMus, errMusKins, allErrMusKins] = ...
+    [errMus, ns, allErrMus, errMusKins, allErrMusKins, nsKins] = ...
         plot.hypothesisErrorByField(D, binNm, tbins, binSz);
     nhyps = numel(D.hyps)-1;
     clrs = cbrewer('qual', 'Set2', nhyps);
@@ -9,14 +9,17 @@ function [doSave, askedOnce] = hypothesisErrorByTime(D, binNm, tbins, ...
     if doKins
         errs = errMusKins;
         allErrs = allErrMusKins';
+        nsAll = nsKins;
     else
         errs = {errMus};
         allErrs = allErrMus;
+        nsAll = {ns};
     end
     grps = score.thetaCenters(8);
     
     for kk = 1:numel(errs)
         errCur = errs{kk};
+        ns = nsAll{kk};
         allErrCur = allErrs(kk,:);
         if doKins
             suff = ['th=' num2str(grps(kk))];

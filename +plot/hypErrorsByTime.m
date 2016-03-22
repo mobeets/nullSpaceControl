@@ -1,6 +1,6 @@
 
 
-dts = {'20131125'};
+dts = {'20120601'};
 % dts = {'20120525', '20120601', '20120709', '20131212', '20131205', '20131125'};
 % dts = {'20120601', '20120709', '20131212', '20131205', '20131125'};
 
@@ -21,6 +21,14 @@ doKins = true;
 params = struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360);
 for jj = 1:numel(dts)
     D = fitByDate(dts{jj}, params, nms);
+    
+%     opts = struct('doSample', false);
+%     lts = pred.sameCloudFit(D, opts);
+%     D.blocks(2).latents = lts;
+%     D.hyps = pred.addPrediction(D, 'observed', lts);
+%     D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D, true));
+%     D = pred.nullActivity(D);
+%     D = score.scoreAll(D);
 
     xs1 = min(D.blocks(2).trial_index);
     xs2 = max(D.blocks(2).trial_index);

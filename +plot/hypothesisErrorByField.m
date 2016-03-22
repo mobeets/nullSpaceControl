@@ -1,4 +1,4 @@
-function [errMus, ns, allErrMus, errMusKins, allErrMusKins] = ...
+function [errMus, ns, allErrMus, errMusKins, allErrMusKins, nsKins] = ...
     hypothesisErrorByField(D, binNm, tbins, binSz)
     
     D = pred.nullActivity(D);
@@ -8,12 +8,15 @@ function [errMus, ns, allErrMus, errMusKins, allErrMusKins] = ...
 
     nhyps = numel(D.hyps)-1;
     errMus = nan(numel(tbins), nhyps);
+    ns = nan(size(errMus,1),1);
+    kins = score.thetaCenters(8);
     nkins = numel([D.hyps(2).errOfMeansByKin]);
     errMusKins = cell(nkins, 1);
+    nsKins = cell(nkins,1);
     for ii = 1:numel(errMusKins)
         errMusKins{ii} = nan(size(errMus));
-    end
-    ns = nan(size(errMus,1),1);
+        nsKins{ii} = nan(size(ns));
+    end    
     for ii = 1:numel(tbins)
         t1 = tbins(ii); t2 = tbins(ii)+binSz;
         ts = D.blocks(2).(binNm);
@@ -27,6 +30,7 @@ function [errMus, ns, allErrMus, errMusKins, allErrMusKins] = ...
         scs = cell2mat({D.hyps(2:end).errOfMeansByKin}');
         for jj = 1:nkins
             errMusKins{jj}(ii,:) = scs(:,jj)';
+            nsKins{jj}(ii) = sum(D.blocks(2).idxScore & D.blocks(2).thetaGrps == kins(jj));
         end
         
 %         ps = params; ps.START_SHUFFLE = t1; ps.END_SHUFFLE = t2;
