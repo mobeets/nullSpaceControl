@@ -21,9 +21,10 @@ function D = quickLoadByDate(dtstr, params, opts)
     
     D = io.loadDataByDate(dtstr);
     D.params = io.updateParams(D.params, params);
+    D.opts = opts;
     D.blocks = io.getDataByBlock(D);
     D.blocks = pred.addTrainAndTestIdx(D.blocks);
-    D = io.addDecoders(D);
+    D = io.addDecoders(D);    
     
     if opts.doRotate
         D = tools.rotateLatentsUpdateDecoders(D, opts.doStretch);

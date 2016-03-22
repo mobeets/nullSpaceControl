@@ -12,6 +12,8 @@ function z = quadFireFit(Blk, t, f, decoder, fitInLatent)
 %         (2) Aeq*u = beq
 %
 
+%     x0 = Blk.vel(t,:)';
+%     x1 = Blk.vel(t+1,:)';
     x1 = Blk.vel(t,:)';
     x0 = Blk.velPrev(t,:)';
     Ac = decoder.M1;

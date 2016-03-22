@@ -7,8 +7,7 @@ function latents = convertRawSpikesToRawLatents(decoder, spikes)
     end
 
     % FA params
-    L = decoder.FactorAnalysisParams.L;
-    
+    L = decoder.FactorAnalysisParams.L;    
     ph = decoder.FactorAnalysisParams.ph;
     mu = decoder.spikeCountMean';
     sigma = decoder.spikeCountStd';
@@ -22,5 +21,5 @@ function latents = convertRawSpikesToRawLatents(decoder, spikes)
         % latents need rotating into new space
         latents = latents*decoder.FactorAnalysisParams.spikeRot;
     end
-    
+
 end

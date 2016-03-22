@@ -30,7 +30,9 @@ function D = rotateLatentsUpdateDecoders(D, doStretch)
 
         Znew = Z*spikeRot; % L = USV', u = Lz
         M2new = M2*inv(spikeRot)';
-        assert(norm(Znew*M2new' - Z*M2') < 1e-10, 'Activity not preserved');
+        % n.b. will fail if nans in Znew or Z
+        ixNotNan = ~any(isnan(Z),2);
+        assert(norm(Znew(ixNotNan,:)*M2new' - Z(ixNotNan,:)*M2') < 1e-10, 'Activity not preserved');
                 
         [NulM2, RowM2] = tools.getNulRowBasis(M2new); % neg 1st col
         

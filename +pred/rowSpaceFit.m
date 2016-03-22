@@ -6,8 +6,15 @@ function z1 = rowSpaceFit(Blk, decoder, NB, RB, t)
 %   (2) NB'*z1 = 0
 % 
     
-    x1 = Blk.vel(t,:)';
-    x0 = Blk.velPrev(t,:)';
+    x0 = Blk.vel(t,:)';
+    if size(Blk.vel,1) < t+1
+        x1 = Blk.vel(t,:)';
+        x0 = Blk.velPrev(t,:)';
+    else
+        x1 = Blk.vel(t+1,:)';
+    end
+%     x1 = Blk.vel(t,:)';
+%     x0 = Blk.velPrev(t,:)';
     A = decoder.M1;
     B = decoder.M2;
     c = decoder.M0;
