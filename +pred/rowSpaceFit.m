@@ -7,7 +7,7 @@ function z1 = rowSpaceFit(Blk, decoder, NB, RB, t)
 % 
     
     x0 = Blk.vel(t,:)';
-    if size(Blk.vel,1) < t+1
+    if size(Blk.vel,1) < t+1 % FIX THIS -- placeholder
         x1 = Blk.vel(t,:)';
         x0 = Blk.velPrev(t,:)';
     else

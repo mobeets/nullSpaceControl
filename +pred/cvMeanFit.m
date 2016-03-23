@@ -5,6 +5,7 @@ function Z = cvMeanFit(D, opts)
     if nargin < 2
         opts = struct();
     end
+    assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'doNull', true);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     

@@ -2,7 +2,7 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
     if nargin < 2
         opts = struct();
     end
-    
+    assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'addPrecursor', true, ...
         'useL', false, 'scaleVol', 1);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
