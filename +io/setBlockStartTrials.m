@@ -1,4 +1,4 @@
-function ps = setParams(datestr)
+function ps = setBlockStartTrials(datestr)
 
     if strcmp(datestr,'20120525')
         START_SHUFFLE = 657; % 700

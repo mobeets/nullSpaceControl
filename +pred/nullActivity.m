@@ -1,24 +1,26 @@
-function D = nullActivity(D, idxFld)
+function D = nullActivity(D, opts)
     if nargin < 2
-        idxFld = '';
+        opts = struct();
     end
+    defopts = struct('decoderNm', 'fDecoder', 'idxFldNm', '');
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
 
-    NBf = @(ii) D.blocks(ii).fDecoder.NulM2;
+    NBf = @(ii) D.blocks(ii).(opts.decoderNm).NulM2;
     
     % mean/cov of null activity in second block
     for ii = 1:numel(D.hyps)
         D.hyps(ii).null(1) = nullActivityAll(...
-            D.hyps(ii).latents, D.blocks(2), NBf(1), idxFld);
+            D.hyps(ii).latents, D.blocks(2), NBf(1), opts.idxFldNm);
         D.hyps(ii).null(2) = nullActivityAll(...
-            D.hyps(ii).latents, D.blocks(2), NBf(2), idxFld);
+            D.hyps(ii).latents, D.blocks(2), NBf(2), opts.idxFldNm);
     end    
     
     % mean/cov of null activity for observed activity
     ix = strcmp('observed', {D.hyps.name});
     D.hyps(ix).nullOG(1) = nullActivityAll(...
-        D.blocks(1).latents, D.blocks(1), NBf(1), idxFld);
+        D.blocks(1).latents, D.blocks(1), NBf(1), opts.idxFldNm);
     D.hyps(ix).nullOG(2) = nullActivityAll(...
-        D.blocks(1).latents, D.blocks(1), NBf(2), idxFld);
+        D.blocks(1).latents, D.blocks(1), NBf(2), opts.idxFldNm);
 
 end
 

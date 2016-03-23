@@ -1,5 +1,5 @@
 function ps = setFilterDefaults(datestr)
-    ps = io.setParams(datestr);
+    ps = io.setBlockStartTrials(datestr);
     ps.MIN_DISTANCE = 50;
     ps.MAX_DISTANCE = 125;
     ps.MAX_ANGULAR_ERROR = 20;

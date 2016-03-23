@@ -10,17 +10,19 @@ load('example_data.mat');
 %%
 
 cd /Users/mobeets/code/nullSpaceControl
-dtstr = '20120601';
-% dtstr = '20120525';
+% dtstr = '20120601';
+dtstr = '20120525';
 params = io.setUnfilteredDefaults();
+params = io.updateParams(params, io.setBlockStartTrials(dtstr), true);
+
 opts = struct('doRotate', false);
 D = io.quickLoadByDate(dtstr, params, opts);
 cd /Users/mobeets/code/nullSpaceControl/velime_codepack_v1.0/
 
 %%
 
-bind = 1;
-[U, Y, Xtarget] = prep(D, bind);
+bind = 2;
+[U, Y, Xtarget] = prep(D.blocks(bind));
 
 %%
 
@@ -36,7 +38,7 @@ save(fnm, 'ime');
 init_method = 'current_regression';
 verbose = true;
 PARALLEL = false;
-max_iters = 500; % I recommend 5,000 iterations for all real applications.
+max_iters = 200; % I recommend 5,000 iterations for all real applications.
 TAU = 3;
 T_START = TAU + 2; % "whiskers" from each trial are well-defined beginning at timestep T_START
 TARGET_RADIUS = 0.016;

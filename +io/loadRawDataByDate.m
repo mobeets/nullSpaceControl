@@ -23,7 +23,7 @@ function D = loadRawDataByDate(dtstr)
     D.datestr = dtstr;
     D.kalmanInitParams = kalmanInitParams;
     D.simpleData = simpleData;
-%     D.params = io.setParams(D.datestr);
+%     D.params = io.setBlockStartTrials(D.datestr);
     D.params.IDEAL_SPEED = 175;
     D.trials = io.makeTrials(D);
     

@@ -22,7 +22,7 @@ function [errMus, ns, allErrMus, errMusKins, allErrMusKins, nsKins] = ...
         ts = D.blocks(2).(binNm);
         D.blocks(2).idxScore = ts >= t1 & ts < t2;
         ns(ii) = sum(D.blocks(2).idxScore);
-        D = pred.nullActivity(D, 'idxScore');
+        D = pred.nullActivity(D, struct('idxFldNm', 'idxScore'));
         D = score.scoreAll(D);
         errMus(ii,:) = [D.hyps(2:end).errOfMeans];
         
