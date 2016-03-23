@@ -1,4 +1,9 @@
-function Z = baseFireFit(D)
+function Z = baseFireFit(D, opts)
+    if nargin < 2
+        opts = struct();
+    end
+    defopts = struct('decoderNm', 'nDecoder');
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
 
     B2 = D.blocks(2);
     Dc = D.simpleData.nullDecoder;
@@ -7,7 +12,7 @@ function Z = baseFireFit(D)
     [nt, nu] = size(B2.spikes);
     U = nan(nt,nu);
     for t = 1:nt
-        U(t,:) = pred.quadFireFit(B2, t, -mu, B2.nDecoder, false);
+        U(t,:) = pred.quadFireFit(B2, t, -mu, B2.(opts.decoderNm), false);
     end
     Z = tools.convertRawSpikesToRawLatents(Dc, U');
 end

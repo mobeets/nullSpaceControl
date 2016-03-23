@@ -8,7 +8,7 @@ function quickSim(D)
     nms = {'true'};
     opts = struct('doSample', false);
 %     cloudopts = struct('doSample', false, 'kNN', 100, 'minDist', nan);
-    cloudopts = struct('doSample', false, 'minDist', 0.5, 'thetaTol', 20);
+    cloudopts = opts;%struct('doSample', false, 'minDist', 0.5, 'thetaTol', 20);
     [Ys, nms] = addSims(Ys, nms, D, @(D) pred.habContFit(D, opts), 'sim hab');
     [Ys, nms] = addSims(Ys, nms, D, @(D) pred.sameCloudFit(D, cloudopts), 'sim cloud');
     

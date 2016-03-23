@@ -16,13 +16,13 @@ function D = fitHyps(D, nms, opts)
         D.hyps = pred.addPrediction(D, 'cloud-hab', pred.sameCloudFit(D, opts));
     end
     if ismember('baseline', nms)
-        D.hyps = pred.addPrediction(D, 'baseline', pred.baseFireFit(D));
+        D.hyps = pred.addPrediction(D, 'baseline', pred.baseFireFit(D, opts));
     end
     if ismember('minimum', nms)
-        D.hyps = pred.addPrediction(D, 'minimum', pred.minFireFit(D));
+        D.hyps = pred.addPrediction(D, 'minimum', pred.minFireFit(D, opts));
     end
     if ismember('unconstrained', nms)
-        D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D));
+        D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D, opts));
     end
     if ismember('volitional-w-2FAs', nms)
         custopts = struct('addPrecursor', true, 'useL', 2);

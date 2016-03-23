@@ -2,7 +2,6 @@ function spikes = latentsToSpikes(latents, decoder, addNoise)
 % generate spikes s.t. the model from spikes to latents recreates the
 %   present latents
 % 
-
     if nargin < 3
         addNoise = false;
     end
@@ -11,7 +10,7 @@ function spikes = latentsToSpikes(latents, decoder, addNoise)
         latents = latents/decoder.FactorAnalysisParams.spikeRot;
     end
     L = decoder.FactorAnalysisParams.L;
-    ph = decoder.FactorAnalysisParams.ph;    
+    ph = decoder.FactorAnalysisParams.ph;
 
 %     top = (L*L'+diag(ph));
 %     ((L'*inv(top))*U)' = U'*(L'*inv(top))' = U'*(top'\L) = Z'
