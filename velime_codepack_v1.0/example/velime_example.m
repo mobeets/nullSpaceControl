@@ -11,8 +11,10 @@ load('example_data.mat');
 
 cd /Users/mobeets/code/nullSpaceControl
 dtstr = '20120601';
-[U, Y, Xtarget] = prep(dtstr);
+% dtstr = '20120525';
+[U, Y, Xtarget, D] = prep(dtstr, 1);
 cd /Users/mobeets/code/nullSpaceControl/velime_codepack_v1.0/
+dec = D.blocks(1).nDecoder;
 
 % 
 % Q1: removed the first 7 time-points per trial?
@@ -42,15 +44,50 @@ TARGET_RADIUS = 20 + 18; % from Sadtler paper; positions in mm
     'INIT_METHOD',init_method,...
     'verbose',verbose,...
     'max_iters',max_iters);
+% estParamsCopy = estParams;
 
 %% Extract prior latent variable distributions ("whiskers")
+
+estParams.A = dec.M1;
+estParams.B = dec.M2*0.045;
+estParams.b0 = dec.M0*0.045;
+% estParamsCopy2 = estParams;
+% estParams = estParamsCopy;
 [E_P, E_V] = velime_extract_prior_whiskers(U, Y, Xtarget, estParams);
 
 %% Compute angular errors from prior expectations over latent variables
 result = velime_evaluate(U, Y, Xtarget, estParams, 'TARGET_RADIUS', TARGET_RADIUS, 'T_START', T_START);
 
+%% Compare to cursor error
+
+errs = cell(1,numel(U));
+for ii = 1:numel(U)
+    P_t = Y{ii};
+    P_tp1 = P_t(:,T_START+1:end);
+    P_t = P_t(:,T_START:end-1);
+    errs{ii} = angular_error_from_perimeter(P_t, P_tp1, Xtarget{ii}, TARGET_RADIUS);
+end
+
+figure; set(gcf, 'color', 'w'); hold on; set(gca, 'FontSize', 14);
+cursorErrs = abs(cell2mat(errs));
+mdlErrs = abs(cell2mat(result.trial_error_angles_from_perimeter));
+plot(mdlErrs, cursorErrs, '.');
+xlabel('internal model errors (degrees)');
+ylabel('cursor errors (degrees)');
+
+figure; set(gcf, 'color', 'w'); hold on; set(gca, 'FontSize', 14);
+xs = 1:60;%round(max(mdlErrs));
+ys = 1:60;%round(max(cursorErrs));
+ns = hist3([mdlErrs; cursorErrs]', {xs, ys});
+imagesc(xs, ys, log(ns));
+xlabel('internal model errors (degrees)');
+ylabel('cursor errors (degrees)');
+axis image;
+
+[mean(cursorErrs) mean(mdlErrs)]
+
 %% Generate whisker plot
-trialNo = 798;
+trialNo = 200;
 figure; hold on;
 fill_circle(Xtarget{trialNo},TARGET_RADIUS,'g');
 plot(Y{trialNo}(1,:),Y{trialNo}(2,:),'k-o');
