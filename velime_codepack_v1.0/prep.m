@@ -1,14 +1,11 @@
-function [U, Y, T, D] = prep(dtstr, bind)
+function [U, Y, T] = prep(D, bind)
 % U = [1 ntrials] cell, U(1) = [ncells ntimes] double
 % Y = [1 ntrials] cell, Y(1) = [2 ntimes] double
 % T = [1 ntrials] cell, T(1) = [2 1] double
     if nargin < 2
         bind = 1;
     end
-
-    params = io.setUnfilteredDefaults();
-    opts = struct('doRotate', false);
-    D = io.quickLoadByDate(dtstr, params, opts);
+    
     B = D.trials;
     B.spikes(2:end,:) = B.spikes(1:end-1,:);
     ib = B.block_index == bind;

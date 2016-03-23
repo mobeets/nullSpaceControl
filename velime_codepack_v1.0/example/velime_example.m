@@ -12,23 +12,25 @@ load('example_data.mat');
 cd /Users/mobeets/code/nullSpaceControl
 dtstr = '20120601';
 % dtstr = '20120525';
-[U, Y, Xtarget, D] = prep(dtstr, 1);
+params = io.setUnfilteredDefaults();
+opts = struct('doRotate', false);
+D = io.quickLoadByDate(dtstr, params, opts);
 cd /Users/mobeets/code/nullSpaceControl/velime_codepack_v1.0/
-dec = D.blocks(1).nDecoder;
 
-% 
-% Q1: removed the first 7 time-points per trial?
-% Q2: how to compare to true decoder?
-% Q3: simplest way to predict next cursor location under IME
-% Q4: remove incorrects?
-% Q5: spikes should have influence current cursor position?
-%
-% Notes:
-% - movement onset as first point where computed cursor velocity exceeds
-%       15% of baseline
-% - angular error includes the target radius
-%       (sum of cursor and target radii)
-% 
+%%
+
+bind = 1;
+[U, Y, Xtarget] = prep(D, bind);
+
+%%
+
+ime = D.ime;
+outdir = '/Users/mobeets/code/nullSpaceControl/data/ime';
+fnm = fullfile(outdir, [D.datestr '.mat']);
+if exist(fnm, 'file')
+    error('Not saving...file already exists.');
+end
+save(fnm, 'ime');
 
 %% Fit velocity-IME model
 init_method = 'current_regression';
@@ -44,15 +46,16 @@ TARGET_RADIUS = 20 + 18; % from Sadtler paper; positions in mm
     'INIT_METHOD',init_method,...
     'verbose',verbose,...
     'max_iters',max_iters);
-% estParamsCopy = estParams;
+D.ime(bind) = estParams;
 
 %% Extract prior latent variable distributions ("whiskers")
 
-estParams.A = dec.M1;
-estParams.B = dec.M2*0.045;
-estParams.b0 = dec.M0*0.045;
+% dec = D.blocks(bind).nDecoder;
+% estParams.A = dec.M1;
+% estParams.B = dec.M2*0.045;
+% estParams.b0 = dec.M0*0.045;
 % estParamsCopy2 = estParams;
-% estParams = estParamsCopy;
+% estParams = estParamsCopy2;
 [E_P, E_V] = velime_extract_prior_whiskers(U, Y, Xtarget, estParams);
 
 %% Compute angular errors from prior expectations over latent variables
@@ -74,15 +77,17 @@ mdlErrs = abs(cell2mat(result.trial_error_angles_from_perimeter));
 plot(mdlErrs, cursorErrs, '.');
 xlabel('internal model errors (degrees)');
 ylabel('cursor errors (degrees)');
+title([D.datestr ' Blk' num2str(bind)]);
 
 figure; set(gcf, 'color', 'w'); hold on; set(gca, 'FontSize', 14);
 xs = 1:60;%round(max(mdlErrs));
 ys = 1:60;%round(max(cursorErrs));
 ns = hist3([mdlErrs; cursorErrs]', {xs, ys});
-imagesc(xs, ys, log(ns));
+imagesc(xs, ys, log(ns)');
 xlabel('internal model errors (degrees)');
 ylabel('cursor errors (degrees)');
 axis image;
+title([D.datestr ' Blk' num2str(bind)]);
 
 [mean(cursorErrs) mean(mdlErrs)]
 
