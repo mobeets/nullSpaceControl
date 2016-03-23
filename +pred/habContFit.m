@@ -2,13 +2,14 @@ function Z = habContFit(D, opts)
     if nargin < 2
         opts = struct();
     end
-    defopts = struct('thetaNm', 'thetas', 'thetaTol', 15, 'doSample', true);
+    defopts = struct('decoderNm', 'fDecoder', 'thetaNm', 'thetas', ...
+        'thetaTol', 15, 'doSample', true);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
     B2 = D.blocks(2);
-    NB2 = B2.fDecoder.NulM2;
-    RB2 = B2.fDecoder.RowM2;
+    NB2 = B2.(opts.decoderNm).NulM2;
+    RB2 = B2.(opts.decoderNm).RowM2;
     [nt, nn] = size(B2.latents);
     ths = B2.(opts.thetaNm);
 

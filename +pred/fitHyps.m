@@ -1,7 +1,7 @@
 function D = fitHyps(D, nms)
     D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
     if ismember('kinematics mean', nms)
-        D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D, true));
+        D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D));
     end
     if ismember('habitual', nms)
         D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D));
@@ -19,9 +19,11 @@ function D = fitHyps(D, nms)
         D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D));
     end
     if ismember('volitional-w-2FAs', nms)
-        D.hyps = pred.addPrediction(D, 'volitional-w-2FAs', pred.volContFit(D, true, 2));
+        opts = struct('addPrecursor', true, 'useL', 2);
+        D.hyps = pred.addPrediction(D, 'volitional-w-2FAs', pred.volContFit(D, opts));
     end
     if ismember('volitional-w-2FAs (s=5)', nms)
-        D.hyps = pred.addPrediction(D, 'volitional-w-2FAs (s=5)', pred.volContFit(D, true, 2, 5));
+        opts = struct('addPrecursor', true, 'useL', 2, 'scaleVol', 5);
+        D.hyps = pred.addPrediction(D, 'volitional-w-2FAs (s=5)', pred.volContFit(D, opts));
     end
 end

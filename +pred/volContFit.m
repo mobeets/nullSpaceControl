@@ -1,24 +1,25 @@
-function [Z, Zpre, Zvol] = volContFit(D, addPrecursor, useL, scaleVol)
-    if nargin < 3
-        useL = false;
+function [Z, Zpre, Zvol] = volContFit(D, opts)
+    if nargin < 2
+        opts = struct();
     end
-    if nargin < 4
-        scaleVol = 1;
-    end
+    
+    defopts = struct('decoderNm', 'fDecoder', 'addPrecursor', true, ...
+        'useL', false, 'scaleVol', 1);
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
 
     B1 = D.blocks(1);
     B2 = D.blocks(2);
-    if useL == 1
+    if opts.useL == 1
         ys = B1.latents;
         [~,~,V] = svd(ys);
         RB1 = V(:,1:2);
         NB1 = tools.getNulRowBasis(RB1');
-    elseif useL > 1
-        RB1 = eye(size(B1.fDecoder.M2,2), useL);
+    elseif opts.useL > 1
+        RB1 = eye(size(B1.(opts.decoderNm).M2,2), opts.useL);
         NB1 = tools.getNulRowBasis(RB1');
     else % volitional space = row space of M2
-        RB1 = B1.fDecoder.RowM2;
-        NB1 = B1.fDecoder.NulM2;
+        RB1 = B1.(opts.decoderNm).RowM2;
+        NB1 = B1.(opts.decoderNm).NulM2;
     end
 
     [nt, nn] = size(B2.latents);
@@ -32,20 +33,20 @@ function [Z, Zpre, Zvol] = volContFit(D, addPrecursor, useL, scaleVol)
 %         if mod(t, 100) == 0
 %             disp([num2str(t) ' of ' num2str(nt)]);
 %         end
-        decoder = B2.fDecoder;
+        decoder = B2.(opts.decoderNm);
         
 %         Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, nan, true);
 %         Zvol(t,:) = solveInBounds2(B2, t, decoder, RB1, B1, Zpre(t,:));
 %         Zpre(t,:) = zeros(1,nn);
 %         continue;
         
-        if addPrecursor
+        if opts.addPrecursor
             Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, nan, true);
 %             Zpre(t,:) = pred.randZIfNearbyMinTheta(B2.thetas(t) + 180, B1, 10);
             decoder.M0 = decoder.M0 + decoder.M2*Zpre(t,:)';
         end
         
-        if useL > 2 % meet kinematics, minimize to baseline
+        if opts.useL > 2 % meet kinematics, minimize to baseline
 %             Zvol(t,:) = solveInBounds(B2, t, decoder, RB1, B1, Zpre(t,:));
             decoder.M2 = decoder.M2*RB1;
             z = pred.quadFireFit(B2, t, [], decoder, false);
@@ -54,7 +55,7 @@ function [Z, Zpre, Zvol] = volContFit(D, addPrecursor, useL, scaleVol)
             Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, RB1, t);
         end        
     end
-    Z = Zvol/scaleVol + Zpre;
+    Z = Zvol/opts.scaleVol + Zpre;
     
 end
 

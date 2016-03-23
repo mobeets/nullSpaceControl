@@ -2,8 +2,8 @@ function Z = sameCloudFit(D, opts)
     if nargin < 2
         opts = struct();
     end
-    defopts = struct('thetaTol', 30, 'rotThetas', 0, 'minDist', 0.35, ...
-        'kNN', nan, 'doSample', true);
+    defopts = struct('decoderNm', 'fDecoder', 'thetaTol', 30, ...
+        'rotThetas', 0, 'minDist', 0.35, 'kNN', nan, 'doSample', true);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if numel(opts.rotThetas) == 1
         opts.rotThetas = opts.rotThetas*ones(8,1);
@@ -15,8 +15,8 @@ function Z = sameCloudFit(D, opts)
     
     B1 = D.blocks(1);
     B2 = D.blocks(2);
-    NB2 = B2.fDecoder.NulM2;
-    RB2 = B2.fDecoder.RowM2;
+    NB2 = B2.(opts.decoderNm).NulM2;
+    RB2 = B2.(opts.decoderNm).RowM2;
     
     Z1 = B1.latents;
     Z2 = B2.latents;
