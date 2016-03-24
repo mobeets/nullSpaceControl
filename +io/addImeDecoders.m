@@ -6,7 +6,7 @@ function D = addImeDecoders(D)
     end
     x = load(fnm);
     D.ime = x.ime;
-    dt = 1/0.045; % sec per timestep
+    dt = 1/0.045; % 1/(sec per timestep)
     for ii = 1:numel(D.ime)
         dec = D.ime(ii);
         dec.M0 = dec.b0*dt;
