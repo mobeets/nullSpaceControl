@@ -4,6 +4,10 @@ function Z = baseFireFit(D, opts)
     end
     defopts = struct('decoderNm', 'nDecoder');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
+    if strcmp(opts.decoderNm(1), 'f')
+        opts.decoderNm(1) = 'n';
+        warning('baseFireFit must use spike decoder, not factors.');
+    end
 
     B2 = D.blocks(2);
     Dc = D.simpleData.nullDecoder;

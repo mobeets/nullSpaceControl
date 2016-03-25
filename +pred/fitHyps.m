@@ -24,10 +24,10 @@ function D = fitHyps(D, nms, opts)
     if ismember('unconstrained', nms)
         D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D, opts));
     end
-    if ismember('volitional-w-2FAs', nms)
+    if ismember('volitional-w-2FAs', nms) || ismember('volitional', nms)
         custopts = struct('addPrecursor', true, 'useL', 2);
         custopts = io.updateParams(opts, custopts, true);
-        D.hyps = pred.addPrediction(D, 'volitional-w-2FAs', pred.volContFit(D, custopts));
+        D.hyps = pred.addPrediction(D, 'volitional', pred.volContFit(D, custopts));
     end
     if ismember('volitional-w-2FAs (s=5)', nms)
         custopts = struct('addPrecursor', true, 'useL', 2, 'scaleVol', 5);

@@ -1,20 +1,25 @@
-function D = scoreAll(D)
+function D = scoreAll(D, baseHypNm)
+    if nargin < 2
+        baseHypNm = 'observed';
+    end
+    bind = 2; % use 2nd block null map
 
-    bind = 2; % use 2nd block
-    
-    ix = strcmp('observed', {D.hyps.name});
-    actual = D.hyps(ix).null(bind);
+%     ix = strcmp(baseHypNm, {D.hyps.name});
+%     actual = D.hyps(ix).null(bind);
+    H = pred.getHyp(D, baseHypNm);
+    actual = H.null(bind);
     zNull = actual.zNullBin;
     zMu = actual.zMu;
     zCov = actual.zCov;
     
     for ii = 1:numel(D.hyps)
-        if ix(ii)
+        if strcmp(D.hyps(ii).name, baseHypNm)
             D.hyps(ii).errOfMeans = nan;
             D.hyps(ii).covRatio = nan;
             D.hyps(ii).covError = nan;
             D.hyps(ii).covErrorOrient = nan;
             D.hyps(ii).covErrorShape = nan;
+            continue;
         end
         hyp = D.hyps(ii).null(bind);
         zNull0 = hyp.zNullBin;

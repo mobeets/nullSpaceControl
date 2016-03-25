@@ -9,7 +9,7 @@ function [F, E] = toDataHigh(dtstr)
 %     epochColors: [0 1 0]
 % 
 
-    E = fitByDate(dtstr);
+    E = fitByDate(dtstr, [], {'habitual', 'cloud-hab', 'volitional-w-2FAs'});
     B = E.blocks(2);
     NB = B.fDecoder.NulM2;
 
@@ -18,6 +18,7 @@ function [F, E] = toDataHigh(dtstr)
     clrs = cbrewer('div', 'RdYlGn', numel(grps));
     for ii = 1:numel(grps)
         ix = grps(ii) == gs;
+        
         f.data = (B.latents(ix,:)*NB)';
         f.condition = num2str(grps(ii));
         f.type = 'state';
@@ -25,9 +26,17 @@ function [F, E] = toDataHigh(dtstr)
         f.epochColors = clrs(ii,:);
         F(ii) = f;
         
-        hypind = 4;
-        f.data = (E.hyps(hypind).latents(ix,:)*NB)';
-        f.condition = [num2str(grps(ii)) '-' E.hyps(hypind).name];
+%         H = pred.getHyp(E, 'volitional-w-2FAs');
+%         f.data = (H.latents(ix,:)*NB)';
+%         f.condition = [num2str(grps(ii)) '-' H.name];
+%         f.type = 'state';
+%         f.epochStarts = 1;
+%         f.epochColors = clrs(ii,:);
+%         F(ii) = f;
+        
+        H = pred.getHyp(E, 'volitional-w-2FAs');
+        f.data = (H.latents(ix,:)*NB)';
+        f.condition = [num2str(grps(ii)) '-' H.name];
         f.type = 'state';
         f.epochStarts = 1;
         f.epochColors = clrs(ii,:);
