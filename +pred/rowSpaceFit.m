@@ -7,16 +7,14 @@ function z1 = rowSpaceFit(Blk, decoder, NB, RB, t)
 % 
     
     x0 = Blk.vel(t,:)';
-    if size(Blk.vel,1) < t+1 % FIX THIS -- placeholder
-%         x1 = Blk.vel(t,:)';
-%         x0 = Blk.velPrev(t,:)';
-        z1 = nan(10,1);
-        return;
+    if isfield(Blk, 'velNext')
+        x1 = Blk.velNext(t,:)';
     else
-        x1 = Blk.vel(t+1,:)';
+        assert false;
     end
 %     x1 = Blk.vel(t,:)';
 %     x0 = Blk.velPrev(t,:)';
+
     A = decoder.M1;
     B = decoder.M2;
     c = decoder.M0;

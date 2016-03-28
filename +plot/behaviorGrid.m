@@ -1,12 +1,9 @@
-function behaviorGrid(dtstr, grpNames, popts, hopts)
+function behaviorGrid(dtstr, grpNames, popts)
     if nargin < 2 || isempty(grpNames)
         grpNames = {'', 'targetAngle', 'thetaGrps'};
     end
     if nargin < 3 || isempty(popts)
         popts = struct('doSave', false);
-    end
-    if nargin < 4 || isempty(hopts)
-        hopts = struct();
     end
 
     nms = {'progress', 'progressOrth', 'angErrorAbs', 'angError', ...
@@ -23,7 +20,7 @@ function behaviorGrid(dtstr, grpNames, popts, hopts)
         grpName = grpNames{jj};        
         [Y,X,N,fits,popts] = plot.createBehaviorPlots(D, blockInd, ...
             grpName, nms, binSz, ptsPerBin, collapseTrials, fcns, ...
-            fcnNms, popts, hopts);
+            fcnNms, popts);
     end
 
 end

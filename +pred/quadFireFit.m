@@ -13,18 +13,14 @@ function z = quadFireFit(Blk, t, f, decoder, fitInLatent)
 %
 
     x0 = Blk.vel(t,:)';
-    if size(Blk.vel,1) < t+1 % FIX THIS -- placeholder
-%         x1 = Blk.vel(t,:)';
-%         x0 = Blk.velPrev(t,:)';
-        z1 = nan(10,1);
-        return;
+    if isfield(Blk, 'velNext')
+        x1 = Blk.velNext(t,:)';
     else
-        x1 = Blk.vel(t+1,:)';
+        assert false;
     end
-%     x0 = Blk.vel(t,:)';
-%     x1 = Blk.vel(t+1,:)';
 %     x1 = Blk.vel(t,:)';
 %     x0 = Blk.velPrev(t,:)';
+
     Ac = decoder.M1;
     Bc = decoder.M2;
     cc = decoder.M0;

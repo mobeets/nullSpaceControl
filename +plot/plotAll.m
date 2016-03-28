@@ -11,7 +11,8 @@ function plotAll(D, Hs, opts)
 
     % write out params
     if opts.doSave
-        writetable(struct2table(D.params), fullfile(fldr, 'params.csv'));
+        ps = tools.setDefaultOptsWhenNecessary(D.params, D.opts);
+        writetable(struct2table(ps), fullfile(fldr, 'params.csv'));
     end
     
     % Plot error of means
@@ -38,7 +39,7 @@ function plotAll(D, Hs, opts)
     % Plot hypotheses
     if opts.doSolos
         for ii = 1:numel(Hs)
-            plot.plotHyp(D, Hs(ii), opts, fullfile(fldr, 'hypScores')); 
+            plot.plotHyp(D, Hs(ii), opts, fldr);
         end
     end
 

@@ -1,10 +1,10 @@
 function [Y,X,N,fits,popts] = createBehaviorPlots(D, blockInd, ...
     grpName, nms, binSz, ptsPerBin, collapseTrials, fcns, fcnNms, ...
     popts, hopts)
-    if nargin < 10 || isepmty(popts)
+    if nargin < 10 || isempty(popts)
         popts = struct();
     end
-    if nargin < 11 || isepmty(hopts)
+    if nargin < 11 || isempty(hopts)
         hopts = struct();
     end
     assert(isa(popts, 'struct'));
