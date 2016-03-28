@@ -9,11 +9,16 @@ function D = fitHyps(D, nms, opts)
     if ismember('kinematics mean', nms)
         D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D, opts));
     end
-    if ismember('habitual', nms)
+    if ismember('habitual', nms)        
         D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D, opts));
     end
     if ismember('cloud-hab', nms)
         D.hyps = pred.addPrediction(D, 'cloud-hab', pred.sameCloudFit(D, opts));
+    end
+    if ismember('cloud-raw', nms)
+        custopts = struct('thetaTol', nan, 'minDist', nan, 'kNN', 200);
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'cloud-raw', pred.sameCloudFit(D, custopts));
     end
     if ismember('baseline', nms)
         D.hyps = pred.addPrediction(D, 'baseline', pred.baseFireFit(D, opts));

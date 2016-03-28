@@ -62,6 +62,7 @@ function trial = addNewFields(trial, D)
     trial.angError = nan(ntimes,1);
     trial.velStar = nan(ntimes,2);
     trial.velPrev = nan(ntimes,2);
+    trial.velNext = nan(ntimes,2);
     trial.progress = nan(ntimes,1);
     % we must skip last entry so we can use movementVector
     for t = 1:ntimes-1
@@ -85,6 +86,7 @@ function trial = addNewFields(trial, D)
         trial.angError(t) = angErr;
         trial.velStar(t,:) = velStar;
         trial.velPrev(t,:) = velPrev;
+        trial.velNext(t,:) = trial.vel(t+1,:);
     end
 
 end

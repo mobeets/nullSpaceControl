@@ -17,7 +17,7 @@ function confirmRawAndPreprocessedDataAlignment(dtstr, D, E)
 	noError = true;
     for ii = 1:numel(fns)
         fn = fns{ii};
-        d = Dt.(fn);
+        d = double(Dt.(fn));
         e = Et.(fn);
         ix = ~any(isnan(d),2);
         nrmdf = norm(d(ix,:)-e(ix,:));

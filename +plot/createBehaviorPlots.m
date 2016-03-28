@@ -1,17 +1,12 @@
-function [Y,X,N,fits,askedOnce] = createBehaviorPlots(D, blockInd, grpName, nms, ...
-    binSz, ptsPerBin, collapseTrials, fcns, fcnNms, doSave, nm, outdir, askedOnce)
+function [Y,X,N,fits,popts] = createBehaviorPlots(D, blockInd, ...
+    grpName, nms, binSz, ptsPerBin, collapseTrials, fcns, fcnNms, popts)
     if nargin < 10
-        doSave = false;
+        popts = struct();
     end
-    if nargin < 11
-        nm = '';
-    end
-    if nargin < 12
-        outdir = fullfile('plots', 'behaviorByTrial');
-    end
-    if nargin < 13
-        askedOnce = false;
-    end
+    assert(isa(popts, 'struct'));
+    defopts = struct('doSave', false, 'fignm', '', ...
+        'plotdir', fullfile('plots', 'behaviorByTrial'), 'askedOnce', false);
+    popts = tools.setDefaultOptsWhenNecessary(popts, defopts);
 
     if any(strcmp(nms, 'YBmin')) || any(strcmp(nms, 'YBavg')) || ...
             any(strcmp(nms, 'YBavgNorm'))
@@ -34,23 +29,33 @@ function [Y,X,N,fits,askedOnce] = createBehaviorPlots(D, blockInd, grpName, nms,
     [Y,X,N,fits,figs] = plot.allBehaviorsByTrial(D, nms, blockInd, ...
         grpName, binSz, ptsPerBin, collapseTrials, fcns, fcnNms, true);
     
-    if doSave
-        if ~exist(outdir, 'dir')
-            mkdir(outdir);
-        end
-        for jj = 1:numel(figs)
-            fnm = fullfile(outdir, [figs(jj).name nm]);
-            if exist([fnm '.png'], 'file') && ~askedOnce
-                resp = input(['Similar files in "' outdir '" already exist. Continue? '], 's');
-                if ~strcmpi(resp(1), 'y')
-                    error('No save.');
-                else
-                    askedOnce = true;
-                end
-            end
+    for jj = 1:numel(figs)
+        fnm = fullfile(popts.plotdir, [figs(jj).name popts.fignm '.png']);
+        [popts.doSave, popts.askedOnce] = plot.checkSafeToSave(...
+            popts.plotdir, fnm, popts.doSave, popts.askedOnce);
+        if popts.doSave
             saveas(figs(jj).fig, fnm, 'png');
         end
     end
+%     
+%     if opts.doSave
+%         if ~exist(opts.outdir, 'dir')
+%             mkdir(opts.outdir);
+%         end
+%         for jj = 1:numel(figs)
+%             fnm = fullfile(opts.outdir, [figs(jj).name opts.nm]);
+%             if exist([fnm '.png'], 'file') && ~opts.askedOnce
+%                 resp = input(['Similar files in "' opts.outdir ...
+%                     '" already exist. Continue? '], 's');
+%                 if ~strcmpi(resp(1), 'y')
+%                     error('No save.');
+%                 else
+%                     opts.askedOnce = true;
+%                 end
+%             end
+%             saveas(figs(jj).fig, fnm, 'png');
+%         end
+%     end
 end
 
 function D = addLatentsByBlock(D, ind)

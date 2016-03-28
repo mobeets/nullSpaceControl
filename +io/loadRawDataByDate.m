@@ -4,9 +4,9 @@ function D = loadRawDataByDate(dtstr)
     
     dr1 = fullfile(DATADIR, 'Jeffy', dtstr);
     dr2 = fullfile(DATADIR, 'Lincoln', dtstr);
-    fs1 = dir(dr1);
+    fs1 = dir(fullfile(dr1, '*.mat'));
     fs1 = {fs1(~[fs1.isdir]).name};
-    fs2 = dir(dr2);
+    fs2 = dir(fullfile(dr2, '*.mat'));
     fs2 = {fs2(~[fs2.isdir]).name};
     if numel(fs1) + numel(fs2) == 0
         error('Date not found.');

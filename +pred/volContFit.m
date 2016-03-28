@@ -58,105 +58,102 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
     Z = Zvol/opts.scaleVol + Zpre;
     
 end
-
-function x = solveInBounds1(Blk, t, decoder, RB, Blk0, zPre)
-    x1 = Blk.vel(t,:)';
-    x0 = Blk.velPrev(t,:)';
-    Ac = decoder.M1;
-    Bc = decoder.M2;
-    cc = decoder.M0;
-    
-    cc = cc + Bc*zPre';
-    Aeq = Bc*RB;
-    beq = x1 - Ac*x0 - cc;
-    
-    % combine all inequality constraints
-    lb = min(Blk0.latents) - zPre;
-    ub = max(Blk0.latents) - zPre;
-    A = [-RB; RB];
-    b = [-lb'; ub'];
-    
-    z0 = Aeq \ beq;
-    if all(A*z0 < b)
-        x = RB*z0 + zPre';
-        return;
-    end
-    z0 = zeros(size(A,2),1);
-    options = optimset('Display', 'off');
-    
-    % find closest to solution to obeying cursor that stays in bounds
-    obj = @(x) norm(beq - Aeq*x);
-    x = zPre' + RB*fmincon(obj, z0, A, b, [], [], [], [], [], options);
-end
-
-function x = solveInBounds2(Blk, t, decoder, RB, Blk0, zPre)
-    x1 = Blk.vel(t,:)';
-    x0 = Blk.velPrev(t,:)';
-    Ac = decoder.M1;
-    Bc = decoder.M2;
-    cc = decoder.M0;
-    
-    cc = cc + Bc*zPre';
-    Aeq = Bc*RB;
-    beq = x1 - Ac*x0 - cc;
-    
-    % combine all inequality constraints
-    lb = min(Blk0.latents) - zPre;
-    ub = max(Blk0.latents) - zPre;
-    A = [-RB; RB];
-    b = [-lb'; ub'];
-    
-    z0 = Aeq \ beq;
-    options = optimset('Display', 'off');
-    
-    % find minimum-norm solution obeying cursor and bounds
-    obj = @(x) norm(zPre' + RB*x);
-    x = zPre' + RB*fmincon(obj, z0, A, b, Aeq, beq, [], [], [], options);
-
-end
-
-function x = solveInBounds(Blk, t, decoder, RB, Blk0, zPre)
-    x1 = Blk.vel(t,:)';
-    x0 = Blk.velPrev(t,:)';
-    Ac = decoder.M1;
-    Bc = decoder.M2;
-    cc = decoder.M0;
-    
-    % combine all inequality constraints
-    lb = min(Blk0.latents);
-    ub = max(Blk0.latents);
-    A = [-RB; RB];
-    b = [-lb'; ub'];
-    
-    % check if we already have valid solution
-    ccOG = cc;
-    cc = cc + Bc*zPre';
-    Aeq = Bc*RB;
-    beq = x1 - Ac*x0 - cc;
-    z0 = Aeq \ beq;
-    if all(A*z0 + [zPre'; zPre'] < b)
-        x = RB*z0 + zPre';
-        return;
-    else
-        cc = ccOG;
-        Aeq = Bc*RB;
-        beq = x1 - Ac*x0 - cc;
-    end
-
-    % find closest solution to precursor activity that obeys cursor and
-    % bounds
-    options = optimset('Display', 'off');
-    obj = @(x) norm(zPre' - RB*x);
-    x = RB*fmincon(obj, z0, A, b, Aeq, beq, [], [], [], options);
-    
-%     nd = size(Aeq, 2);
-%     H = eye(nd);
-%     A = -eye(nd);
-%     b = zeros(nd,1);
-%     [z, ~, exitflag] = quadprog(H, f, A, b, Aeq, beq, ...
-%         lb, ub, [], options);
-
-end
-
-
-
+% 
+% function x = solveInBounds1(Blk, t, decoder, RB, Blk0, zPre)
+%     x1 = Blk.vel(t,:)';
+%     x0 = Blk.velPrev(t,:)';
+%     Ac = decoder.M1;
+%     Bc = decoder.M2;
+%     cc = decoder.M0;
+%     
+%     cc = cc + Bc*zPre';
+%     Aeq = Bc*RB;
+%     beq = x1 - Ac*x0 - cc;
+%     
+%     % combine all inequality constraints
+%     lb = min(Blk0.latents) - zPre;
+%     ub = max(Blk0.latents) - zPre;
+%     A = [-RB; RB];
+%     b = [-lb'; ub'];
+%     
+%     z0 = Aeq \ beq;
+%     if all(A*z0 < b)
+%         x = RB*z0 + zPre';
+%         return;
+%     end
+%     z0 = zeros(size(A,2),1);
+%     options = optimset('Display', 'off');
+%     
+%     % find closest to solution to obeying cursor that stays in bounds
+%     obj = @(x) norm(beq - Aeq*x);
+%     x = zPre' + RB*fmincon(obj, z0, A, b, [], [], [], [], [], options);
+% end
+% 
+% function x = solveInBounds2(Blk, t, decoder, RB, Blk0, zPre)
+%     x1 = Blk.vel(t,:)';
+%     x0 = Blk.velPrev(t,:)';
+%     Ac = decoder.M1;
+%     Bc = decoder.M2;
+%     cc = decoder.M0;
+%     
+%     cc = cc + Bc*zPre';
+%     Aeq = Bc*RB;
+%     beq = x1 - Ac*x0 - cc;
+%     
+%     % combine all inequality constraints
+%     lb = min(Blk0.latents) - zPre;
+%     ub = max(Blk0.latents) - zPre;
+%     A = [-RB; RB];
+%     b = [-lb'; ub'];
+%     
+%     z0 = Aeq \ beq;
+%     options = optimset('Display', 'off');
+%     
+%     % find minimum-norm solution obeying cursor and bounds
+%     obj = @(x) norm(zPre' + RB*x);
+%     x = zPre' + RB*fmincon(obj, z0, A, b, Aeq, beq, [], [], [], options);
+% 
+% end
+% 
+% function x = solveInBounds(Blk, t, decoder, RB, Blk0, zPre)
+%     x1 = Blk.vel(t,:)';
+%     x0 = Blk.velPrev(t,:)';
+%     Ac = decoder.M1;
+%     Bc = decoder.M2;
+%     cc = decoder.M0;
+%     
+%     % combine all inequality constraints
+%     lb = min(Blk0.latents);
+%     ub = max(Blk0.latents);
+%     A = [-RB; RB];
+%     b = [-lb'; ub'];
+%     
+%     % check if we already have valid solution
+%     ccOG = cc;
+%     cc = cc + Bc*zPre';
+%     Aeq = Bc*RB;
+%     beq = x1 - Ac*x0 - cc;
+%     z0 = Aeq \ beq;
+%     if all(A*z0 + [zPre'; zPre'] < b)
+%         x = RB*z0 + zPre';
+%         return;
+%     else
+%         cc = ccOG;
+%         Aeq = Bc*RB;
+%         beq = x1 - Ac*x0 - cc;
+%     end
+% 
+%     % find closest solution to precursor activity that obeys cursor and
+%     % bounds
+%     options = optimset('Display', 'off');
+%     obj = @(x) norm(zPre' - RB*x);
+%     x = RB*fmincon(obj, z0, A, b, Aeq, beq, [], [], [], options);
+%     
+% %     nd = size(Aeq, 2);
+% %     H = eye(nd);
+% %     A = -eye(nd);
+% %     b = zeros(nd,1);
+% %     [z, ~, exitflag] = quadprog(H, f, A, b, Aeq, beq, ...
+% %         lb, ub, [], options);
+% 
+% end

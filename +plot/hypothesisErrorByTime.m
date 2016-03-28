@@ -1,8 +1,8 @@
-function [doSave, askedOnce] = hypothesisErrorByTime(D, binNm, tbins, ...
-    binSz, doKins, fldr, doSave, askedOnce)
-
+function popts = hypothesisErrorByTime(D, binNm, tbins, ...
+    binSz, doKins, popts, hypopts, extraNm)
+    
     [errMus, ns, allErrMus, errMusKins, allErrMusKins, nsKins] = ...
-        plot.hypothesisErrorByField(D, binNm, tbins, binSz);
+        plot.hypothesisErrorByField(D, binNm, tbins, binSz, extraNm, hypopts);
     nhyps = numel(D.hyps)-1;
     clrs = cbrewer('qual', 'Set2', nhyps);
 %     clrs = cbrewer('div', 'RdYlGn', nhyps);
@@ -30,10 +30,9 @@ function [doSave, askedOnce] = hypothesisErrorByTime(D, binNm, tbins, ...
         hold on; set(gca, 'FontSize', 14);
         
         for ii = 1:nhyps
-            if ii > 1
+            if ~strcmpi(D.hyps(ii+1).name, 'kinematics mean')
                 plot(tbins, errCur(:,ii), 'Color', clrs(ii,:), 'LineWidth', 3);
-            end
-            if ii == 1
+            else % assumes this is kinematics-mean
                 plot([min(tbins) max(tbins)], [allErrCur(ii) allErrCur(ii)], ...
                     '-', 'Color', clrs(ii,:), 'LineWidth', 3);%, 'HandleVisibility', 'off');
             end
@@ -42,12 +41,13 @@ function [doSave, askedOnce] = hypothesisErrorByTime(D, binNm, tbins, ...
         plot(tbins, ns/max(ns), '--', 'Color', [0.5 0.5 0.5]);
         xlabel(binNm);
         ylabel('errMus');
-        legend({D.hyps(2:end).name});%, 'Location', 'BestOutside');
+        legend([{D.hyps(2:end).name} extraNm], 'Location', 'BestOutside');
         title([D.datestr ' ' suff]);
                 
-        fnm = fullfile(fldr, [D.datestr '_' suff '.png']);
-        [doSave, askedOnce] = plot.checkSafeToSave(fldr, fnm, doSave, askedOnce);
-        if doSave
+        fnm = fullfile(popts.plotdir, [D.datestr '_' suff '.png']);
+        [popts.doSave, popts.askedOnce] = plot.checkSafeToSave(...
+            popts.plotdir, fnm, popts.doSave, popts.askedOnce);
+        if popts.doSave
             saveas(gcf, fnm, 'png');
         end
     end

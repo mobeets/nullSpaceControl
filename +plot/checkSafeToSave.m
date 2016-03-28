@@ -1,8 +1,7 @@
 function [doSave, askedOnce] = checkSafeToSave(fldr, fnm, doSave, askedOnce)
 % note: fnm should include file extension, e.g. "adsfsda.png"
 
-    if ~isempty(fldr) || doSave
-        doSave = false;
+    if ~doSave
         return;
     end
     if ~exist(fldr, 'dir')

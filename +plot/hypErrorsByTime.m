@@ -1,41 +1,31 @@
+function hypErrorsByTime(dtstr, nms, popts, hypopts, extraNm)
+    if nargin < 2 || isempty(nms)
+        nms = {'kinematics mean', 'cloud-hab', 'unconstrained'};
+    end
+    if nargin < 3 || isempty(popts)
+        popts = struct('doSave', false);
+    end
+    if nargin < 4 || isempty(hypopts)
+        hypopts = struct('decoderNm', 'fDecoder');
+    end
+    if nargin < 5
+        extraNm = 'trial_length';
+    end
 
-
-dts = {'20120601'};
-% dts = {'20120525', '20120601', '20120709', '20131212', '20131205', '20131125'};
-% dts = {'20120601', '20120709', '20131212', '20131205', '20131125'};
-
-binSz = 100;
-binSkp = binSz/2;
-binNm = 'trial_index';
-
-% binSz = 15;
-% binSkp = 15;
-% binNm = 'angError';
-
-nms = {'kinematics mean', 'cloud-hab'};
-fldr = fullfile('plots', 'behaviorAndHypotheses', ['errorBy-' binNm]);
-askedOnce = false;
-doSave = false;
-doKins = true;
-
-params = struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360);
-for jj = 1:numel(dts)
-    D = fitByDate(dts{jj}, params, nms);
+    binSz = 100; binSkp = binSz/2; binNm = 'trial_index';
+    % binSz = 15; binSkp = 15; binNm = 'angError';
+    % binSz = 25; binSkp = binSz/2; binNm = 'time';
+        
+    params = struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360);
+    D = fitByDate(dtstr, params, nms, [], [], hypopts);
     
-%     opts = struct('doSample', false);
-%     lts = pred.sameCloudFit(D, opts);
-%     D.blocks(2).latents = lts;
-%     D.hyps = pred.addPrediction(D, 'observed', lts);
-%     D.hyps = pred.addPrediction(D, 'kinematics mean', pred.cvMeanFit(D, true));
-%     D = pred.nullActivity(D);
-%     D = score.scoreAll(D);
-
-    xs1 = min(D.blocks(2).trial_index);
-    xs2 = max(D.blocks(2).trial_index);
+    xs1 = min(D.blocks(2).(binNm)); xs2 = max(D.blocks(2).(binNm));
 %     xs1 = -120; xs2 = 120;
-    
     tbins = xs1:binSkp:(xs2-binSz);
-    [doSave, askedOnce] = plot.hypothesisErrorByTime(D, binNm, tbins, ...
-        binSz, doKins, fldr, doSave, askedOnce);
     
+    popts = plot.hypothesisErrorByTime(D, binNm, tbins, ...
+        binSz, false, popts, hypopts, extraNm);
+    popts = plot.hypothesisErrorByTime(D, binNm, tbins, ...
+        binSz, true, popts, hypopts, extraNm);
+
 end

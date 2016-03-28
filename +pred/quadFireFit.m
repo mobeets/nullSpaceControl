@@ -14,8 +14,10 @@ function z = quadFireFit(Blk, t, f, decoder, fitInLatent)
 
     x0 = Blk.vel(t,:)';
     if size(Blk.vel,1) < t+1 % FIX THIS -- placeholder
-        x1 = Blk.vel(t,:)';
-        x0 = Blk.velPrev(t,:)';
+%         x1 = Blk.vel(t,:)';
+%         x0 = Blk.velPrev(t,:)';
+        z1 = nan(10,1);
+        return;
     else
         x1 = Blk.vel(t+1,:)';
     end

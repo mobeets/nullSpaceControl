@@ -31,7 +31,11 @@ function [Y,X,N,fits, figs] = allBehaviorsByTrial(D, nms, blockInd, ...
     N = cell(nflds,1);
     fits = cell(nflds,1);
     for ii = 1:numel(nms)
-        fcn = fcns{ii};
+        if numel(fcns) == 0
+            fcn = [];
+        else
+            fcn = fcns{ii};
+        end
         [Y{ii}, X{ii}, N{ii}, grps] = tools.behaviorByTrial(D, nms{ii}, ...
             blockInd, grpName, binSz, ptsPerBin, collapseTrials(ii), fcn);
     end
@@ -78,12 +82,12 @@ function [Y,X,N,fits, figs] = allBehaviorsByTrial(D, nms, blockInd, ...
             plot([xs2 xs2], ylim, '-', 'Color', [0.5 0.5 0.5], ...
                 'LineWidth', 1, 'HandleVisibility', 'off');            
             ylbl = nms{kk};
-            if ~isempty(fcns{kk})
+            if numel(fcns) > 0 && ~isempty(fcns{kk})
                 fcnName = func2str(fcns{kk});
                 fcnName = fcnName(5:end);
                 ylbl = [ylbl ' ' fcnName];
             end
-            if ~isempty(fcns{kk}) && ~isempty(fcnNms{kk})
+            if numel(fcns) > 0 && ~isempty(fcns{kk}) && ~isempty(fcnNms{kk})
                 ylbl = fcnNms{kk};
             end
             ylabel(ylbl);

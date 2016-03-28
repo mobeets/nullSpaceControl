@@ -1,16 +1,26 @@
 function [errMus, ns, allErrMus, errMusKins, allErrMusKins, nsKins] = ...
-    hypothesisErrorByField(D, binNm, tbins, binSz)
+    hypothesisErrorByField(D, binNm, tbins, binSz, extraNm, hypopts)
+    if nargin < 5
+        extraNm = '';
+    end
+    if nargin < 6
+        hypopts = struct();
+    end
+    errName = 'errOfMeans';
+    errKinName = [errName 'ByKin'];
     
-    D = pred.nullActivity(D);
+    D = pred.nullActivity(D, hypopts);
     D = score.scoreAll(D);
-    allErrMus = [D.hyps(2:end).errOfMeans];
-    allErrMusKins = cell2mat({D.hyps(2:end).errOfMeansByKin}');
+    allErrMus = [D.hyps(2:end).(errName)];
+    allErrMusKins = cell2mat({D.hyps(2:end).(errKinName)}');
 
+    hypopts.idxFldNm = 'idxScore';
+    
     nhyps = numel(D.hyps)-1;
     errMus = nan(numel(tbins), nhyps);
     ns = nan(size(errMus,1),1);
     kins = score.thetaCenters(8);
-    nkins = numel([D.hyps(2).errOfMeansByKin]);
+    nkins = numel([D.hyps(2).(errKinName)]);
     errMusKins = cell(nkins, 1);
     nsKins = cell(nkins,1);
     for ii = 1:numel(errMusKins)
@@ -21,13 +31,18 @@ function [errMus, ns, allErrMus, errMusKins, allErrMusKins, nsKins] = ...
         t1 = tbins(ii); t2 = tbins(ii)+binSz;
         ts = D.blocks(2).(binNm);
         D.blocks(2).idxScore = ts >= t1 & ts < t2;
-        ns(ii) = sum(D.blocks(2).idxScore);
-        D = pred.nullActivity(D, struct('idxFldNm', 'idxScore'));
+        if isempty(extraNm)
+            ns(ii) = sum(D.blocks(2).idxScore);
+        else
+            vs0 = D.blocks(2).(extraNm);
+            ns(ii) = nanmean(vs0(D.blocks(2).idxScore));
+        end
+        D = pred.nullActivity(D, hypopts);
         D = score.scoreAll(D);
-        errMus(ii,:) = [D.hyps(2:end).errOfMeans];
+        errMus(ii,:) = [D.hyps(2:end).(errName)];
         
         % note: want each one of these like errMus
-        scs = cell2mat({D.hyps(2:end).errOfMeansByKin}');
+        scs = cell2mat({D.hyps(2:end).(errKinName)}');
         for jj = 1:nkins
             errMusKins{jj}(ii,:) = scs(:,jj)';
             nsKins{jj}(ii) = sum(D.blocks(2).idxScore & D.blocks(2).thetaGrps == kins(jj));

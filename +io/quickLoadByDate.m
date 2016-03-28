@@ -4,11 +4,10 @@ function D = quickLoadByDate(dtstr, params, opts)
 %   - doStretch: stretch latents once orthonormalized
 %   - doSwap: % exchange intuitive and perturbation blocks
 % 
-
-    if nargin < 2
+    if nargin < 2 || isempty(params)
         params = struct();
     end
-    if nargin < 3
+    if nargin < 3 || isempty(opts)
         opts = struct();        
     end
     defopts = struct('doRotate', true, 'doStretch', true, 'doSwap', false);

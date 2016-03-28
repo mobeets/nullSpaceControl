@@ -16,9 +16,10 @@ function Z = uncContFit(D, opts)
     Zn = Zsamps*(NB2*NB2');
     
     % n.b. we could actually just stop here, since we have our Zn
-    Zr = nan(nt,nn);
-    for t = 1:nt
-        Zr(t,:) = pred.rowSpaceFit(B2, B2.(opts.decoderNm), NB2, RB2, t);
-    end
+    Zr = B2.latents*(RB2*RB2');
+%     Zr = nan(nt,nn);
+%     for t = 1:nt
+%         Zr(t,:) = pred.rowSpaceFit(B2, B2.(opts.decoderNm), NB2, RB2, t);
+%     end
     Z = Zr + Zn;
 end

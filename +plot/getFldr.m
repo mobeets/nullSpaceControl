@@ -1,14 +1,21 @@
-function fldr = getFldr(D, isMaster)
-    if nargin < 2
-        isMaster = false;
+function fldr = getFldr(opts)
+    if nargin < 1
+        opts = struct();
     end
+    assert(isa(opts, 'struct'));
+    defopts = struct('isMaster', false, 'plotdir', 'plots', ...
+        'doTimestampFolder', false);
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
-    fldr = fullfile('plots', D.datestr);
-    if ~isMaster
-        dtstr = datestr(now, 'yyyy-mm-dd_HH-MM');
-        fldr = fullfile(fldr, dtstr);
-    else
-        fldr = fullfile(fldr, 'master');
+%     fldr = fullfile(opts.baseDir, D.datestr);
+    fldr = opts.plotdir;
+    if opts.doTimestampFolder
+        if ~opts.isMaster
+            dtstr = datestr(now, 'yyyy-mm-dd_HH-MM');
+            fldr = fullfile(fldr, dtstr);
+        else
+            fldr = fullfile(fldr, 'master');
+        end
     end
     if ~exist(fldr, 'dir')
         mkdir(fldr);

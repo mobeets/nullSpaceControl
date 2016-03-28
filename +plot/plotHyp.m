@@ -1,36 +1,41 @@
-function plotHyp(D, H, fldr, doSave, doStick)
+function plotHyp(D, H, opts, fldr)
     if nargin < 3
-        fldr = '';
+        opts = struct();
     end
     if nargin < 4
-        doSave = false;
+        fldr = '';
     end
-    if nargin < 5
-        doStick = false;
+    if opts.doSave && isempty(fldr)
+        fldr = plot.getFldr(opts);
     end
-    if doSave && isempty(fldr)
-        fldr = plot.getFldr(D);
+    assert(isa(opts, 'struct'));
+    defopts = struct('doSave', false, 'doRotate', true, 'doStick', false);
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
+    if ~exist(fldr, 'dir')
+        mkdir(fldr);
     end
-    doRotate = true;
-    disp('1');
-    
-    NB = D.blocks(2).fDecoder.NulM2;
-    [~,~,v] = svd(D.blocks(2).latents*NB);
-    NB = NB*v;
-    
+
     % plot all combos of doSolo and doTranspose
+    disp('plot - combos');
+    NB = D.blocks(2).fDecoder.NulM2;
+    if opts.doRotate
+        [~,~,v] = svd(D.blocks(2).latents*NB);
+        NB = NB*v;
+    end
+    
+    disp('plot - 1');
     for doSolo = 0:1
         for doTranspose = 0:1
             fig = figure;
-            plot.blkSummaryPredicted(D, H, doRotate, doSolo, doTranspose, NB);
-            fnm = getFnm(H.name, fldr, doRotate, doSolo, doTranspose);
-            if ~isempty(fldr)
+            plot.blkSummaryPredicted(D, H, opts.doRotate, doSolo, doTranspose, NB);
+            fnm = getFnm(H.name, fldr, opts.doRotate, doSolo, doTranspose);
+            if opts.doSave
                 saveas(fig, fnm, 'png');
             end
         end
     end
     
-    disp('2');
+    disp('plot - norms');
     % norms by kinematics
     fig = figure; nm = [D.datestr ' Blk2 - ' H.name];
     ths = D.blocks(2).thetas;
@@ -43,20 +48,18 @@ function plotHyp(D, H, fldr, doSave, doStick)
     [ys, xs] = plot.valsByKinematics(D, ths, Y1, Y2, 8, true, 2);
     plot.byKinematics(xs, ys, nm, [0.2 0.8 0.2]);
     legend({'true', H.name, 'error'});
-    if ~isempty(fldr)
+    if opts.doSave
         saveas(fig, fullfile(fldr, [H.name '_kinNorms']), 'png');
     end
     
-    if ~doStick
-        return;
-    end
-    
-    disp('3');
-    % stick plot
-    fig = figure;
-    plot.stickPlot(D.hyps(1).nullOG(2).zMu, H.null(2).zMu, H.name);
-    if ~isempty(fldr)
-        saveas(fig, fullfile(fldr, [H.name '_stick']), 'png');
+    if opts.doStick
+        disp('plot - sticks');
+        % stick plot
+        fig = figure;
+        plot.stickPlot(D.hyps(1).nullOG(2).zMu, H.null(2).zMu, H.name);
+        if opts.doSave
+            saveas(fig, fullfile(fldr, [H.name '_stick']), 'png');
+        end
     end
 
 end

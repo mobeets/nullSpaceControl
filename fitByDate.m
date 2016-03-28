@@ -1,4 +1,4 @@
-function D = fitByDate(dtstr, params, nms, plotOpts, opts)
+function D = fitByDate(dtstr, params, nms, plotopts, opts, hypopts)
 % 20120525 20120601 20131125 20131205    
     if nargin < 2 || isempty(params)
         params = struct();
@@ -6,23 +6,22 @@ function D = fitByDate(dtstr, params, nms, plotOpts, opts)
     if nargin < 3
         nms = {'kinematics mean', 'habitual', 'cloud-hab'};
     end
-    if nargin < 4 || isempty(plotOpts) || ~isstruct(plotOpts)
-        plotOpts = struct('doPlot', false);
+    if nargin < 4 || isempty(plotopts) || ~isstruct(plotopts)
+        plotopts = struct();
     end
-    if nargin < 5
+    if nargin < 5 || isempty(opts)
         opts = struct();
-    end    
+    end
+    if nargin < 6 || isempty(hypopts)
+        hypopts = struct();
+    end
     
     D = io.quickLoadByDate(dtstr, params, opts);
-    D = pred.fitHyps(D, nms);
-    D = pred.nullActivity(D);
+    D = pred.fitHyps(D, nms, hypopts);
+    D = pred.nullActivity(D, hypopts);
     D = score.scoreAll(D);
 
-    defPlotOpts = struct('doPlot', true, 'doSave', true, ...
-        'isMaster', false, 'doSolos', false);
-    plotOpts = tools.setDefaultOptsWhenNecessary(plotOpts, defPlotOpts);
-    if plotOpts.doPlot
-        plot.plotAll(D, D.hyps(2:end), ...
-            plotOpts.doSave, plotOpts.isMaster, plotOpts.doSolos);
+    if numel(fieldnames(plotopts)) > 0
+        plot.plotAll(D, D.hyps, plotopts);
     end
 end

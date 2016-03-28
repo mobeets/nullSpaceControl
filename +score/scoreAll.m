@@ -29,7 +29,7 @@ function D = scoreAll(D, baseHypNm)
             continue;
         end
         
-        if isequal(size(zNull{1}), size(zNull0{1}))
+        if isequal(size(cell2mat(zNull)), size(cell2mat(zNull0)))
             D.hyps(ii).errOfMeansFull = score.errOfMeans(zNull, zNull0);
         else
             D.hyps(ii).errOfMeansFull = nan;
