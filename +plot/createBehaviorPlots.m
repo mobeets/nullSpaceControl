@@ -1,12 +1,20 @@
 function [Y,X,N,fits,popts] = createBehaviorPlots(D, blockInd, ...
-    grpName, nms, binSz, ptsPerBin, collapseTrials, fcns, fcnNms, popts)
-    if nargin < 10
+    grpName, nms, binSz, ptsPerBin, collapseTrials, fcns, fcnNms, ...
+    popts, hopts)
+    if nargin < 10 || isepmty(popts)
         popts = struct();
+    end
+    if nargin < 11 || isepmty(hopts)
+        hopts = struct();
     end
     assert(isa(popts, 'struct'));
     defopts = struct('doSave', false, 'fignm', '', ...
         'plotdir', fullfile('plots', 'behaviorByTrial'), 'askedOnce', false);
     popts = tools.setDefaultOptsWhenNecessary(popts, defopts);
+    
+    assert(isa(hopts, 'struct'));
+    defopts = struct('decoderNm', 'fDecoder');
+    hopts = tools.setDefaultOptsWhenNecessary(hopts, defopts);
 
     if any(strcmp(nms, 'YBmin')) || any(strcmp(nms, 'YBavg')) || ...
             any(strcmp(nms, 'YBavgNorm'))
@@ -17,8 +25,8 @@ function [Y,X,N,fits,popts] = createBehaviorPlots(D, blockInd, ...
     D.trials.angErrorAbs = abs(D.trials.angError);
     D.trials.Y1 = D.trials.latents(:,1);
     D.trials.Y2 = D.trials.latents(:,2);
-    D = addLatentsByBlock(D, 1);
-    D = addLatentsByBlock(D, 2);
+    D = addLatentsByBlock(D, 1, hopts);
+    D = addLatentsByBlock(D, 2, hopts);
     
     D.trials.YN = D.trials.YN1;
     D.trials.YR = D.trials.YR1;
@@ -58,11 +66,11 @@ function [Y,X,N,fits,popts] = createBehaviorPlots(D, blockInd, ...
 %     end
 end
 
-function D = addLatentsByBlock(D, ind)
+function D = addLatentsByBlock(D, ind, hopts)
     Y = D.trials.latents;
     B = D.blocks(ind);
-    NB = B.fDecoder.NulM2;
-    RB = B.fDecoder.RowM2;
+    NB = B.(hopts.decoderNm).NulM2;
+    RB = B.(hopts.decoderNm).RowM2;
     YN = Y*NB;
     YR = Y*RB;
     D.trials.(['YN' num2str(ind)]) = YN;

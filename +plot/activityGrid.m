@@ -1,9 +1,12 @@
-function activityGrid(dtstr, grpNames, popts)
+function activityGrid(dtstr, grpNames, popts, hopts)
     if nargin < 2 || isempty(grpNames)
         grpNames = {'', 'targetAngle', 'thetaGrps'};
     end
     if nargin < 3 || isempty(popts)
         popts = struct('doSave', false);
+    end
+    if nargin < 4 || isempty(hopts)
+        hopts = struct();
     end
 
     ccaFcn = @(y) tools.canoncorr_r(y{1}, y{2});
@@ -31,7 +34,7 @@ function activityGrid(dtstr, grpNames, popts)
         grpName = grpNames{jj};        
         [Y,X,N,fits,popts] = plot.createBehaviorPlots(D, blockInd, ...
             grpName, nms, binSz, ptsPerBin, collapseTrials, fcns, ...
-            fcnNms, popts);
+            fcnNms, popts, hopts);
     end
 
 end

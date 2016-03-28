@@ -6,7 +6,7 @@ function plotAll(D, Hs, opts)
     defopts = struct('doSave', false, 'isMaster', false, ...
         'doSolos', false, 'doTimestampFolder', true, ...
         'plotdir', fullfile('plots', D.datestr));
-    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);    
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     fldr = plot.getFldr(opts);
 
     % write out params

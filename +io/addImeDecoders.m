@@ -1,6 +1,5 @@
 function D = addImeDecoders(D)
-    DATADIR = getpref('factorSpace', 'data_directory');
-    fnm = fullfile(DATADIR, 'ime', [D.datestr '.mat']);
+    fnm = io.pathToIme(D.datestr);
     if ~exist(fnm, 'file')
         return;        
     end
