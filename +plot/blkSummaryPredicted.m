@@ -9,7 +9,7 @@ function blkSummaryPredicted(D, H, doRotate, doSolo, doTrans, NB)
         doTrans = false;
     end
     if nargin < 6
-        NB = [];
+        NB = [];        
     end
 
     % figure;

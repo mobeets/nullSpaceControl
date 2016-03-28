@@ -4,7 +4,7 @@ function fldr = getFldr(opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('isMaster', false, 'plotdir', 'plots', ...
-        'doTimestampFolder', false);
+        'doTimestampFolder', false, 'noVerifying', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
 %     fldr = fullfile(opts.baseDir, D.datestr);
@@ -19,7 +19,7 @@ function fldr = getFldr(opts)
     end
     if ~exist(fldr, 'dir')
         mkdir(fldr);
-    else
+    elseif ~opts.noVerifying
 %         return;
         resp = input(['Folder "' fldr ...
             '" already exists. Continue (y/n)? '], 's');

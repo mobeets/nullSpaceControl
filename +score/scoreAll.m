@@ -37,10 +37,13 @@ function D = scoreAll(D, baseHypNm)
         [D.hyps(ii).errOfMeans, e2] = score.errOfMeans(zMu, zMu0);
         D.hyps(ii).errOfMeansByKin = e2;
         D.hyps(ii).covRatio = score.covRatio(zCov, zCov0);
-        [s,s2,s3] = score.covError(zNull, zNull0);
+        [s, s2, s3, S,S2,S3] = score.covError(zNull, zNull0);
         D.hyps(ii).covError = s;
         D.hyps(ii).covErrorOrient = s2;
         D.hyps(ii).covErrorShape = s3;
+        D.hyps(ii).covErrorByKin = S;
+        D.hyps(ii).covErrorOrientByKin = S2;
+        D.hyps(ii).covErrorShapeByKin = S3;
     end
 
 end

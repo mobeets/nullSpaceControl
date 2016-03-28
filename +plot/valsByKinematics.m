@@ -1,5 +1,5 @@
 function [vals, cnts] = valsByKinematics(D, xs, Y1, Y2, nbins, ...
-    doNull, nbind)
+    doNull, nbind, hopts)
 
     if nargin < 4
         Y2 = [];
@@ -13,6 +13,11 @@ function [vals, cnts] = valsByKinematics(D, xs, Y1, Y2, nbins, ...
     if nargin < 7
         nbind = bind;
     end
+    if nargin < 8
+        hopts = struct();
+    end
+    defopts = struct('decoderNm', 'fDecoder');
+    hopts = tools.setDefaultOptsWhenNecessary(hopts, defopts);
         
     cnts = score.thetaCenters(nbins);
     
@@ -30,14 +35,14 @@ function [vals, cnts] = valsByKinematics(D, xs, Y1, Y2, nbins, ...
         return;
     end
     
-    % get null basis    
-    NB = D.blocks(nbind).fDecoder.NulM2;    
+    % get null basis
+    NB = D.blocks(nbind).(hopts.decoderNm).NulM2;    
     if true % doRotate
         [~,~,v] = svd(Y1*NB);
         NB = NB*v;
     end
     if ischar(doNull) && strcmpi(doNull, 'row')
-        NB = D.blocks(nbind).fDecoder.RowM2;
+        NB = D.blocks(nbind).(hopts.decoderNm).RowM2;
     end
 
     M1 = score.avgByThetaGroup(xs, Y1*NB, cnts);

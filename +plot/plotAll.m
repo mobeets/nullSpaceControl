@@ -1,13 +1,21 @@
-function plotAll(D, Hs, opts)
+function plotAll(D, Hs, opts, hopts)
     if nargin < 3
         opts = struct();
+    end
+    if nargin < 4
+        hopts = struct();
     end
     assert(isa(opts, 'struct'));
     defopts = struct('doSave', false, 'isMaster', false, ...
         'doSolos', false, 'doTimestampFolder', true, ...
         'plotdir', fullfile('plots', D.datestr));
-    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
-    fldr = plot.getFldr(opts);
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);    
+    
+    if opts.doSave
+        fldr = plot.getFldr(opts);
+    else
+        fldr = '';
+    end
 
     % write out params
     if opts.doSave
@@ -19,27 +27,34 @@ function plotAll(D, Hs, opts)
     fig = figure;
     plot.errOfMeans(Hs, D.datestr);
     if opts.doSave
-        saveas(fig, fullfile(fldr, 'errOfMeans'), 'png');
+        saveas(fig, fullfile(fldr, [D.datestr '-errOfMeans']), 'png');
     end
 
     % Plot error of covariance orientation
     fig = figure;
     plot.covError(Hs, D.datestr, 'covErrorOrient');
     if opts.doSave
-        saveas(fig, fullfile(fldr, 'covErrorOrient'), 'png');
+        saveas(fig, fullfile(fldr, [D.datestr '-covErrorOrient']), 'png');
     end
 
     % Plot error of covariance shape
     fig = figure;
     plot.covError(Hs, D.datestr, 'covErrorShape');
     if opts.doSave
-        saveas(fig, fullfile(fldr, 'covErrorShape'), 'png');
+        saveas(fig, fullfile(fldr, [D.datestr '-covErrorShape']), 'png');
+    end
+
+    % Plot errors by kin
+    fig = figure;
+    plot.allErrorByKin(D, Hs);
+    if opts.doSave
+        saveas(fig, fullfile(fldr, [D.datestr '-errorByKin']), 'png');
     end
     
     % Plot hypotheses
     if opts.doSolos
         for ii = 1:numel(Hs)
-            plot.plotHyp(D, Hs(ii), opts, fldr);
+            plot.plotHyp(D, Hs(ii), opts, fldr, hopts);
         end
     end
 

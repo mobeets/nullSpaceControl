@@ -5,9 +5,9 @@ function D = nullActivity(D, opts)
     defopts = struct('decoderNm', 'fDecoder', 'idxFldNm', '', ...
         'thetaFldNm', 'thetas');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
-%     if ~strcmp(opts.decoderNm, 'fDecoder')
-%         warning(['Predicting null activity using "' opts.decoderNm '"']);
-%     end
+    if ~strcmp(opts.decoderNm, 'fDecoder')
+        warning(['Predicting null activity using "' opts.decoderNm '"']);
+    end
 
     NBf = @(ii) D.blocks(ii).(opts.decoderNm).NulM2;
     

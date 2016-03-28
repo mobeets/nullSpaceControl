@@ -1,4 +1,4 @@
-function behaviorGrid(dtstr, grpNames, popts)
+function [Y,X,N,nms] = behaviorGrid(dtstr, grpNames, popts)
     if nargin < 2 || isempty(grpNames)
         grpNames = {'', 'targetAngle', 'thetaGrps'};
     end

@@ -1,9 +1,12 @@
-function plotHyp(D, H, opts, fldr)
+function plotHyp(D, H, opts, fldr, hopts)
     if nargin < 3
         opts = struct();
     end
     if nargin < 4
         fldr = '';
+    end
+    if nargin < 5
+        hopts = struct();
     end
     if opts.doSave && isempty(fldr)
         fldr = plot.getFldr(opts);
@@ -11,19 +14,23 @@ function plotHyp(D, H, opts, fldr)
     assert(isa(opts, 'struct'));
     defopts = struct('doSave', false, 'doRotate', true, 'doStick', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
+    
+    defopts = struct('decoderNm', 'fDecoder');
+    hopts = tools.setDefaultOptsWhenNecessary(hopts, defopts);
+    
     if ~exist(fldr, 'dir')
         mkdir(fldr);
     end
 
     % plot all combos of doSolo and doTranspose
-    disp('plot - combos');
-    NB = D.blocks(2).fDecoder.NulM2;
+    disp('plot - rotate');
+    NB = D.blocks(2).(hopts.decoderNm).NulM2;
     if opts.doRotate
         [~,~,v] = svd(D.blocks(2).latents*NB);
         NB = NB*v;
     end
     
-    disp('plot - 1');
+    disp('plot - combos');
     for doSolo = 0:1
         for doTranspose = 0:1
             fig = figure;
@@ -40,12 +47,12 @@ function plotHyp(D, H, opts, fldr)
     fig = figure; nm = [D.datestr ' Blk2 - ' H.name];
     ths = D.blocks(2).thetas;
     Y1 = D.blocks(2).latents;
-    [ys, xs] = plot.valsByKinematics(D, ths, Y1, [], 8, true, 2);
+    [ys, xs] = plot.valsByKinematics(D, ths, Y1, [], 8, true, 2, hopts);
     plot.byKinematics(xs, ys, nm, [0.2 0.2 0.8]);
     Y2 = H.latents;
-    [ys, xs] = plot.valsByKinematics(D, ths, Y2, [], 8, true, 2);
+    [ys, xs] = plot.valsByKinematics(D, ths, Y2, [], 8, true, 2, hopts);
     plot.byKinematics(xs, ys, nm, [0.8 0.2 0.2]);
-    [ys, xs] = plot.valsByKinematics(D, ths, Y1, Y2, 8, true, 2);
+    [ys, xs] = plot.valsByKinematics(D, ths, Y1, Y2, 8, true, 2, hopts);
     plot.byKinematics(xs, ys, nm, [0.2 0.8 0.2]);
     legend({'true', H.name, 'error'});
     if opts.doSave
