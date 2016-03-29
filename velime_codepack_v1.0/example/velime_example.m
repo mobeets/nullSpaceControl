@@ -11,12 +11,15 @@ load('example_data.mat');
 
 cd /Users/mobeets/code/nullSpaceControl
 % dtstr = '20120601';
-dtstr = '20120525';
+% dtstr = '20120525';
+% dtstr = '20120709';
+dtstr = '20131125';
 params = io.setUnfilteredDefaults();
 params = io.updateParams(params, io.setBlockStartTrials(dtstr), true);
 
 opts = struct('doRotate', false);
 D = io.quickLoadByDate(dtstr, params, opts);
+fnm = io.pathToIme(dtstr);
 cd /Users/mobeets/code/nullSpaceControl/velime_codepack_v1.0/
 
 %%
@@ -27,8 +30,6 @@ bind = 2;
 %%
 
 ime = D.ime;
-outdir = '/Users/mobeets/code/nullSpaceControl/data/ime';
-fnm = fullfile(outdir, [D.datestr '.mat']);
 if exist(fnm, 'file')
     error('Not saving...file already exists.');
 end

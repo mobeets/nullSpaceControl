@@ -7,27 +7,50 @@ nkins = 8;
 lrn = nan(numel(dts), nkins);
 Lmax = nan(size(lrn));
 Lbest = nan(size(lrn));
+% vals = {'progress'}; sgns = [1];
+vals = {'isCorrect', 'trial_length'}; sgns = [1 1];
 
 for ii = 1:numel(dts)
     dtstr = dts{ii}
-    [lrn(ii,:), Lmax(ii,:), Lbest(ii,:)] = plot.learningByKin(dtstr, ...
-        {'trial_length'});
+    if numel(vals) == 1
+        [lrn(ii,:), Lmax(ii,:), Lbest(ii,:)] = plot.learningByKin(dtstr, vals);
+    else
+        lrn(ii,:) = plot.learningByKin(dtstr, vals, [], [], sgns);
+    end
     close all;
 end
+fnm = ['data/fits/learning_' [vals{:}] '.mat'];
+save(fnm, 'lrn', 'Lmax', 'Lbest')
+
+%%
+
+val = 'trial-length';
+fnm = ['data/fits/learning_' val '.mat'];
+load(fnm, 'lrn', 'Lmax', 'Lbest')
+
+%%
+
+[lrn, Lmax, Lbest] = plot.learningByKin(dtstr, {'isCorrect', 'trial_length'});
+close all;
 
 %% hyp scores
 
-Hs = [];
+HsVol = [];
+HsHab = [];
+HsCld = [];
 for ii = 1:numel(dts)
     dtstr = dts{ii}
-    nms = {'cloud-hab'};
+    nms = {'volitional', 'habitual', 'cloud-hab'};
     D = fitByDate(dtstr, [], nms, [], [], []);
-    Hs = [Hs D.hyps(2)];
+    HsVol = [HsVol D.hyps(4)];
+    HsHab = [HsHab D.hyps(2)];
+    HsCld = [HsCld D.hyps(3)];
 
 end
 
 %% gather errors
 
+Hs = HsCld;
 xs = cell2mat({Hs.errOfMeansByKin}');
 zs = log([Hs.covErrorOrientByKin]');
 ys = log([Hs.covErrorShapeByKin]');
@@ -56,13 +79,24 @@ clrs = cbrewer('qual', 'Set2', size(xs,1));
 figure; set(gcf, 'color', 'w');
 hold on; set(gca, 'FontSize', 14);
 
-vs = zs;
+% mnks = logical([1 1 0 0 0]);
+vs = xs;
+ws = lrn;
+assert(all(sign(ws(:)) == sign(ws(1)))); % all same sign
+ws = ws*sign(ws(1));
+
+rsq = [];
 for ii = 1:size(vs,1)
     clr = clrs(ii,:);
-    [~,ix] = sort(vs(ii,:));
-    plot(Lmax(ii,ix), vs(ii,ix), 'ko-', 'MarkerFaceColor', clr);
+    xc = ws(ii,:); yc = vs(ii,:);
+%     xc = ws(mnks==(ii-1),:); yc = vs(mnks==(ii-1),:); xc = xc(:)'; yc = yc(:)';
+    xc2 = [xc; ones(size(xc))];
+    [b,bint,r,rint,stats] = regress(yc', xc2');
+    rsq(ii,:) = [b(1) stats(1) stats(3)]; % slope, r-sq, p-val
+    plot(xc, xc2'*b, '-', 'Color', clr, 'LineWidth', 3);
+    plot(xc, yc, 'ko', 'Color', clr, 'MarkerFaceColor', clr);    
 end
 xlabel(xlbl);
 ylabel(ylbl);
-title('Lmax, cov orient error');
+title('Lbest, cov orient error');
 

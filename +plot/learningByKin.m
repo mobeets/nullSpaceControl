@@ -1,7 +1,12 @@
-function [lrn, Lmax, Lbest, Lraw] = learningByKin(dtstr, nms, Ya, nmsa)
-
+function [lrn, Lmax, Lbest, Lraw] = learningByKin(dtstr, nms, Ya, nmsa, sgns)
 %     ths = score.thetaCenters;
     if nargin < 3
+        Ya = [];
+    end    
+    if nargin < 5
+        sgns = ones(size(nms));
+    end
+    if isempty(Ya)
         [Ya,~,~,nmsa] = plot.behaviorGrid(dtstr, {'thetaGrps'});
     end
     
@@ -18,10 +23,20 @@ function [lrn, Lmax, Lbest, Lraw] = learningByKin(dtstr, nms, Ya, nmsa)
                 Y{ii,1}, Y{ii,2});
         end
     end
-    
-    assert(numel(nms)==1);
-    Lbest = cell2mat(Lbest);
-    Lmax = cell2mat(Lmax);
-    lrn = Lbest./Lmax;
+    if nflds > 1
+        lrn = nan(nkins,1);
+        for ii = 1:nkins
+            Lm = cell2mat(Lmax(ii,:));
+            Lr = cell2mat(Lraw(ii,:));
+            Lproj = Lr*(Lm/norm(Lm))'*(Lm/norm(Lm));
+            Lproj = bsxfun(@times, Lproj, sgns);
+            Lprojnrm = arrayfun(@(ii) norm(Lproj(ii,:)), 1:size(Lproj,1));
+            lrn(ii) = max(Lprojnrm)/norm(Lm);
+        end
+    elseif nflds == 1
+        Lbest = cell2mat(Lbest);
+        Lmax = cell2mat(Lmax);
+        lrn = Lbest./Lmax;
+    end
 
 end
