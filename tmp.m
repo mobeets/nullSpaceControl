@@ -1,105 +1,89 @@
-params = struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360, ...
-    'REMOVE_INCORRECTS', true);
 
-dtstr = '20120601';
-D = io.quickLoadByDate(dtstr, params, false);
-D.trials = tools.concatBlocks(D);
-grpName = 'targetAngle';
-nms = {'progress', 'trial_length'};
-fcns = {[], []};
-collapseTrials = [true true];
-nm = '-';
+D = io.quickLoadByDate('20120601');
+B1 = D.blocks(1);
+B2 = D.blocks(2);
+NB1 = B1.fDecoder.NulM2;
+RB1 = B1.fDecoder.RowM2;
+NB2 = B2.fDecoder.NulM2;
+RB2 = B2.fDecoder.RowM2;
 
-B = D.blocks(2);
-progressOrth = nan(size(B.progress));
-targDist = nan(size(progressOrth));
-for t = 1:numel(B.progress)
-    moveTime(t) = D.simpleData.movementTime(B.trial_index(t));
-    targDist(t) = norm(B.pos(t,:) - B.target(t,:));
-    vec2trg = B.vec2target(t,:);
-    vec2trgOrth(1) = vec2trg(2);
-    vec2trgOrth(2) = -vec2trg(1);
-    movVec = D.trials.movementVector(t,:);
-    progressOrth(t) = -(movVec*vec2trgOrth'/norm(vec2trg));
-end
-D.blocks(2).progressOrth = progressOrth;
-D.blocks(2).targDist = targDist;
-D.blocks(2).moveTime = moveTime;
+%% dependence on theta
 
-% [X,Y,N,fits] = plot.createBehaviorPlots(D, blockInd, grpName, nms, ...
-%     binSz, ptsPerBin, collapseTrials, fcns, false);
-%%
+B = B2;
+NB = NB2;
 
-B = D.blocks(2);
-% ix = B.targetAngle == 180;
-% ix = B.targetAngle == 270;
-ix = B.targetAngle == 225;
-ts = B.trial_index(ix);
-xs = B.trial_length(ix);
-ys = B.progress(ix);
-zs = B.targDist(ix);
+Y = B.latents*NB;
+xs = B.thetas;
+gs = B.thetaGrps;
 
+[Y_A,Y_B,r,U,V,stats] = canoncorr(Y, [cosd(xs) sind(xs)]);
 
-% close all;
+grps = sort(unique(gs));
+clrs = cbrewer('div', 'RdYlGn', numel(grps));
 figure; set(gcf, 'color', 'w');
-
-subplot(2,1,1);
 hold on; set(gca, 'FontSize', 14);
 
-trs = sort(unique(ts));
-X = nan(max(trs), 1);
-Y = nan(size(X));
-Z = nan(size(X));
-T = 1:max(trs);
-for ii = 1:numel(trs)
-    t = trs(ii);
-    it = ts == t;
-    x = nanmean(xs(it));
-    y = ys(it);
-    z = zs(it);
-
-    plot(x, nanmean(y), 'ok');
-%     plot(nanmean(z), nanmean(y), 'ok');
-%     plot(nanmean(z), x, 'ok');
+for ii = 1:numel(grps)
+    ix = grps(ii) == gs;
+    plot(U(ix,1), U(ix,2), 'k.', 'Color', clrs(ii,:));
+    [bp, muhat, sighat] = tools.gauss2dcirc(U(ix,:));
+%     plot(bp(1,:), bp(2,:), '-', 'Color', clrs(ii,:), 'LineWidth', 3);
+    plot(muhat(1), muhat(2), 'ko', 'MarkerFaceColor', clrs(ii,:), 'MarkerSize', 15);    
     
-    X(t) = x;
-    Y(t) = nanmean(y);
-    Z(t) = nanmean(z);
 end
-% plot(zs, ys, '.k');
-% [~,iz] = sort(zs);
-% plot(zs(iz), smooth(zs(iz), ys(iz), 20), '-k');
-xlabel('trial_length');
-ylabel('progress');
 
-subplot(2,1,2);
-hold on; set(gca, 'FontSize', 14);
-itx = ~isnan(X);
-ity = ~isnan(Y);
-itz = ~isnan(Z);
-% 
-% plot(T(itz), Z(itz)./nanmax(Z), '.');
-% plot(T(ity), Y(ity)./nanmax(Y), '.');
-% plot(T(itz), Z(itz)./nanmax(Z), 'b-');
-% plot(T(ity), Y(ity)./nanmax(Y), 'r-');
 
-plot(T(itx), X(itx)./nanmax(X), '.');
-plot(T(ity), Y(ity)./nanmax(Y), '.');
-plot(T(itx), smooth(T(itx), X(itx)./nanmax(X)), 'b-');
-plot(T(ity), smooth(T(ity), Y(ity)./nanmax(Y)), 'r-');
+%% raw column correlations with theta
 
-xlabel('trial #');
-ylabel('value');
+B = B2;
+NB = NB2;
 
-%%
+xs = B.thetas;
+gs = B.thetaGrps;
+X = [cosd(xs) sind(xs)];
+Y = B.latents*NB;
+r = [];
+for ii = 1:size(Y,2)
+    [~,~,r(ii,:),~,~,~] = canoncorr(Y(:,ii), X);
+end
+r
 
-% trial_length > 80
-% progress > 15
+%% covariance/correlation of YN/YR
 
-tx = T(X > 80);
-ty = T(Y > 15);
-figure; plot.showTrial(D.simpleData, tx);
-figure; plot.showTrial(D.simpleData, ty);
+B = B2;
+NB = NB2;
+RB = RB2;
 
-figure; plot.showTrial(D.simpleData, T(Y > 15), {'movementTime'});
+YN = B.latents*NB;
+YR = B.latents*RB;
+C = corr(YN, YR);
+% C = corr(YN);
+
+figure; set(gcf, 'color', 'w');
+colormap(cbrewer('div', 'RdBu', 21));
+imagesc(C);
+axis off;
+caxis([-1 1]);
+colorbar;
+
+%% dependence on YR
+
+B = B2;
+NB = NB2;
+RB = RB2;
+
+YN = B.latents*NB;
+YR = B.latents*RB;
+[Y_A,Y_B,r,U,V,stats] = canoncorr(YR, YN);
+
+for ii = 1:size(YR,2)
+    figure; set(gcf, 'color', 'w');
+    hold on; set(gca, 'FontSize', 14);
+    
+    plot(U(:,ii), V(:,ii), '.');
+%     plot(U(:,ii), V(:,ii), '.');
+%     for jj = 1:size(YN,2)
+%         plot(YR(:,ii), YN(:,jj), '.');
+%     end
+end
 
