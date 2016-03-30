@@ -40,17 +40,18 @@ HsHab = [];
 HsCld = [];
 for ii = 1:numel(dts)
     dtstr = dts{ii}
-    nms = {'volitional', 'habitual', 'cloud-hab'};
-    D = fitByDate(dtstr, [], nms, [], [], []);
-    HsVol = [HsVol D.hyps(4)];
+%     nms = {'volitional', 'habitual', 'cloud-hab', 'cloud-raw'};
+    nms = {'cloud-raw'};
+    D = fitByDate(dtstr, [], nms, [], [], []);    
     HsHab = [HsHab D.hyps(2)];
-    HsCld = [HsCld D.hyps(3)];
+%     HsCld = [HsCld D.hyps(3)];
+%     HsVol = [HsVol D.hyps(4)];
 
 end
 
 %% gather errors
 
-Hs = HsCld;
+Hs = HsHab;
 xs = cell2mat({Hs.errOfMeansByKin}');
 zs = log([Hs.covErrorOrientByKin]');
 ys = log([Hs.covErrorShapeByKin]');
@@ -66,10 +67,10 @@ figure; set(gcf, 'color', 'w');
 hold on; set(gca, 'FontSize', 14);
 for ii = 1:size(xs,1)
     clr = clrs(ii,:);
-    plot(ys(ii,:), zs(ii,:), 'ko', 'MarkerFaceColor', clr);
+    plot(xs(ii,:), ys(ii,:), 'ko', 'MarkerFaceColor', clr);
 end
-xlabel(ylbl);
-ylabel(zlbl);
+xlabel(xlbl);
+ylabel(ylbl);
 
 %% plot errors vs. learning
 
@@ -81,7 +82,7 @@ hold on; set(gca, 'FontSize', 14);
 
 % mnks = logical([1 1 0 0 0]);
 vs = xs;
-ws = lrn;
+ws = Lmax;
 assert(all(sign(ws(:)) == sign(ws(1)))); % all same sign
 ws = ws*sign(ws(1));
 

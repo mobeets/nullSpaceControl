@@ -42,4 +42,9 @@ function D = fitHyps(D, nms, opts)
     if ismember('conditional', nms)
         D.hyps = pred.addPrediction(D, 'conditional', pred.condFit(D, opts));
     end
+    if ismember('conditional-thetas', nms)
+        custopts = struct('useThetas', true);
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'conditional-thetas', pred.condFit(D, custopts));
+    end
 end

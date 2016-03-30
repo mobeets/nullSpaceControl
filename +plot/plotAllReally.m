@@ -1,7 +1,7 @@
 
-dtstr = '20120525';
-% dtstr = '20120601';
-doSave = true;
+% dtstr = '20120525';
+dtstr = '20120601';
+doSave = false;
 
 %% fit
 
@@ -15,7 +15,7 @@ fitByDate(dtstr, [], nms, popts, [], []);
 %% hyp fits over time
 
 close all;
-nms = {'kinematics mean', 'cloud-hab', 'habitual'};
+nms = {'kinematics mean', 'cloud-hab', 'habitual', 'cloud-raw'};
 popts = struct('doSave', doSave, 'askedOnce', false, ...
     'plotdir', fullfile('plots', 'all', dtstr, 'hypsByTrials'));
 hypopts = struct('decoderNm', 'fDecoder');

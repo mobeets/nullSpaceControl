@@ -33,29 +33,6 @@ function D = rotateLatentsUpdateDecoders(D, doStretch)
         end
         D.blocks(ii).latents = Z*spikeRot;
         
-%         M2 = D.blocks(ii).fDecoder.M2;
-%         R2 = D.blocks(ii).fDecoder.RowM2;        
-% 
-%         Znew = Z*spikeRot; % L = USV', u = Lz
-%         M2new = M2*inv(spikeRot)';
-%         % n.b. will fail if nans in Znew or Z
-%         ixNotNan = ~any(isnan(Z),2);
-%         assert(norm(Znew(ixNotNan,:)*M2new' - Z(ixNotNan,:)*M2') < 1e-10, 'Activity not preserved');
-%                 
-%         [NulM2, RowM2] = tools.getNulRowBasis(M2new); % neg 1st col
-%         
-%         a1 = Znew*RowM2(:,1); a2 = Znew*RowM2(:,2);
-%         b1 = Z*R2(:,1); b2 = Z*R2(:,2);
-% 
-%         % bit of a hack to make sure columns have correct sign
-%         if norm(a1-b1) > 1e-10 && norm(a1+b1) < 1e-10
-%             RowM2(:,1) = -RowM2(:,1);
-%         end
-% 
-%         D.blocks(ii).latents = Znew;
-%         D.blocks(ii).fDecoder.M2 = M2new;
-%         D.blocks(ii).fDecoder.NulM2 = NulM2;
-%         D.blocks(ii).fDecoder.RowM2 = RowM2;
     end
     D.simpleData.nullDecoder.FactorAnalysisParams.Lrot = Lrot;
     D.simpleData.nullDecoder.FactorAnalysisParams.spikeRot = spikeRot;

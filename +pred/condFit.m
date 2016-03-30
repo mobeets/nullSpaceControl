@@ -3,8 +3,7 @@ function Z = condFit(D, opts)
         opts = struct();
     end
     assert(isa(opts, 'struct'));
-    defopts = struct('decoderNm', 'fDecoder', 'thetaNm', 'thetas', ...
-        'thetaTol', 15, 'doSample', true);
+    defopts = struct('decoderNm', 'fDecoder', 'useThetas', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
@@ -18,25 +17,26 @@ function Z = condFit(D, opts)
     % train
     YR = B1.latents*RB2;
     YN = B1.latents*NB2;
+    YR2 = B2.latents*RB2;
+    
+    if opts.useThetas
+%         YR = [YR cosd(B1.thetas) sind(B1.thetas)];
+%         YR2 = [YR2 cosd(B2.thetas) sind(B2.thetas)];
+        YR = [YR cosd(B1.thetaGrps) sind(B1.thetaGrps)];
+        YR2 = [YR2 cosd(B2.thetaGrps) sind(B2.thetaGrps)];
+    end
     
     % set col_order
-%     col_order = 1:nNull;
-%     col_order = getColOrder_LargestYRCorr(YN, YR)
-    col_order = getColOrder_SortedCorr(YN, YR)
+    col_order = 1:nNull;
+%     col_order = getColOrder_LargestYRCorr(YN, YR)'
+%     col_order = getColOrder_SortedCorr(YN, YR)
     % WARNING: both of these yield same exact solution somehow?
     
-    Y = [YR YN(:,col_order)];
-    mdls = cell(nNull,1);
-    for ii = 1:nNull
-        Xc = Y(:,1:2+ii-1); % use first 2+ii-1 cols
-%         Xc = [Xc ones(size(Xc,1),1)];
-        Yc = Y(:,ii+2); % to predict the next col
-        mdls{ii} = fitlm(Xc, Yc);
-    end
+    % TO DO: add in thetas to regression
+    mdls = fitModels(YR, YN, col_order);
     
     % predict
     Zsamp = nan(nt,nNull);
-    YR2 = B2.latents*RB2;
     for ii = 1:nNull
         Xc = [YR2 Zsamp(:,1:(ii-1))];
         Zsamp(:,ii) = predict(mdls{ii}, Xc);
@@ -46,14 +46,25 @@ function Z = condFit(D, opts)
     Zsamp2 = nan(size(Zsamp));
     for ii = 1:numel(col_order)
         Zsamp2(:,col_order(ii)) = Zsamp(:,ii);
-        disp(['col ' num2str(ii) ' to ' num2str(col_order(ii))]);
     end
     Zsamp = Zsamp2;
 
-    % warning: reorder by col_order
     Zn = Zsamp*NB2';
     Zr = B2.latents*(RB2*RB2');
     Z = Zr + Zn;
+end
+
+function mdls = fitModels(YR, YN, col_order)
+    Y = [YR YN(:,col_order)];
+    nNull = numel(col_order);
+    nRow = size(YR,2);
+    mdls = cell(nNull,1);
+    for ii = 1:nNull
+        Xc = Y(:,1:nRow+ii-1); % use first 2+ii-1 cols
+        Yc = Y(:,nRow+ii); % to predict the next col
+        mdls{ii} = fitlm(Xc, Yc);%, 'quadratic');
+    end
+    arrayfun(@(ii) mdls{ii}.Rsquared.Ordinary, 1:numel(mdls))
 end
 
 function col_order = getColOrder_LargestYRCorr(YN, YR)
@@ -61,10 +72,12 @@ function col_order = getColOrder_LargestYRCorr(YN, YR)
     nNull = size(YN,2);
     r = nan(nNull,1);
     for ii = 1:nNull
-        [~,~,r(ii),~,~] = canoncorr(YR, YN(:,ii));
+        mdl = fitlm(YR, YN(:,ii));
+        r(ii) = mdl.Rsquared.Ordinary;
+%         [~,~,r(ii),~,~] = canoncorr(YR, YN(:,ii));
     end
     [~, col_order] = sort(-r); % largest corrs first
-    
+%     r(col_order)'
 end
 
 function col_order = getColOrder_SortedCorr(YN, YR, inds, col_order)
@@ -85,7 +98,9 @@ function col_order = getColOrder_SortedCorr(YN, YR, inds, col_order)
     end
     r = nan(nNull,1);
     for ii = 1:nNull
-        [~,~,r(ii),~,~] = canoncorr(YR, YN(:,ii));
+        mdl = fitlm(YR, YN(:,ii));
+        r(ii) = mdl.Rsquared.Ordinary;
+%         [~,~,r(ii),~,~] = canoncorr(YR, YN(:,ii));
     end
     [~, cur_col_order] = sort(-r); % largest corrs first
     keep = cur_col_order(1);

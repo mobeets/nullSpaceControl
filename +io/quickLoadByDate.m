@@ -19,6 +19,7 @@ function D = quickLoadByDate(dtstr, params, opts)
     end
     
     D = io.loadDataByDate(dtstr);
+    D.params.MAX_ANGULAR_ERROR = 360; % don't want to enfore the max of 20
     D.params = io.updateParams(D.params, params, true);
     D.opts = opts;
     D.blocks = io.getDataByBlock(D);
