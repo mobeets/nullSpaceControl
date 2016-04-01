@@ -47,4 +47,7 @@ function D = fitHyps(D, nms, opts)
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'conditional-thetas', pred.condFit(D, custopts));
     end
+    if ismember('condnrm', nms)
+        D.hyps = pred.addPrediction(D, 'condnrm', pred.condGaussFit(D, opts));
+    end
 end

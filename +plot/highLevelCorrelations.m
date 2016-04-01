@@ -64,12 +64,14 @@ r
 B = B2;
 NB = NB2;
 RB = RB2;
-[u,s,v] = svd(B1.latents*NB); NB = NB*v;
+% [u,s,v] = svd(B1.latents*NB); NB = NB*v;
 
+ix = B.thetaGrps == 135;
 YN = B.latents*NB;
 YR = B.latents*RB;
-% C = corr(YN, YR);
-C = corr(YN);
+YN = YN(ix,:); YR = YR(ix,:);
+C = corr(YN, YR);
+% C = corr(YN);
 
 figure; set(gcf, 'color', 'w');
 colormap(cbrewer('div', 'RdBu', 21));
