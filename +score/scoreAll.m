@@ -44,6 +44,25 @@ function D = scoreAll(D, baseHypNm)
         D.hyps(ii).covErrorByKin = S;
         D.hyps(ii).covErrorOrientByKin = S2;
         D.hyps(ii).covErrorShapeByKin = S3;
+        [isUndr, isOver, isEither] = checkBounds(D.hyps(ii).latents, H.latents);
+        if isEither > 0
+            disp([D.hyps(ii).name ' hypothesis has ' num2str(isEither) ...
+                ' points out of bounds (' num2str(isUndr) ' under, ' ...
+                num2str(isOver) ' over).']);
+        end
     end
+end
 
+function [isUndr, isOver, isEither] = checkBounds(Zh, Z)
+    mns = min(Z);
+    mxs = max(Z);
+    mnsc = repmat(mns, size(Z,1), 1);
+    mxsc = repmat(mxs, size(Z,1), 1);
+    isUndr = sum(Zh < mnsc,2);
+    isOver = sum(Zh > mxsc,2);
+    isEither = isOver + isUndr > 0;
+    
+    isUndr = sum(isUndr);
+    isOver = sum(isOver);
+    isEither = sum(isEither);
 end

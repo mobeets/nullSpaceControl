@@ -23,11 +23,11 @@ function Z = condGaussFit(D, opts)
     % predict, given YR2
     YR2 = B2.latents*RB2;
     ixUnknown = false(nn,1); ixUnknown(end-nNull+1:end) = true;
-    [mubar,~] = tools.condGaussMean(mu, S, ixUnknown);
+    [mubar, sigbar] = tools.condGaussMean(mu, S, ixUnknown);
     
     Zsamp = nan(nt,nNull);
     for t = 1:nt
-        Zsamp(t,:) = mubar(YR2(t,:));
+        Zsamp(t,:) = mvnrnd(mubar(YR2(t,:)'), sigbar);
     end
     Zn = Zsamp*NB2';
     Zr = B2.latents*(RB2*RB2');

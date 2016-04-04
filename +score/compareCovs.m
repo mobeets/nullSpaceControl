@@ -8,7 +8,7 @@ function [s, s2, s3] = compareCovs(D1, D2)
 % 
 
     if any(any(isnan(cov(D1)))) || any(any(isnan(cov(D2))))
-        s=nan; s2=nan; s3=nan;
+        s = nan; s2 = nan; s3 = nan;
         return;
     end
     [u1,v11,~] = svd(cov(D1), 'econ');
@@ -21,6 +21,11 @@ function [s, s2, s3] = compareCovs(D1, D2)
     s2 = sum(((v11 + v22) - (v12 + v21)).^2); % orientation
     s3 = sum(((v11 + v12) - (v21 + v22)).^2); % shape
     
+    smax = 4*(sum(var(D1))^2 + sum(var(D2))^2);
+    assert(s <= smax && s2 <= smax && s3 <= smax);
+    s = s./smax;
+    s2 = s2./smax;
+    s3 = s3./smax;    
 end
 
 % || v11 - v21 ||^2 + || v12 - v22 ||^2 = overall
