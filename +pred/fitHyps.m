@@ -50,4 +50,9 @@ function D = fitHyps(D, nms, opts)
     if ismember('condnrm', nms)
         D.hyps = pred.addPrediction(D, 'condnrm', pred.condGaussFit(D, opts));
     end
+    if ismember('condnrmkin', nms)
+        custopts = struct('byThetaGrps', true);
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'condnrmkin', pred.condGaussFit(D, custopts));
+    end
 end

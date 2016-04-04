@@ -16,6 +16,7 @@ ths0 = ths0.ths;
 behav = {'progress', 'trial_length'};
 % behav = {'trial_length'};
 behavInds = find(ismember(nms, behav));
+scsAll = {};
 
 close all;
 for jj = 1:numel(ths)
@@ -25,10 +26,10 @@ for jj = 1:numel(ths)
     
     th = ths{jj};
     th0 = ths0{jj};
+    clrs = cbrewer('qual', 'Set1', size(th,2));    
+    
     figure; set(gcf, 'color', 'w');
     hold on; set(gca, 'FontSize', 14);
-
-    clrs = cbrewer('qual', 'Set1', size(th,2));
     
     % plot bars
     wdth = 0.8;
@@ -53,4 +54,57 @@ for jj = 1:numel(ths)
     xlabel('\theta');
     ylabel('behavioral asymptote (trial #)');
     title(dts{jj});
+end
+
+%%
+
+hyps = {'cloud-hab', 'habitual', 'volitional', 'condnrm'};
+dts0 = io.getAllowedDates();
+scsAll = cell(numel(dts0),1);
+scsAllCov = cell(numel(dts0),1);
+for ii = 1:numel(dts0)
+    D = fitByDate(dts0{ii}, [], hyps);
+%     scsAll{ii} = cell2mat({D.hyps.errOfMeansByKin}');
+    scsAllCov{ii} = cell2mat({D.hyps.covErrorByKin})';x
+end
+
+%%
+
+close all;
+hyps = {D.hyps.name}; hyps = hyps(2:end);
+for kk = 1:numel(hyps)
+    scs = nan(numel(dts0), size(scsAllCov{1},2));
+    for jj = 1:numel(dts0)
+        scs(jj,:) = scsAllCov{jj}(kk,:);
+    end
+    
+    figure; set(gcf, 'color', 'w');
+    for jj = 1:numel(nms)
+        ix = ismember(dts, io.getAllowedDates);
+        inds = 1:numel(dts); inds = inds(ix);
+        ts = nan(size(scs));
+        for ii = 1:numel(inds)
+            th = ths{inds(ii)};
+            th = th(:,jj);
+            ts(ii,:) = th;
+        end
+
+        subplot(2, 3, jj);
+        hold on; set(gca, 'FontSize', 14);
+        clrs = cbrewer('qual', 'Set2', size(scs,1));
+        for ii = 1:size(scs,1)
+            xs = ts(ii,:);
+            ys = scs(ii,:);
+            [~,ix] = sort(xs);
+            xs = xs(ix);
+            ys = ys(ix);
+    %         xs = xs./nanmean(xs);
+    %         ys = ys./nanmean(ys);
+            plot(xs, ys, '-k');
+            plot(xs, ys, 'o', 'Color', clrs(ii,:), ...
+                'MarkerFaceColor', clrs(ii,:), 'MarkerSize', 5);            
+        end
+        xlabel([nms{jj} ' asymptote']);
+        ylabel([hyps{kk} ' errCov']);
+    end
 end
