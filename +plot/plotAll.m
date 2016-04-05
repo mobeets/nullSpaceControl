@@ -29,7 +29,14 @@ function plotAll(D, Hs, opts, hopts)
     if opts.doSave
         saveas(fig, fullfile(fldr, [D.datestr '-errOfMeans']), 'png');
     end
-
+    
+    % Plot error of covariance
+    fig = figure;
+    plot.covError(Hs, D.datestr, 'covError');
+    if opts.doSave
+        saveas(fig, fullfile(fldr, [D.datestr '-covError']), 'png');
+    end
+    
     % Plot error of covariance orientation
     fig = figure;
     plot.covError(Hs, D.datestr, 'covErrorOrient');

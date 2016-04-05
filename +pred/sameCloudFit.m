@@ -70,7 +70,8 @@ function Z = sameCloudFit(D, opts)
         Zsamp(t,:) = meanOrSample(Z1(ix, :), opts);
     end
     if invalidCount > 0
-        warning([num2str(invalidCount) ' of ' num2str(nt) ' adjusted cloud samples.']);
+        warning([num2str(invalidCount) ' of ' num2str(nt) ...
+            ' cloud samples took the nearest point.']);
     end
     Zn = Zsamp*(NB2*NB2');
     Z = Zr + Zn;

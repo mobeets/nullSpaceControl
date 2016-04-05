@@ -4,7 +4,7 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'addPrecursor', true, ...
-        'useL', false, 'scaleVol', 1);
+        'useL', false, 'scaleVol', 1, 'obeyBounds', true);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
 
     B1 = D.blocks(1);
@@ -21,18 +21,22 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
         RB1 = B1.(opts.decoderNm).RowM2;
         NB1 = B1.(opts.decoderNm).NulM2;
     end
-
+    
+    % find bounds given by B1 activity
+    mns = min(B1.latents);
+    mxs = max(B1.latents);
+    isOutOfBounds = @(z, mns, mxs) all(isnan(z)) || ...
+        (sum(z < mns) > 0 || sum(z > mxs) > 0);
+    
     [nt, nn] = size(B2.latents);
 
     Zpre = zeros(nt,nn);
     Zvol = nan(nt,nn);
+    d = 0;
     % need to set x(0) to set Z(1)
     for t = 1:nt
         % sample Z uniformly from times t in T1 where theta_t is
         % within 15 degs of theta
-%         if mod(t, 100) == 0
-%             disp([num2str(t) ' of ' num2str(nt)]);
-%         end
         decoder = B2.(opts.decoderNm);
         
 %         Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, nan, true);
@@ -41,11 +45,11 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
 %         continue;
         
         if opts.addPrecursor
-            Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, nan, true);
-%             Zpre(t,:) = pred.randZIfNearbyMinTheta(B2.thetas(t) + 180, B1, 10);
+            Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, ...
+                nan, true);
             decoder.M0 = decoder.M0 + decoder.M2*Zpre(t,:)';
         end
-        
+
         if opts.useL > 2 % meet kinematics, minimize to baseline
 %             Zvol(t,:) = solveInBounds(B2, t, decoder, RB1, B1, Zpre(t,:));
             decoder.M2 = decoder.M2*RB1;
@@ -53,10 +57,23 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
             Zvol(t,:) = RB1*z;
         else
             Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, RB1, t);
-        end        
+        end
+
+        if opts.obeyBounds
+            c = 0;
+            while isOutOfBounds(Zpre(t,:) + Zvol(t,:)/opts.scaleVol, mns, mxs) && c < 10
+                Zvol(t,:) = Zvol(t,:)/(c+1);
+                c = c + 1;
+            end
+            if c < 10
+                d = d + 1;
+            end
+        end
     end
     Z = Zvol/opts.scaleVol + Zpre;
-    
+    if opts.obeyBounds && d > 0
+        warning(['Corrected ' num2str(d) ' volitional samples to lie within bounds']);
+    end
 end
 % 
 % function x = solveInBounds1(Blk, t, decoder, RB, Blk0, zPre)

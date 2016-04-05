@@ -1,16 +1,21 @@
 
-% dtstr = '20120525';
-dtstr = '20120601';
+dtstr = '20120525';
+% dtstr = '20120601';
 doSave = false;
 
 %% fit
 
+doSolos = false;
 nms = {'kinematics mean', 'habitual', 'cloud-hab', 'volitional', ...
     'baseline', 'minimum', 'unconstrained'};
-popts = struct('doSave', doSave, 'doSolos', true, ...
+nms = {'baseline', 'minimum', 'unconstrained'};
+nms = {'unconstrained'};
+% nms = {'kinematics mean', 'cloud-hab', 'condnrm', 'habitual', 'volitional'};
+popts = struct('doSave', doSave, 'doSolos', doSolos, ...
     'plotdir', fullfile('plots', 'all', dtstr, 'hypScores'), ...
     'doTimestampFolder', false);
-fitByDate(dtstr, [], nms, popts, [], []);
+hypopts = struct();
+D = fitByDate(dtstr, [], nms, popts, [], hypopts);
 
 %% hyp fits over time
 

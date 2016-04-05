@@ -17,8 +17,10 @@ function errorByKin(Hs, ynm)
             'MarkerEdgeColor', clr, 'LineWidth', 3);
     end
     set(gca, 'XTick', ths);
+    set(gca, 'XTickLabelRotation', 45);
     xlabel('\theta');
     ylabel(ynm);
-    legend({Hs.name}, 'Location', 'BestOutside');
+    legend({Hs.name}, 'Location', 'Best');
+    legend boxoff;
 
 end
