@@ -3,7 +3,8 @@ function Z = condGaussFit(D, opts)
         opts = struct();
     end
     assert(isa(opts, 'struct'));
-    defopts = struct('decoderNm', 'fDecoder', 'byThetaGrps', true);
+    defopts = struct('decoderNm', 'fDecoder', 'byThetaGrps', false, ...
+        'doSample', true, 'obeyBounds', true);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
@@ -14,21 +15,43 @@ function Z = condGaussFit(D, opts)
     [nt, nn] = size(B2.latents);
     nNull = size(NB2,2);    
     
-    % train
+    % fit model on B1
     YR = B1.latents*RB2;
     YN = B1.latents*NB2;
     mu = mean([YR YN]);
     S = cov([YR YN]);
-    
-    % predict, given YR2
+        
     YR2 = B2.latents*RB2;
     ixUnknown = false(nn,1); ixUnknown(end-nNull+1:end) = true;
     Zsamp = nan(nt,nNull);
     
-    if ~opts.byThetaGrps        
-        [mubar, sigbar] = tools.condGaussMean(mu, S, ixUnknown);
+    % for keeping predictions within observed bounds
+    mns = min(B1.latents);
+    mxs = max(B1.latents);
+    isOutOfBounds = @(z, mns, mxs) all(isnan(z)) || ...
+        (sum(z < mns) > 0 || sum(z > mxs) > 0);
+    d = 0;
+    
+    Zr = B2.latents*(RB2*RB2');
+    if ~opts.byThetaGrps
+        % predict given YR2
+        [mubar, sigbar] = tools.condGaussMean(mu, S, ixUnknown);        
         for t = 1:nt
+            if ~opts.doSample
+                Zsamp(t,:) = mubar(YR2(t,:)');
+                continue;
+            end            
             Zsamp(t,:) = mvnrnd(mubar(YR2(t,:)'), sigbar);
+            if opts.obeyBounds
+                c = 0;
+                while isOutOfBounds(Zsamp(t,:)*NB2' + Zr(t,:), mns, mxs) && c < 10
+                    Zsamp(t,:) = mvnrnd(mubar(YR2(t,:)'), sigbar);
+                    c = c + 1;
+                end
+                if c > 1 && c < 10
+                    d = d + 1;
+                end
+            end
         end
     else
         gs1 = B1.thetaGrps;
@@ -36,21 +59,37 @@ function Z = condGaussFit(D, opts)
         grps = sort(unique(gs2));
         for ii = 1:numel(grps)
             
-            % train model
+            % fit model on B1 for this thetaGrp
             ix = grps(ii) == gs1;                       
             R = [YR(ix,:) YN(ix,:)];
             mu = mean(R); S = cov(R);
             [mubar, sigbar] = tools.condGaussMean(mu, S, ixUnknown);
             
-            % predict, given YR2
+            % predict given YR2
             ixc = grps(ii) == gs2;
             ts = 1:nt; ts = ts(ixc);
             for jj = 1:numel(ts)
+                if ~opts.doSample
+                    Zsamp(ts(jj),:) = mubar(YR2(ts(jj),:)');
+                    continue;
+                end
                 Zsamp(ts(jj),:) = mvnrnd(mubar(YR2(ts(jj),:)'), sigbar);
+                if opts.obeyBounds
+                    c = 0;
+                    while isOutOfBounds(Zsamp(ts(jj),:)*NB2' + Zr(ts(jj),:), mns, mxs) && c < 10
+                        Zsamp(ts(jj),:) = mvnrnd(mubar(YR2(ts(jj),:)'), sigbar);
+                        c = c + 1;
+                    end
+                    if c > 1 && c < 10
+                        d = d + 1;
+                    end
+                end
             end
         end
     end
-    Zn = Zsamp*NB2';
-    Zr = B2.latents*(RB2*RB2');
+    if opts.obeyBounds && d > 0
+        warning(['Corrected ' num2str(d) ' condnrm samples to lie within bounds']);
+    end
+    Zn = Zsamp*NB2';    
     Z = Zr + Zn;
 end

@@ -5,15 +5,15 @@ doSave = false;
 
 %% fit
 
-doSolos = false;
-nms = {'kinematics mean', 'habitual', 'cloud-hab', 'volitional', ...
-    'baseline', 'minimum', 'unconstrained'};
-nms = {'baseline', 'minimum', 'unconstrained'};
-nms = {'unconstrained'};
-% nms = {'kinematics mean', 'cloud-hab', 'condnrm', 'habitual', 'volitional'};
+doSolos = true;
+nms = {'kinematics mean', 'habitual', 'cloud-hab', 'condnrm', ...
+    'volitional', 'baseline', 'minimum', 'unconstrained'};
+% nms = {'kinematics mean', 'habitual', 'cloud-hab', 'condnrmkin', ...
+%     'volitional', 'unconstrained'};
 popts = struct('doSave', doSave, 'doSolos', doSolos, ...
     'plotdir', fullfile('plots', 'all', dtstr, 'hypScores'), ...
     'doTimestampFolder', false);
+% hypopts = struct('doSample', false);
 hypopts = struct();
 D = fitByDate(dtstr, [], nms, popts, [], hypopts);
 
