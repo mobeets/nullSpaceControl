@@ -5,7 +5,7 @@ function [bp, mu, sigma] = gauss2dcirc(data, sigMult)
     if nargin < 2
         sigMult = 1;
     end
-
+    assert(size(data,2)==2);
     mu = mean(data)';
     sigma = cov(data);
     tt = linspace(0, 2*pi, 30)';

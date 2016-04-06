@@ -45,25 +45,6 @@ function [Y,X,N,fits,popts] = createBehaviorPlots(D, blockInd, ...
             saveas(figs(jj).fig, fnm, 'png');
         end
     end
-%     
-%     if opts.doSave
-%         if ~exist(opts.outdir, 'dir')
-%             mkdir(opts.outdir);
-%         end
-%         for jj = 1:numel(figs)
-%             fnm = fullfile(opts.outdir, [figs(jj).name opts.nm]);
-%             if exist([fnm '.png'], 'file') && ~opts.askedOnce
-%                 resp = input(['Similar files in "' opts.outdir ...
-%                     '" already exist. Continue? '], 's');
-%                 if ~strcmpi(resp(1), 'y')
-%                     error('No save.');
-%                 else
-%                     opts.askedOnce = true;
-%                 end
-%             end
-%             saveas(figs(jj).fig, fnm, 'png');
-%         end
-%     end
 end
 
 function D = addLatentsByBlock(D, ind, hopts)

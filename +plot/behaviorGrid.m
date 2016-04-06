@@ -9,7 +9,7 @@ function [Y,X,N,nms] = behaviorGrid(dtstr, grpNames, popts)
     nms = {'progress', 'progressOrth', 'angErrorAbs', 'angError', ...
         'trial_length', 'isCorrect'}; fcns = []; fcnNms = {};
     collapseTrials = true(numel(nms),1);
-    binSz = 100; ptsPerBin = 4; blockInd = 0;    
+    binSz = 100; ptsPerBin = 4; blockInd = 0;
 
     params = struct('START_SHUFFLE', nan, 'MAX_ANGULAR_ERROR', 360, ...
         'REMOVE_INCORRECTS', false);

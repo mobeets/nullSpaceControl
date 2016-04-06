@@ -1,6 +1,7 @@
 
 dtstr = '20120525';
 % dtstr = '20120601';
+dtstr = '20131205';
 doSave = false;
 
 %% fit

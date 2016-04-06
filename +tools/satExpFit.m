@@ -1,4 +1,9 @@
-function [prms, xs0] = satExpFit(xsa, ysa, yThresh, subtractMin)
+function [prms, xths] = satExpFit(xsa, ysa, yThresh, subtractMin)
+% returns:
+%   prms = [yEnd yStart tau]
+%   xs0 = x where y crosses yThresh
+%
+
     if nargin < 3 || isnan(yThresh)
         yThresh = 0.85;
     end
@@ -14,7 +19,7 @@ function [prms, xs0] = satExpFit(xsa, ysa, yThresh, subtractMin)
     opts = optimoptions('fmincon', 'Display', 'off');
 
     prms = nan(size(ysa,2),3);
-    xs0 = nan(size(ysa,2),1);
+    xths = nan(size(ysa,2),1);
     for ii = 1:size(ysa,2)
         Y = ysa(:,ii);
         if sum(~isnan(Y)) == 0
@@ -26,7 +31,7 @@ function [prms, xs0] = satExpFit(xsa, ysa, yThresh, subtractMin)
 
         xth = satExpInv((th(1)-th(2))*yThresh + th(2), th);
         prms(ii,:) = th;
-        xs0(ii) = xth;
+        xths(ii) = xth;
     end
 
 end

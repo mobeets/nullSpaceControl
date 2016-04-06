@@ -2,7 +2,7 @@ function errorByKin(Hs, ynm)
     
     ths = score.thetaCenters;    
     set(gcf, 'color', 'w');
-    hold on; set(gca, 'FontSize', 14);
+    hold on; set(gca, 'FontSize', 18);
 
     clrs = cbrewer('qual', 'Set1', numel(Hs));
     for ii = 1:numel(Hs)
