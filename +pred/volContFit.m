@@ -23,10 +23,7 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
     end
     
     % find bounds given by B1 activity
-    mns = min(B1.latents);
-    mxs = max(B1.latents);
-    isOutOfBounds = @(z, mns, mxs) all(isnan(z)) || ...
-        (sum(z < mns) > 0 || sum(z > mxs) > 0);
+    isOutOfBounds = pred.boundsFcn(B1.latents);
     
     [nt, nn] = size(B2.latents);
 
@@ -59,9 +56,9 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
             Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, RB1, t);
         end
 
-        if opts.obeyBounds
+        if opts.obeyBounds % try scaling down volitional until within bnds
             c = 0;
-            while isOutOfBounds(Zpre(t,:) + Zvol(t,:)/opts.scaleVol, mns, mxs) && c < 10
+            while isOutOfBounds(Zpre(t,:) + Zvol(t,:)/opts.scaleVol) && c < 10
                 Zvol(t,:) = Zvol(t,:)/(c+1);
                 c = c + 1;
             end

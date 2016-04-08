@@ -17,25 +17,21 @@ function Z = habContFit(D, opts)
     Zr = B2.latents*(RB2*RB2');
     Zsamp = nan(nt,nn);
     
-    mns = min(B1.latents);
-    mxs = max(B1.latents);
-    isOutOfBounds = @(z, mns, mxs) all(isnan(z)) || ...
-        (sum(z < mns) > 0 || sum(z > mxs) > 0);
+    isOutOfBounds = pred.boundsFcn(B1.latents);
     d = 0;
     for t = 1:nt
-        if ~opts.obeyBounds
+        Zsamp(t,:) = pred.randZIfNearbyTheta(ths(t), B1, ...
+            opts.thetaTol, ~opts.doSample);
+
+        c = 0;
+        while opts.obeyBounds && isOutOfBounds(Zsamp(t,:)*(NB2*NB2') + ...
+                Zr(t,:)) && c < 10
             Zsamp(t,:) = pred.randZIfNearbyTheta(ths(t), B1, ...
                 opts.thetaTol, ~opts.doSample);
-        else
-            c = 0;
-            while isOutOfBounds(Zsamp(t,:)*(NB2*NB2') + Zr(t,:), mns, mxs) && c < 10
-                Zsamp(t,:) = pred.randZIfNearbyTheta(ths(t), B1, ...
-                    opts.thetaTol, ~opts.doSample);
-                c = c + 1;
-            end
-            if c > 1 && c < 10
-                d = d + 1;
-            end
+            c = c + 1;
+        end
+        if c > 1 && c < 10
+            d = d + 1;
         end
 %         Zr(t,:) = pred.rowSpaceFit(B2, B2.fDecoder, NB2, RB2, t);
     end

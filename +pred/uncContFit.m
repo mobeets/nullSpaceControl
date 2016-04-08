@@ -11,10 +11,7 @@ function Z = uncContFit(D, opts)
     [nt, nn] = size(B2.latents);
     
     B1 = D.blocks(1);
-    mns = min(B1.latents);
-    mxs = max(B1.latents);
-    isOutOfBounds = @(z, mns, mxs) all(isnan(z)) || ...
-        (sum(z < mns) > 0 || sum(z > mxs) > 0);
+    isOutOfBounds = pred.boundsFcn(B1.latents);
 
     % sample Z uniformly from B1 for each time point
     ntB1 = size(B1.latents,1);
@@ -25,15 +22,13 @@ function Z = uncContFit(D, opts)
     % correct to be within bounds defined by B1
     if opts.obeyBounds        
         c = 0;
-        isOutBnds = arrayfun(@(t) isOutOfBounds(Zn(t,:)+Zr(t,:), ...
-            mns, mxs), 1:nt);
+        isOutBnds = arrayfun(@(t) isOutOfBounds(Zn(t,:)+Zr(t,:)), 1:nt);
         ntc = sum(isOutBnds);
         d = ntc;
         while ntc > 0 && c < 10
             Zsamps(isOutBnds,:) = B1.latents(randi(ntB1, ntc, 1),:);
             Zn = Zsamps*(NB2*NB2');
-            isOutBnds = arrayfun(@(t) isOutOfBounds(Zn(t,:)+Zr(t,:), ...
-                mns, mxs), 1:nt);
+            isOutBnds = arrayfun(@(t) isOutOfBounds(Zn(t,:)+Zr(t,:)), 1:nt);
             ntc = sum(isOutBnds);
             c = c + 1;
         end        

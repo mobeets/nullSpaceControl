@@ -26,10 +26,7 @@ function Z = condGaussFit(D, opts)
     Zsamp = nan(nt,nNull);
     
     % for keeping predictions within observed bounds
-    mns = min(B1.latents);
-    mxs = max(B1.latents);
-    isOutOfBounds = @(z, mns, mxs) all(isnan(z)) || ...
-        (sum(z < mns) > 0 || sum(z > mxs) > 0);
+    isOutOfBounds = pred.boundsFcn(B1.latents);
     d = 0;
     
     Zr = B2.latents*(RB2*RB2');
@@ -42,15 +39,14 @@ function Z = condGaussFit(D, opts)
                 continue;
             end            
             Zsamp(t,:) = mvnrnd(mubar(YR2(t,:)'), sigbar);
-            if opts.obeyBounds
-                c = 0;
-                while isOutOfBounds(Zsamp(t,:)*NB2' + Zr(t,:), mns, mxs) && c < 10
-                    Zsamp(t,:) = mvnrnd(mubar(YR2(t,:)'), sigbar);
-                    c = c + 1;
-                end
-                if c > 1 && c < 10
-                    d = d + 1;
-                end
+            c = 0;
+            while opts.obeyBounds && isOutOfBounds(Zsamp(t,:)*NB2' + ...
+                    Zr(t,:)) && c < 10
+                Zsamp(t,:) = mvnrnd(mubar(YR2(t,:)'), sigbar);
+                c = c + 1;
+            end
+            if c > 1 && c < 10
+                d = d + 1;
             end
         end
     else
@@ -76,7 +72,7 @@ function Z = condGaussFit(D, opts)
                 Zsamp(ts(jj),:) = mvnrnd(mubar(YR2(ts(jj),:)'), sigbar);
                 if opts.obeyBounds
                     c = 0;
-                    while isOutOfBounds(Zsamp(ts(jj),:)*NB2' + Zr(ts(jj),:), mns, mxs) && c < 10
+                    while isOutOfBounds(Zsamp(ts(jj),:)*NB2' + Zr(ts(jj),:)) && c < 10
                         Zsamp(ts(jj),:) = mvnrnd(mubar(YR2(ts(jj),:)'), sigbar);
                         c = c + 1;
                     end

@@ -1,7 +1,7 @@
 
 dtstr = '20120525';
 % dtstr = '20120601';
-dtstr = '20131205';
+% dtstr = '20131205';
 doSave = false;
 
 %% fit
@@ -9,12 +9,9 @@ doSave = false;
 doSolos = true;
 nms = {'kinematics mean', 'habitual', 'cloud-hab', 'condnrm', ...
     'volitional', 'baseline', 'minimum', 'unconstrained'};
-% nms = {'kinematics mean', 'habitual', 'cloud-hab', 'condnrmkin', ...
-%     'volitional', 'unconstrained'};
 popts = struct('doSave', doSave, 'doSolos', doSolos, ...
     'plotdir', fullfile('plots', 'all', dtstr, 'hypScores'), ...
     'doTimestampFolder', false);
-% hypopts = struct('doSample', false);
 hypopts = struct();
 D = fitByDate(dtstr, [], nms, popts, [], hypopts);
 

@@ -1,9 +1,9 @@
-function D = visualize(dtstr, opts)
+function D = visualize3d(dtstr, opts)
     if nargin < 2
         opts = struct();
     end
     defopts = struct('showMu', true, 'showPts', true, 'doNull', true, ...
-        'doColor', false, 'D', [], 'blockInd', 2, 'grpName', 'thetaGrps');
+        'doColor', true, 'D', [], 'blockInd', 2, 'grpName', 'thetaGrps');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
 
     if isempty(opts.D)
@@ -15,6 +15,7 @@ function D = visualize(dtstr, opts)
     NB2 = B.fDecoder.NulM2;
     RB2 = B.fDecoder.RowM2;
     Y = B.latents;
+    Y = log(Y);
     
     if opts.doNull
         [u,s,v] = svd(Y*NB2); NB2 = NB2*v;
@@ -22,8 +23,7 @@ function D = visualize(dtstr, opts)
     else
         [u,s,v] = svd(Y);
         Y = Y*v;
-    end
-    
+    end    
     gs = B.(opts.grpName);
     grps = sort(unique(gs));
     
@@ -38,13 +38,17 @@ function D = visualize(dtstr, opts)
         else
             clr = 'k';
         end        
-        if opts.showMu
+        if opts.showPts
+            plot3(Y(ix,1), Y(ix,2), Y(ix,3), '.', 'Color', clr);
+        end
+    end
+    if opts.showMu
+        for jj = 1:numel(grps)
+            ix = grps(jj) == gs;
+            clr = clrs(jj,:);
             mu = mean(Y(ix,1:3));
             plot3(mu(1), mu(2), mu(3), 'ko', 'MarkerFaceColor', clr, ...
                 'MarkerSize', 10);
-        end
-        if opts.showPts
-            plot3(Y(ix,1), Y(ix,2), Y(ix,3), '.', 'Color', clr);
         end
     end
     plot3(0,0,0,'r.','MarkerSize',50);

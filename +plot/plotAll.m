@@ -58,6 +58,13 @@ function plotAll(D, Hs, opts, hopts)
         saveas(fig, fullfile(fldr, [D.datestr '-errorByKin']), 'png');
     end
     
+    % Plot errors by kin by col
+    fig = figure;
+    plot.meanErrorByKinByCol(D, Hs);
+    if opts.doSave
+        saveas(fig, fullfile(fldr, [D.datestr '-errorByKinByCol']), 'png');
+    end
+    
     % Plot hypotheses
     if opts.doSolos
         for ii = 1:numel(Hs)

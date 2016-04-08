@@ -3,7 +3,8 @@ function Z = sameCloudFit(D, opts)
         opts = struct();
     end
     defopts = struct('decoderNm', 'fDecoder', 'thetaTol', 30, ...
-        'rotThetas', 0, 'minDist', 0.35, 'kNN', nan, 'doSample', true);
+        'rotThetas', 0, 'minDist', 0.35, 'kNN', nan, 'doSample', true, ...
+        'obeyBounds', true);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if numel(opts.rotThetas) == 1
         opts.rotThetas = opts.rotThetas*ones(8,1);
@@ -24,8 +25,11 @@ function Z = sameCloudFit(D, opts)
     R1 = Z1*RB2;
     R2 = Z2*RB2;
     [nt, nn] = size(Z2);
-
+    
+    opts.isOutOfBounds = pred.boundsFcn(B1.latents);
+    resampleCount = 0;
     invalidCount = 0;
+    
     Zsamp = nan(nt,nn);
     for t = 1:nt        
         % calculate distance in current row space
@@ -43,10 +47,11 @@ function Z = sameCloudFit(D, opts)
             if ~isnan(opts.kNN)
                 [~,ix] = sort(ds);
                 kNNinds = ix(1:opts.kNN); % take nearest neighbors
-                Zsamp(t,:) = meanOrSample(Z1(kNNinds,:), opts);
+                [Zsamp(t,:),d] = meanOrSample(Z1(kNNinds,:), opts);
             else
-                Zsamp(t,:) = meanOrSample(Z1(~isinf(ds),:), opts);
+                [Zsamp(t,:),d] = meanOrSample(Z1(~isinf(ds),:), opts);
             end
+            resampleCount = resampleCount + d;
             continue;
         end
         
@@ -57,31 +62,35 @@ function Z = sameCloudFit(D, opts)
             ix(ind) = true;
             invalidCount = invalidCount + 1;
         end
-%         % add to minimum distance until there is at least one point in range
-%         c = 2;
-%         while sum(ix) == 0
-%             ix = ds <= c*opts.minDist;
-%             c = c + 1;
-%         end
-%         if c > 2
-%             invalidCount = invalidCount + 1;
-%         end
-        
-        Zsamp(t,:) = meanOrSample(Z1(ix, :), opts);
+        [Zsamp(t,:),d] = meanOrSample(Z1(ix, :), opts);
+        resampleCount = resampleCount + d;
     end
     if invalidCount > 0
         warning([num2str(invalidCount) ' of ' num2str(nt) ...
             ' cloud samples took the nearest point.']);
+    end
+    if resampleCount > 0
+        warning(['Corrected ' num2str(resampleCount) ...
+            ' cloud samples to lie within bounds.']);
     end
     Zn = Zsamp*(NB2*NB2');
     Z = Zr + Zn;
 
 end
 
-function z = meanOrSample(zs, opts)
+function [z,d] = meanOrSample(zs, opts)
+    d = 0;
+    c = 0;
+    outOfBnds = opts.isOutOfBounds;
     if opts.doSample
-        ind = randi(size(zs,1),1);
-        z = zs(ind,:);
+        z = zs(randi(size(zs,1),1),:);
+        while opts.obeyBounds && outOfBnds(z) && c < 10
+            z = zs(randi(size(zs,1),1),:);
+            c = c + 1;
+        end
+        if c > 1 && c < 10
+            d = 1;
+        end
     else
         z = nanmean(zs);
     end

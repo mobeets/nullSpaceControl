@@ -24,8 +24,6 @@ function Z = cvMeanFit(D, opts)
     [mus, ses, covs] = score.avgByThetaGroup(ths, ys, cnts);
     
     % find kinematics condition for each point in test data
-%     xs = Blk.thetas(ix1,:);
-%     grps = score.thetaGroup(xs, cnts);
     grps = score.thetaGroup(Blk.thetas, cnts);
     
     if opts.doNull
