@@ -2,24 +2,27 @@
 % close all;
 dts = io.getAllowedDates();
 opts = struct('showMu', true, 'showPts', true, 'doNull', true, ...
-    'doColor', true, 'D', [], 'blockInd', 2, 'grpName', 'thetaGrps')
+    'doColor', true, 'D', [], 'blockInd', 2, 'grpName', 'thetaGrps', ...
+    'mapInd', 2);
 behavNm = 'trial_length';
 % behavNm = 'progress';
 flipSign = true;
 
-for ii = 1:numel(dts)
+opts.v = [];
+
+for ii = 1%1:numel(dts)
     D = io.quickLoadByDate(dts{ii});
     opts.D = D;
-    opts.showPts = true;
-    plot.visualize3d(dts{ii}, opts);
-    opts.showPts = false;
-    plot.visualize3d(dts{ii}, opts);
+    
+    figure;
+    [~,v] = plot.visualize3d(dts{ii}, opts);
+    
 %     [prms, grps] = tools.quickBehavior(D, behavNm, opts.grpName);
 %     D = io.quickLoadByDate(dts{ii}, struct('START_SHUFFLE', nan));
 %     bnms = {'lrn', 'tau', 'yDiff', 'yDiffPct', 'yStart', 'yEnd', 'xThresh'};
 % 	figure; plot.quickBehavior(D, behavNm, opts.grpName);
-    continue;
-    D = fitByDate(dts{ii}, [], {'cloud-hab', 'condnrmkin'});
+%     continue;
+    D = fitByDate(dts{ii}, [], {'condnrmkin'});
     
     figure;
     subplot(2,2,1); hold on;

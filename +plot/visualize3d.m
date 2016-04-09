@@ -1,10 +1,17 @@
-function D = visualize3d(dtstr, opts)
+function [D,v] = visualize3d(dtstr, opts)
     if nargin < 2
         opts = struct();
     end
     defopts = struct('showMu', true, 'showPts', true, 'doNull', true, ...
         'doColor', true, 'D', [], 'blockInd', 2, 'grpName', 'thetaGrps');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
+    if ~isfield(opts, 'mapInd')
+        opts.mapInd = opts.blockInd;
+    end
+    if ~isfield(opts, 'v')
+        opts.v = [];
+    end
+    v = opts.v;
 
     if isempty(opts.D)
         D = io.quickLoadByDate(dtstr);
@@ -12,22 +19,22 @@ function D = visualize3d(dtstr, opts)
         D = opts.D;
     end
     B = D.blocks(opts.blockInd);
-    NB2 = B.fDecoder.NulM2;
-    RB2 = B.fDecoder.RowM2;
+    NB2 = D.blocks(opts.mapInd).fDecoder.NulM2;
+    RB2 = D.blocks(opts.mapInd).fDecoder.RowM2;
     Y = B.latents;
-    Y = log(Y);
     
     if opts.doNull
-        [u,s,v] = svd(Y*NB2); NB2 = NB2*v;
         Y = Y*NB2;
-    else
+    end
+    if isempty(v)
         [u,s,v] = svd(Y);
-        Y = Y*v;
-    end    
+    end
+    Y = Y*v;
+    
     gs = B.(opts.grpName);
     grps = sort(unique(gs));
     
-    figure; set(gcf, 'color', 'w');
+    set(gcf, 'color', 'w');
     hold on; set(gca, 'FontSize', 18);
     clrs = cbrewer('div', 'RdYlGn', numel(grps));
     
