@@ -1,10 +1,17 @@
 
-D = io.quickLoadByDate('20120525');
+% dtstr = '20131125';
+% dtstr = '20120709';
+% dtstr = '20120601';
+dtstr = '20120525';
+D = io.quickLoadByDate(dtstr);
 B = D.blocks(2);
 Y = B.latents;
-NB = B.fDecoder.NulM2;
-RB = B.fDecoder.RowM2;
-% NB = B.fImeDecoder.NulM2;
+% NB = B.fDecoder.NulM2;
+% RB = B.fDecoder.RowM2;
+
+NB = B.fImeDecoder.NulM2;
+RB = B.fImeDecoder.RowM2;
+
 % [u,s,v] = svd(Y*NB); NB = NB*v;
 YN = Y*NB;
 YR = Y*RB;
@@ -12,22 +19,46 @@ YR = Y*RB;
 ZN1 = D.blocks(1).latents*NB;
 gs1 = D.blocks(1).thetaGrps;
 
-RB1 = D.blocks(1).fDecoder.RowM2;
+% NB1 = D.blocks(1).fDecoder.NulM2;
+% RB1 = D.blocks(1).fDecoder.RowM2;
+NB1 = D.blocks(1).fImeDecoder.NulM2;
+RB1 = D.blocks(1).fImeDecoder.RowM2;
 YR1 = D.blocks(1).latents*RB1;
 ZR1 = D.blocks(1).latents*RB;
 
+ZNR = D.blocks(1).latents*(RB1*RB1')*NB;
+ZNN = D.blocks(1).latents*(NB1*NB1')*NB;
+ZN1 = ZNN;
+
 %%
 
-figure; set(gcf, 'color', 'w');
-ncols = size(YN,2);
+YN = [YN YR];
+ZN1 = [ZN1 D.blocks(1).latents*RB];
+
+%%
 
 gs = B.thetaGrps;
 grps = sort(unique(gs));
-nrows = numel(grps);
+ncols = numel(grps);
 
 errs = nan(numel(grps), size(YN,2));
+angErrA = nan(size(errs));
+angErrB = nan(size(errs));
+angErrStdA = nan(size(errs));
+angErrStdB = nan(size(errs));
+
+splitKinsByFig = true;
+
+if ~splitKinsByFig
+    figure; set(gcf, 'color', 'w');
+    nrows = size(YN,2);
+end
+
+mns = min([YN; ZN1]);
+mxs = max([YN; ZN1]);
 
 C = 0;
+c_deltas = nan(numel(grps), size(YN,2));
 for jj = 1:numel(grps)
     ix = grps(jj) == gs;
     YNc = YN(ix,:);
@@ -35,16 +66,28 @@ for jj = 1:numel(grps)
     ix1 = grps(jj) == gs1;
     ZN1c = ZN1(ix1,:);
     
-    figure; set(gcf, 'color', 'w');
-    ncols = 3; nrows = 3;
-    C = 0;
+    if splitKinsByFig
+        figure; set(gcf, 'color', 'w');
+        ncols = 4; nrows = 3;
+        C = 0;
+    end
     
+    delta = mean(YNc(:,9:10)) - mean(ZN1c(:,9:10));
     for ii = 1:size(YN,2)
         Yc = YNc(:,ii);
         Z1c = ZN1c(:,ii);
         C = C + 1;
+        
+        if ii <= 8
+            mdl = fitlm(ZN1c(:,9:10), Z1c);
+            c_delta = 1.7*mdl.Coefficients.Estimate(2:end)'*delta';
+        else
+            c_delta = 0;
+        end
+        c_deltas(jj,ii) = c_delta;
+        Z1c = Z1c + c_delta;
  
-%         subplot(ncols,nrows,2*ii-1); hold on;
+        % histogram
         subplot(ncols,nrows,C); hold on;
         [c,b] = hist(Yc, 30);
 %         bar(b, c./trapz(b,c), 'FaceColor', 'w', 'EdgeColor', 'k');
@@ -54,36 +97,51 @@ for jj = 1:numel(grps)
 
         % gauss estimation
         mu = mean(Yc); sig = std(Yc);
-        xs = linspace(min(Yc), max(Yc));
+%         xs = linspace(min(min(Z1c), min(Yc)), max(max(Yc), max(Z1c)));
+        xs = linspace(mns(ii), mxs(ii));
         ys = normpdf(xs, mu, sig);
 %         plot(xs, ys, 'k-');
         
+        % show bounds
+        clr2 = [22 79 134]/255;        
         mn = min(Yc); mx = max(Yc);
-        plot([mn mn], [min(ys) max(ys)], 'k');
-        plot([mx mx], [min(ys) max(ys)], 'k');        
+        plot([mn mn], [min(ys) max(ys)], 'Color', clr2);
+        plot([mx mx], [min(ys) max(ys)], 'Color', clr2);
+        plot([mu mu], 0.2*[min(ys) max(ys)], 'Color', clr2);
 
         % nonparam estimation
         h = 0.1;
         Phatfcn = ksdensity_nd(Yc, h);
         ysh = Phatfcn(xs');
-        plot(xs, ysh, '-', 'Color', [0.8 0.2 0.2]);
+        plot(xs, ysh, '-', 'Color', clr2);
         
-        % Blk1 gauss
-        clr1 = [0.2 0.2 0.8];
-        h = 0.1;
+        % Blk1 kde
+        clr1 = [200 37 6]/255;
+        h = 0.2;
         Phatfcn = ksdensity_nd(Z1c, h);
         zsh = Phatfcn(xs');
-        plot(xs, zsh, '-', 'Color', clr1);
+        plot(xs, zsh*(max(ysh)/max(zsh)), '-', 'Color', clr1);
         
+        % show Blk1 bounds
         muz = mean(Z1c); sig = std(Z1c);
         zs = normpdf(xs, muz, sig);
-%         plot(xs, zs, '-', 'Color', clr1);
         mn = min(Z1c); mx = max(Z1c);
         plot([mn mn], [min(ys) max(ys)], 'Color', clr1);
         plot([mx mx], [min(ys) max(ys)], 'Color', clr1);
+        plot([muz muz], 0.2*[min(ys) max(ys)], 'Color', clr1);
         
-%         errs(jj,ii) = sqrt(sum((ysh - zs).^2));
+        % calculate errors
         errs(jj,ii) = (muz - mu)^2;
+        xlim([mns(ii) mxs(ii)]);       
+        errDiff(jj,ii) = muz - mu;
+        bndDiff(jj,ii) = (min(Z1c) - min(Yc)) + (max(Z1c) - max(Yc));
+        
+        % Blk1 kde: unshifted verson
+%         clr3 = [37 200 6]/255;
+%         h = 0.2;
+%         Phatfcn = ksdensity_nd(Z1c - c_delta, h);
+%         zsh = Phatfcn(xs');
+%         plot(xs, zsh*(max(ysh)/max(zsh)), '--', 'Color', clr3);
     
         if ii == 1
             ylabel(['\theta = ' num2str(grps(jj))]);
@@ -95,10 +153,90 @@ plot.subtitle(D.datestr);
 
 %%
 
-figure; plot(mean(errs,2));
-figure; imagesc(errs);
+xs = score.thetaCenters;
+figure; set(gcf, 'color', 'w');
+subplot(2,1,1); hold on; set(gca, 'FontSize', 18);
+plot(mean(errs,2), 'LineWidth', 4);
+set(gca, 'XTick', 1:numel(xs));
+set(gca, 'XTickLabel', arrayfun(@num2str, xs, 'uni', 0));
+set(gca, 'XTickLabelRotation', 45);
+ylabel('avg error in mean');
+
+subplot(2,1,2); hold on; set(gca, 'FontSize', 18);
+imagesc(1:size(errs,2), 1:size(errs,1), errs);
 caxis([0 round(max(errs(:)))]);
 colormap gray;
+axis image;
+set(gca, 'YDir', 'reverse');
+set(gca, 'XTick', 1:size(errs,2));
+set(gca, 'YTick', 1:numel(xs));
+set(gca, 'YTickLabel', arrayfun(@num2str, xs, 'uni', 0));
+set(gca, 'YTickLabelRotation', 45);
+title('error in mean');
+
+plot.subtitle(D.datestr);
+
+%%
+
+errs = nan(numel(grps));
+for jj = 1:numel(grps)
+    ix = grps(jj) == gs;
+    YNc = YN(ix,:);
+    
+    ix1 = grps(jj) == gs1;
+    ZN1c = ZN1(ix1,:);
+    
+    delta = mean(YNc(:,9:10)) - mean(ZN1c(:,9:10));
+    for kk = 1:8
+        mdl = fitlm(ZN1c(:,9:10), ZN1c(:,kk));
+        ZN1c2 = mdl.predict(ZN1c(:,9:10) + delta);
+    end
+end
+figure; imagesc(errs);
+caxis([0 max(errs(:))]);
+
+%%
+
+cr = cell(numel(grps),1);
+for jj = 1:numel(grps)
+    ix = grps(jj) == gs;
+    YNc = YN(ix,:);
+    cr{jj} = abs(corr(YNc));
+end
+cr = cat(3, cr{:});
+
+figure; set(gcf, 'color', 'w');
+for jj = 1:8
+    subplot(3,3,jj); hold on;    
+    cc = squeeze(cr(jj,10,:));
+    bar(score.thetaCenters, cc);
+    set(gca, 'XTick', score.thetaCenters);
+    set(gca, 'XTickLabel', arrayfun(@num2str, score.thetaCenters, 'uni', 0));
+    set(gca, 'XTickLabelRotation', 45);
+    ylim([0 1]);
+    title(['col ' num2str(jj)]);
+end
+    
+%%
+
+figure; set(gcf, 'color', 'w');
+hold on; box off; set(gca, 'FontSize', 24);
+clrs = cbrewer('div', 'RdYlGn', 8);
+xxs = linspace(prctile(bndDiff(:), 10), prctile(bndDiff(:), 90));
+for jj = 1:size(bndDiff,1)
+    xx = bndDiff(jj,:);
+    yy = errDiff(jj,:);
+    mdl = fitlm(xx,yy, 'Intercept', false);
+    plot(xxs, mdl.predict(xxs'), '-', 'LineWidth', 3, 'Color', clrs(jj,:));
+    ws(jj) = mdl.Coefficients.Estimate;
+    plot(xx, yy, '.', 'Color', clrs(jj,:), 'MarkerSize', 20);
+end
+box off;
+set(gca, 'XTick', [0]);
+set(gca, 'YTick', [0]);
+xlabel('change in upper/lower bounds');
+ylabel('change in mean');
+
 
 %%
 
@@ -142,6 +280,7 @@ for ii = 1:numel(dts)
 %     ylim([0 0.4]);
     title(D.datestr);
 end
+
 
 %%
 

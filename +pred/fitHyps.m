@@ -12,6 +12,9 @@ function D = fitHyps(D, nms, opts)
     if ismember('habitual', nms)        
         D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D, opts));
     end
+    if ismember('hab-kde', nms)        
+        D.hyps = pred.addPrediction(D, 'hab-kde', pred.habKdeFit(D, opts));
+    end
     if ismember('cloud-hab', nms)
         D.hyps = pred.addPrediction(D, 'cloud-hab', pred.sameCloudFit(D, opts));
     end
