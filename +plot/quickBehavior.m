@@ -2,7 +2,7 @@ function quickBehavior(D, behavNm, grpName, fldNms, flipSign)
     if nargin < 3
         grpName = '';
     end
-    if nargin < 4
+    if nargin < 4 || isempty(fldNms)
         fldNms = {};
     end
     if nargin < 5

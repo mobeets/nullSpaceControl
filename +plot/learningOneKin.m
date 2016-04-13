@@ -10,6 +10,7 @@ function [Lmax, Lbest, Lraw] = learningOneKin(Y1, Y2)
 
     Lmax = mean(b1) - b2(1);
     Lraw = b2 - b2(1);
-    Lbest = max(sign(Lmax)*Lraw)*sign(Lmax); % make same sign as Lmax
+    Lbest = max(Lraw);
+%     Lbest = max(sign(Lmax)*Lraw)*sign(Lmax); % make same sign as Lmax
 
 end
