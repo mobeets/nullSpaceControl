@@ -4,7 +4,8 @@ function Z = habContFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'thetaNm', 'thetas', ...
-        'thetaTol', 15, 'doSample', true, 'obeyBounds', true);
+        'thetaTol', 15, 'doSample', true, 'obeyBounds', true, ...
+        'boundsType', 'marginal');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
@@ -17,7 +18,7 @@ function Z = habContFit(D, opts)
     Zr = B2.latents*(RB2*RB2');
     Zsamp = nan(nt,nn);
     
-    isOutOfBounds = pred.boundsFcn(B1.latents);
+    isOutOfBounds = pred.boundsFcn(B1.latents, opts.boundsType);
     d = 0;
     for t = 1:nt
         Zsamp(t,:) = pred.randZIfNearbyTheta(ths(t), B1, ...

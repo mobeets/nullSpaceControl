@@ -4,7 +4,7 @@ function Z = sameCloudFit(D, opts)
     end
     defopts = struct('decoderNm', 'fDecoder', 'thetaTol', 30, ...
         'rotThetas', 0, 'minDist', 0.35, 'kNN', nan, 'doSample', true, ...
-        'obeyBounds', true);
+        'obeyBounds', true, 'boundsType', 'marginal');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if numel(opts.rotThetas) == 1
         opts.rotThetas = opts.rotThetas*ones(8,1);
@@ -26,7 +26,7 @@ function Z = sameCloudFit(D, opts)
     R2 = Z2*RB2;
     [nt, nn] = size(Z2);
     
-    opts.isOutOfBounds = pred.boundsFcn(B1.latents);
+    opts.isOutOfBounds = pred.boundsFcn(B1.latents, opts.boundsType);
     resampleCount = 0;
     invalidCount = 0;
     

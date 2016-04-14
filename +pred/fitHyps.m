@@ -58,4 +58,7 @@ function D = fitHyps(D, nms, opts)
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'condnrmkin', pred.condGaussFit(D, custopts));
     end
+    if ismember('mean shift', nms)
+        D.hyps = pred.addPrediction(D, 'mean shift', pred.meanShiftFit(D, opts));
+    end
 end

@@ -4,7 +4,7 @@ function Z = habKdeFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'thetaNm', 'thetaGrps', ...
-        'doSample', true, 'obeyBounds', true, 'useRowMeanShift', false, ...
+        'doSample', true, 'obeyBounds', true, 'useRowMeanShift', true, ...
         'fullKde', false, 'bandwidth', 0.1);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
@@ -35,11 +35,21 @@ function Z = habKdeFit(D, opts)
 
         grps(ii)
         if opts.fullKde
-            % note: need to implement rejection sampling here
-            % because I can't just generate all combos of 8-d
-            % see: https://www.amstat.org/sections/srms/proceedings/y2008/Files/300875.pdf
             Phatfcn = ksdensity_nd(YN1(ix1,:), h);
             Zsc = tools.kde_samp(YN1(ix1,:), Phatfcn, sum(ix));
+            
+            c = 0;
+            ixBad = arrayfun(@(jj) isOutOfBounds(Zsc(jj,:)*NB2' + ...
+                YR2c(jj,:)*RB2'), 1:size(Zsc,1));
+            firstCount = sum(ixBad);
+            while sum(ixBad) > 0 && c < 3
+                Zsc2 = tools.kde_samp(YN1(ix1,:), Phatfcn, sum(ixBad));
+                Zsc(ixBad,:) = Zsc2;
+                ixBad = arrayfun(@(jj) isOutOfBounds(Zsc(jj,:)*NB2' + ...
+                    YR2c(jj,:)*RB2'), 1:size(Zsc,1));
+                c = c + 1;                
+            end
+            d = d + (firstCount - sum(ixBad));
             Zsamp(ix,:) = Zsc;
                 
         else
@@ -69,26 +79,23 @@ function Z = habKdeFit(D, opts)
                 Zsamp(ix,jj) = xs(ixs) + 1*c_delta;
 
             end
-        end
-        ts = 1:nt; ts = ts(ix);
-        for t = 1:numel(ts)
-            c = 0;
-            if isOutOfBounds(Zsamp(ts(t),:)*NB2' + ...
-                    Zr(ts(t),:)) && c < 10
-                c = c + 1;
-                
-                d = d + 1;
-                c = 10;
-                
+            ts = 1:nt; ts = ts(ix);
+            for t = 1:numel(ts)
+                c = 0;
+                if isOutOfBounds(Zsamp(ts(t),:)*NB2' + ...
+                        Zr(ts(t),:)) && c < 10
+                    d = d + 1;
+                    c = 10;
+                end
+%                 if c > 1 && c < 10
+%                     d = d + 1;
+%                 end
             end
-            if c > 1 && c < 10
-                d = d;% + 1;
-            end
-        end
+        end        
     end
     
     if opts.obeyBounds && d > 0
-        warning(['Corrected ' num2str(d) ' hab-kde samples to lie within bounds']);
+        warning([num2str(d) ' of generated hab-kde samples may lie outside bounds']);
     end
     Zn = Zsamp*NB2';
     Z = Zr + Zn;

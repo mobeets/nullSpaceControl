@@ -1,6 +1,19 @@
-function isOutOfBoundsFcn = boundsFcn(Y)
+function [isOutOfBoundsFcn, whereOutOfBounds] = boundsFcn(Y, kind)
+    if nargin < 2
+        kind = 'marginal';
+    end
+    
     mns = min(Y);
     mxs = max(Y);
-    isOutOfBoundsFcn = @(z) all(isnan(z)) || ...
-        (sum(z < mns) > 0 || sum(z > mxs) > 0);
+    
+    if strcmpi(kind, 'marginal')
+        whereOutOfBounds = @(z) isnan(z) | z < mns | z > mxs;
+        isOutOfBoundsFcn = @(z) any(whereOutOfBounds(z));        
+    elseif strcmpi(kind, 'kde')
+        Phatfcn = ksdensity_nd(Y, 1);
+        ps = Phatfcn(Y);
+        thresh = prctile(ps, 0.02);
+        isOutOfBoundsFcn = @(z) Phatfcn(z) < thresh;
+        whereOutOfBounds = nan;
+    end
 end
