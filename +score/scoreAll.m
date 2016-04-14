@@ -34,7 +34,7 @@ function D = scoreAll(D, baseHypNm)
         else
             D.hyps(ii).errOfMeansFull = nan;
         end
-        D.hyps(ii).errOfMeansByKinByCol = (cell2mat(zMu') - cell2mat(zMu0')).^2';
+        D.hyps(ii).errOfMeansByKinByCol = abs(cell2mat(zMu') - cell2mat(zMu0'))';
         [D.hyps(ii).errOfMeans, e2] = score.errOfMeans(zMu, zMu0);
         D.hyps(ii).errOfMeansByKin = e2;
         D.hyps(ii).covRatio = score.covRatio(zCov, zCov0);

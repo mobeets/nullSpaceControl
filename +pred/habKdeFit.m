@@ -4,8 +4,8 @@ function Z = habKdeFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'thetaNm', 'thetaGrps', ...
-        'doSample', true, 'obeyBounds', true, 'useRowMeanShift', true, ...
-        'fullKde', true);
+        'doSample', true, 'obeyBounds', true, 'useRowMeanShift', false, ...
+        'fullKde', false, 'bandwidth', 0.1);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
@@ -23,7 +23,7 @@ function Z = habKdeFit(D, opts)
     isOutOfBounds = pred.boundsFcn(B1.latents);    
     
     d = 0;
-    h = 0.1;
+    h = opts.bandwidth;
     Zr = B2.latents*(RB2*RB2');
     Zsamp = nan(nt,size(YN1,2));
     for ii = 1:numel(grps)
@@ -33,11 +33,12 @@ function Z = habKdeFit(D, opts)
         YR2c = YR2(ix,:);
         YR1c = YR1(ix1,:);
 
+        grps(ii)
         if opts.fullKde
             % note: need to implement rejection sampling here
             % because I can't just generate all combos of 8-d
             % see: https://www.amstat.org/sections/srms/proceedings/y2008/Files/300875.pdf
-            Phatfcn = ksdensity_nd(YN1(ix1,:));
+            Phatfcn = ksdensity_nd(YN1(ix1,:), h);
             Zsc = tools.kde_samp(YN1(ix1,:), Phatfcn, sum(ix));
             Zsamp(ix,:) = Zsc;
                 
@@ -54,7 +55,7 @@ function Z = habKdeFit(D, opts)
                     c_delta = 0;
                 end
 
-                Phatfcn = ksdensity_nd(Yc, 0.1);
+                Phatfcn = ksdensity_nd(Yc, h);
                 xs = linspace(min(Yc)-range(Yc)/3, max(Yc)+range(Yc)/3, 1000);
                 ysh = Phatfcn(xs');
                 if abs(trapz(xs, ysh)-1) > 1e-3
@@ -63,7 +64,7 @@ function Z = habKdeFit(D, opts)
                 F = cumsum(ysh)/max(cumsum(ysh));
 
                 us = rand([sum(ix) 1]);
-                errs = (bsxfun(@plus, F, -us)).^2;
+                errs = (bsxfun(@plus, F', -us)).^2;
                 [~,ixs] = min(errs, [], 2);
                 Zsamp(ix,jj) = xs(ixs) + 1*c_delta;
 

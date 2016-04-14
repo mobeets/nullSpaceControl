@@ -10,11 +10,12 @@ function meanErrorByKinByCol(D, Hs)
     set(gcf, 'color', 'w');
     ncols = round(sqrt(numel(Hs)));
     nrows = ceil(numel(Hs)/ncols);
+    ths = score.thetaCenters;
     for ii = 1:numel(Hs)
         subplot(ncols, nrows, ii); hold on;
         set(gca, 'FontSize', 18);
-        
-        imagesc(Hs(ii).errOfMeansByKinByCol);
+        vs = Hs(ii).errOfMeansByKinByCol';
+        imagesc(1:numel(ths), 1:size(vs,2), vs);
         axis image;
         title(Hs(ii).name);
         caxis([0 mx]);
@@ -22,11 +23,12 @@ function meanErrorByKinByCol(D, Hs)
         axis square;
         
         if ii == 1
-            lbls = arrayfun(@num2str, score.thetaCenters, 'uni', 0);
-            set(gca, 'YTick', score.thetaCenters);
-            set(gca, 'YTickLabel', lbls');
-            set(gca, 'XTick', 1:size(vs,2));
-            ylabel('\theta');
+            lbls = arrayfun(@num2str, ths, 'uni', 0);
+            set(gca, 'XTick', 1:numel(lbls));
+            set(gca, 'XTickLabel', lbls');            
+            set(gca, 'XTickLabelRotation', 45);
+            set(gca, 'YTick', 1:size(vs,2));
+            xlabel('\theta');
         else
             set(gca, 'XTick', []);
             set(gca, 'YTick', []);
