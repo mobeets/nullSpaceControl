@@ -7,4 +7,5 @@ function ps = setUnfilteredDefaults()
     ps.START_SHUFFLE = nan;
     ps.END_SHUFFLE = nan;
     ps.START_WASHOUT = nan;
+%     ps.REMOVE_INCORRECTS = false;
 end

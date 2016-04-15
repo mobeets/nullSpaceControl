@@ -69,6 +69,9 @@ function Z = meanShiftFit(D, opts)
     Zn = Zsamp*(NB2*NB2');
     Z = Zr + Zn;
 
+    set(gcf, 'color', 'w')
+    axis vis3d;
+    xlabel('offset'); ylabel('row space err'); zlabel('null space err');
 end
 
 function gs = newGroup(ths, offset)
