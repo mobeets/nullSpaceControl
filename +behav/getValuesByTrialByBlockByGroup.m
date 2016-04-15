@@ -1,9 +1,13 @@
-function [vs, bs] = getValuesByTrialByBlockByGroup(D, fldNm, grpNm)
-% n.b. can only be one value per group (so no thetaGrps!)
+function [vs, bs] = getValuesByTrialByBlockByGroup(D, fldNm, grpNm, grpTrial)
+    if nargin < 4
+        grpTrial = true;
+    end
 
-    [vrs, brs] = behav.getValuesByTrialByBlock(D, fldNm);
+    [vrs, brs] = behav.getValuesByTrialByBlock(D, fldNm, grpTrial);
     if ~isempty(grpNm)
-        grps = sort(unique(D.blocks(1).(grpNm)));
+        gs = D.blocks(1).(grpNm);
+        gs = gs(~isnan(gs));
+        grps = sort(unique(gs));
     else
         grps = 1;
     end
@@ -19,8 +23,10 @@ function [vs, bs] = getValuesByTrialByBlockByGroup(D, fldNm, grpNm)
         bc = brs(bix);
         if ~isempty(grpNm)
             gs = D.blocks(ii).(grpNm);
-            ts = D.blocks(ii).trial_index;
-            gs = grpstats(gs, ts);
+            if grpTrial
+                ts = D.blocks(ii).trial_index;
+                gs = grpstats(gs, ts);
+            end
         else
             gs = ones(size(vc));
         end

@@ -1,5 +1,5 @@
-function singleValByGrp(D, fcn, opts, vs, grps)
-    if nargin < 4
+function singleValByGrp(vs, grps, D, fcn, opts)
+    if nargin > 2 && isempty(vs) && isempty(grps)
         [vs, grps] = tools.valsByGrp(D, fcn, opts);
     end
     

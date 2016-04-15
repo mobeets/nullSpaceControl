@@ -26,10 +26,10 @@ for ii = 1%1:numel(dts)
     
     figure;
     subplot(2,2,1); hold on;
-    plot.singleValByGrp(D, @(Y) det(cov(Y)), opts);
+    plot.singleValByGrp([], [], D, @(Y) det(cov(Y)), opts);
     ylabel('det(cov(Y))');
     subplot(2,2,2); hold on;
-    plot.singleValByGrp(D, @(Y) mean(sqrt(sum(Y.^2,2))), opts);
+    plot.singleValByGrp([], [], D, @(Y) mean(sqrt(sum(Y.^2,2))), opts);
     ylabel('mean(norm(Y))');
     subplot(2,2,3); hold on;
     plot.errorByKin(D.hyps(2:end), 'errOfMeansByKin');

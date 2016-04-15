@@ -35,6 +35,9 @@ function meanErrorByKinByCol(D, Hs)
         end
         set(gca, 'YDir', 'reverse');
     end
-    plot.subtitle(D.datestr);
+    plot.subtitle(D.datestr, 'FontSize', 18);
+    
+    set(gcf, 'Position', [100 100 650 600]);
+    set(gcf, 'PaperPosition', get(gcf, 'Position'));
 
 end

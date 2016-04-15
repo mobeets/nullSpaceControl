@@ -26,8 +26,11 @@ function [prms, grps, nms] = quickBehavior(D, behavNm, grpName, flipSign)
         yDiff = ps(1) - ps(2);
         yDiffPct = yDiff/ps(2);
         
-        yc1 = Y{ii,1};
-        [Lmax, Lbest, ~] = plot.learningOneKin(yc1, yc);
+        xs = cell2mat(Y(ii,:)');
+        bs = [ones(numel(Y{ii,1}),1); 2*ones(numel(Y{ii,2}),1); ...
+            3*ones(numel(Y{ii,3}),1)];
+        [Lbest, Lmax] = behav.singleLearnMaxAndRaw(xs, bs, nan);
+        
         lrn = Lbest/Lmax;
         prms(ii,:) = [ps yDiff yDiffPct xth Lmax Lbest lrn];
     end

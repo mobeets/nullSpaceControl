@@ -1,4 +1,5 @@
-function [lrn, L_bin, L_proj, L_max, L_raw, ls] = grpLearnMaxAndRaw(vs, bs)
+function [lrn, L_bin, L_proj, L_best, L_max, L_raw, ls] = ...
+    grpLearnMaxAndRaw(vs, bs, flipSign, binSz)
     nflds = numel(vs);
     L_best = nan(nflds,1);
     L_max = nan(nflds,1);
@@ -6,7 +7,7 @@ function [lrn, L_bin, L_proj, L_max, L_raw, ls] = grpLearnMaxAndRaw(vs, bs)
     ls = cell(nflds,1);
     for ii = 1:nflds
         [L_best(ii), L_max(ii), L_raw{ii}, ls{ii}] = ...
-            behav.singleLearnMaxAndRaw(vs{ii}, bs);
+            behav.singleLearnMaxAndRaw(vs{ii}, bs, flipSign(ii), binSz);
     end
     L_raw = cell2mat(L_raw);
     

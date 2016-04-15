@@ -27,7 +27,7 @@ for ii = 1:numel(dts)
 %     prcs = prcs./max(prcs);
     
     subplot(2,3,ii); hold on;
-    plot.singleValByGrp([],[],[], prcs, grps);
+    plot.singleValByGrp(prcs, grps);
     
     if ii == 1
         ylabel('median \theta_1 - \theta_2');
