@@ -4,8 +4,7 @@ function Z = meanShiftFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'thetaNm', 'thetas', ...
-        'thetaTol', 15, 'doSample', true, 'obeyBounds', true, ...
-        'boundsType', 'marginal');
+        'doSample', true, 'obeyBounds', true, 'boundsType', 'marginal');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
@@ -51,8 +50,8 @@ function Z = meanShiftFit(D, opts)
 %         [grps(ii) offsets(ixOffset) errs]
 %         figure(1); hold on; plot(offsets, errs, 'Color', clrs(ii,:), 'LineWidth', 4);
 %         figure(2); hold on; plot(offsets, terrs, 'Color', clrs(ii,:), 'LineWidth', 4);
-        figure(1); hold on; plot3(offsets, errs, terrs, '-o', 'Color', clrs(ii,:), 'LineWidth', 4);
-        plot3(0, errs(offsets == 0), terrs(offsets == 0), 'ko', 'LineWidth', 4);
+%         figure(1); hold on; plot3(offsets, errs, terrs, '-o', 'Color', clrs(ii,:), 'LineWidth', 4);
+%         plot3(0, errs(offsets == 0), terrs(offsets == 0), 'ko', 'LineWidth', 4);
 %         hold on; bar(grps(ii), offsets(ixo), 'FaceColor', clrs(ii,:), ...
 %             'EdgeColor', 'k');
 
@@ -69,9 +68,9 @@ function Z = meanShiftFit(D, opts)
     Zn = Zsamp*(NB2*NB2');
     Z = Zr + Zn;
 
-    set(gcf, 'color', 'w')
-    axis vis3d;
-    xlabel('offset'); ylabel('row space err'); zlabel('null space err');
+%     set(gcf, 'color', 'w')
+%     axis vis3d;
+%     xlabel('offset'); ylabel('row space err'); zlabel('null space err');
 end
 
 function gs = newGroup(ths, offset)

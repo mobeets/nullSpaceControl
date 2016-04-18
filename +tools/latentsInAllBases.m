@@ -21,17 +21,11 @@ function [M1, M2] = latentsInAllBases(D, decNm, doRotate)
         [~,~,v] = svd(Y2*NB2); NB2 = NB2*v;
     end
     
-    [M1.Y1, M1.YN1, M1.YR1] = inBasis(Y1, NB1, RB1);    
-    [M1.Y2, M1.YN2, M1.YR2] = inBasis(Y2, NB1, RB1);
-    [M2.Y1, M2.YN1, M2.YR1] = inBasis(Y1, NB2, RB2);
-    [M2.Y2, M2.YN2, M2.YR2] = inBasis(Y2, NB2, RB2);
+    [M1.Y1, M1.YN1, M1.YR1] = tools.latentsInBasis(Y1, NB1, RB1);    
+    [M1.Y2, M1.YN2, M1.YR2] = tools.latentsInBasis(Y2, NB1, RB1);
+    [M2.Y1, M2.YN1, M2.YR1] = tools.latentsInBasis(Y1, NB2, RB2);
+    [M2.Y2, M2.YN2, M2.YR2] = tools.latentsInBasis(Y2, NB2, RB2);
     
 %     ZNR = Y1*(RB1*RB1')*NB1;
 %     ZNN = Y1*(NB1*NB1')*NB1;
-end
-
-function [Yc, YNc, YRc] = inBasis(Y, NB, RB)
-    YNc = Y*NB;
-    YRc = Y*RB;
-    Yc = [YNc YRc];
 end

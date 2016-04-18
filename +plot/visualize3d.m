@@ -1,9 +1,11 @@
-function [D,v] = visualize3d(dtstr, opts)
+function [D,v] = visualize3d(latents, opts)
     if nargin < 2
         opts = struct();
     end
     defopts = struct('showMu', true, 'showPts', true, 'doNull', true, ...
-        'doColor', true, 'D', [], 'blockInd', 2, 'grpName', 'thetaGrps');
+        'doColor', true, 'D', [], 'blockInd', 2, ...
+        'markerStr', 'ko', 'grpName', 'thetaGrps', 'showCov', false, ...
+        'decoderNm', 'fDecoder');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if ~isfield(opts, 'mapInd')
         opts.mapInd = opts.blockInd;
@@ -14,22 +16,24 @@ function [D,v] = visualize3d(dtstr, opts)
     v = opts.v;
 
     if isempty(opts.D)
-        D = io.quickLoadByDate(dtstr);
+        D = io.quickLoadByDate(opts.dtstr);
     else
         D = opts.D;
     end
     B = D.blocks(opts.blockInd);
-    NB2 = D.blocks(opts.mapInd).fDecoder.NulM2;
-    RB2 = D.blocks(opts.mapInd).fDecoder.RowM2;
-    Y = B.latents;
+    NB2 = D.blocks(opts.mapInd).(opts.decoderNm).NulM2;
+    RB2 = D.blocks(opts.mapInd).(opts.decoderNm).RowM2;
+    Y = latents;
     
     if opts.doNull
         Y = Y*NB2;
     end
-    if isempty(v)
-        [u,s,v] = svd(Y);
+%     if isempty(v)
+%         [u,s,v] = svd(Y);
+%     end
+    if ~isempty(v)
+        Y = Y*v;
     end
-    Y = Y*v;
     
     gs = B.(opts.grpName);
     grps = sort(unique(gs));
@@ -49,16 +53,28 @@ function [D,v] = visualize3d(dtstr, opts)
             plot3(Y(ix,1), Y(ix,2), Y(ix,3), '.', 'Color', clr);
         end
     end
+    if opts.showCov
+        for jj = 1:numel(grps)
+            ix = grps(jj) == gs;
+            clr = clrs(jj,:);
+            pts = tools.gauss2dcirc(Y(ix,1:2), 2);
+            zs = zeros(size(pts(1,:)));
+            plot3(pts(1,:), pts(2,:), zs, '-', 'Color', clr, 'LineWidth', 4);
+        end
+    end
+    markerStr = opts.markerStr;
     if opts.showMu
         for jj = 1:numel(grps)
             ix = grps(jj) == gs;
             clr = clrs(jj,:);
-            mu = mean(Y(ix,1:3));
-            plot3(mu(1), mu(2), mu(3), 'ko', 'MarkerFaceColor', clr, ...
+            mu = nanmean(Y(ix,1:3));
+            plot3(mu(1), mu(2), mu(3), markerStr, ...
+                'MarkerFaceColor', clr, ...
                 'MarkerSize', 10);
         end
     end
-    plot3(0,0,0,'r.','MarkerSize',50);
+    
+    plot3(0,0,0,'r+','MarkerSize', 10, 'LineWidth', 4);
     axis vis3d;
     title(D.datestr);
 end

@@ -4,7 +4,7 @@ function D = fitByDate(dtstr, params, nms, plotopts, opts, hypopts)
         params = struct();
     end
     if nargin < 3
-        nms = {'kinematics mean', 'habitual', 'cloud-hab'};
+        nms = {'true', 'zero', 'habitual', 'cloud-hab'};
     end
     if nargin < 4 || isempty(plotopts) || ~isstruct(plotopts)
         plotopts = struct();

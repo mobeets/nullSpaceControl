@@ -15,7 +15,7 @@ for ii = 1%1:numel(dts)
     opts.D = D;
     
     figure;
-    [~,v] = plot.visualize3d(dts{ii}, opts);
+    [~,v] = plot.visualize3d(D.blocks(2).latents, opts);
     
 %     [prms, grps] = tools.quickBehavior(D, behavNm, opts.grpName);
 %     D = io.quickLoadByDate(dts{ii}, struct('START_SHUFFLE', nan));
