@@ -4,7 +4,8 @@ function Z = meanShiftFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'thetaNm', 'thetas', ...
-        'doSample', true, 'obeyBounds', true, 'boundsType', 'marginal');
+        'doSample', true, 'obeyBounds', true, 'boundsType', 'marginal', ...
+        'grpName', 'thetaGrps');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
@@ -18,7 +19,7 @@ function Z = meanShiftFit(D, opts)
     YR2 = B2.latents*RB2;
     
     ths1 = B1.(opts.thetaNm);
-    gs = B2.thetaGrps;
+    gs = B2.(opts.grpName);
     grps = sort(unique(gs));
 
     Zr = B2.latents*(RB2*RB2');
@@ -41,7 +42,7 @@ function Z = meanShiftFit(D, opts)
             
             terrs(jj) = norm(mean(B2.latents(ix,:)*NB2) - mean(Y1(ixc,:)*NB2));
         end
-        assert(all(newGroup(ths1,0) == B1.thetaGrps));
+        assert(all(newGroup(ths1,0) == B1.(opts.grpName)));
         
         [~,ixOffset] = min(errs);        
         ixc = newGroup(ths1, offsets(ixOffset)) == grps(ii);

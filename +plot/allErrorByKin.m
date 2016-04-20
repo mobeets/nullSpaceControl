@@ -11,5 +11,5 @@ function allErrorByKin(D, Hs)
     plot.errorByKin(Hs, 'covErrorOrientByKin');
     plot.subtitle(D.datestr);
     set(gcf, 'Position', [100 100 750 600]);
-    set(gcf, 'PaperPosition', get(gcf, 'Position'));
+%     set(gcf, 'PaperPosition', get(gcf, 'Position'));
 end

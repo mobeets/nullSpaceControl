@@ -1,14 +1,18 @@
 
-dtstr = '20120525';
+% dtstr = '20120525';
+dtstr = '20131125';
 % dtstr = '20120601';
 % dtstr = '20131205';
-doSave = false;
+doSave = true;
+nms = {'true', 'zero', 'habitual', 'cloud-hab', 'volitional'};
+% nms = {'true', 'zero', 'habitual', 'cloud-hab', 'cloud-raw', ...
+%         'unconstrained', 'minimum', 'baseline', 'volitional', ...
+%         'condnrm', 'condnrmkin', 'mean shift'};
+smallNms = {'true', 'cloud-hab', 'habitual'};
 
 %% fit
 
 doSolos = true;
-nms = {'kinematics mean', 'habitual', 'cloud-hab', 'condnrm', ...
-    'volitional', 'baseline', 'minimum', 'unconstrained'};
 popts = struct('doSave', doSave, 'doSolos', doSolos, ...
     'plotdir', fullfile('plots', 'all', dtstr, 'hypScores'), ...
     'doTimestampFolder', false);
@@ -18,11 +22,10 @@ D = fitByDate(dtstr, [], nms, popts, [], hypopts);
 %% hyp fits over time
 
 close all;
-nms = {'kinematics mean', 'cloud-hab', 'habitual', 'cloud-raw'};
 popts = struct('doSave', doSave, 'askedOnce', false, ...
     'plotdir', fullfile('plots', 'all', dtstr, 'hypsByTrials'));
 hypopts = struct('decoderNm', 'fDecoder');
-plot.hypErrorsByTime(dtstr, nms, popts, hypopts, 'trial_length');
+plot.hypErrorsByTime(dtstr, smallNms, popts, hypopts, 'trial_length');
 
 %% behavior over time
 
@@ -43,8 +46,6 @@ plot.activityGrid(dtstr, [], popts);
 %% fit -- IME
 
 close all;
-nms = {'kinematics mean', 'habitual', 'cloud-hab', 'volitional', ...
-    'baseline', 'minimum', 'unconstrained'};
 popts = struct('doSave', doSave, 'doSolos', true, ...
     'plotdir', fullfile('plots', 'all', dtstr, 'hypScores_ime'), ...
     'doTimestampFolder', false);
@@ -55,11 +56,10 @@ fitByDate(dtstr, [], nms, popts, [], hypopts);
 
 if exist(io.pathToIme(dtstr), 'file')
     close all;
-    nms = {'kinematics mean', 'cloud-hab', 'habitual'};
     popts = struct('doSave', doSave, 'askedOnce', false, ...
         'plotdir', fullfile('plots', 'all', dtstr, 'hypsByTrials_ime'));
     hypopts = struct('decoderNm', 'fImeDecoder');
-    plot.hypErrorsByTime(dtstr, nms, popts, hypopts, 'trial_length');
+    plot.hypErrorsByTime(dtstr, smallNms, popts, hypopts, 'trial_length');
 end
 
 %% CCA over time -- IME

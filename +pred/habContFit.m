@@ -23,7 +23,6 @@ function Z = habContFit(D, opts)
     for t = 1:nt
         Zsamp(t,:) = pred.randZIfNearbyTheta(ths(t), B1, ...
             opts.thetaTol, ~opts.doSample);
-
         c = 0;
         while opts.obeyBounds && isOutOfBounds(Zsamp(t,:)*(NB2*NB2') + ...
                 Zr(t,:)) && c < 10

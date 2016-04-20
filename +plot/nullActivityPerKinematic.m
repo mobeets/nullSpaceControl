@@ -36,8 +36,10 @@ function nullActivityPerKinematic(lts, thetas, cnts, doScatter, doMean, clr)
             end
         end
         if doMean
-            plot(xs, mean(ys0,1), 'color', clr, 'LineWidth', lw);
-            scatter(xs, mean(ys0,1), sz, clr, 'MarkerFaceColor', clr);
+            bar(xs, mean(ys0,1), 'FaceColor', 'none', 'EdgeColor', clr, ...
+                'LineWidth', 2);
+%             plot(xs, mean(ys0,1), 'color', clr, 'LineWidth', lw);
+%             scatter(xs, mean(ys0,1), sz, clr, 'MarkerFaceColor', clr);
         end
 %         YS(ii,:) = mean(ys0,1);
 %         ylim([-ymax ymax]);

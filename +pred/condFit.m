@@ -3,7 +3,8 @@ function Z = condFit(D, opts)
         opts = struct();
     end
     assert(isa(opts, 'struct'));
-    defopts = struct('decoderNm', 'fDecoder', 'useThetas', false);
+    defopts = struct('decoderNm', 'fDecoder', 'useThetas', false, ...
+        'grpName', 'thetaGrps');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
@@ -22,8 +23,8 @@ function Z = condFit(D, opts)
     if opts.useThetas
 %         YR = [YR cosd(B1.thetas) sind(B1.thetas)];
 %         YR2 = [YR2 cosd(B2.thetas) sind(B2.thetas)];
-        YR = [YR cosd(B1.thetaGrps) sind(B1.thetaGrps)];
-        YR2 = [YR2 cosd(B2.thetaGrps) sind(B2.thetaGrps)];
+        YR = [YR cosd(B1.(opts.grpName)) sind(B1.(opts.grpName))];
+        YR2 = [YR2 cosd(B2.(opts.grpName)) sind(B2.(opts.grpName))];
     end
     
     % set col_order

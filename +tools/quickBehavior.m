@@ -1,4 +1,5 @@
-function [prms, grps, nms] = quickBehavior(D, behavNm, grpName, flipSign)
+function [prms, grps, nms] = quickBehavior(D, behavNm, grpName, ...
+    flipSign, collapseTrial)
 % returns behavior metrics in perturbation block
 %
 %   prms [ngrps nflds]
@@ -10,13 +11,21 @@ function [prms, grps, nms] = quickBehavior(D, behavNm, grpName, flipSign)
     if nargin < 4
         flipSign = false;
     end
-    binSz = 100; ptsPerBin = 4;
+    if nargin < 5
+        collapseTrial = true;
+    end
+    if collapseTrial
+        binSz = 20; minPtsPerBin = 1;
+    else
+        binSz = 100; minPtsPerBin = 4;
+    end
+
     nms = {'yEnd', 'yStart', 'tau', 'yDiff', 'yDiffPct', 'xThresh', ...
         'Lmax', 'Lbest', 'lrn'};
-    signInds = [4 5 7 8];
+    signInds = [4 5];% 7 8];
     
     [Y,X,~,grps] = tools.behaviorByTrial(D, behavNm, ...
-        0, grpName, binSz, ptsPerBin, true);
+        0, grpName, binSz, minPtsPerBin, collapseTrial);
     ngrps = numel(grps);
     prms = nan(ngrps,numel(nms));
     for ii = 1:ngrps
@@ -29,7 +38,7 @@ function [prms, grps, nms] = quickBehavior(D, behavNm, grpName, flipSign)
         xs = cell2mat(Y(ii,:)');
         bs = [ones(numel(Y{ii,1}),1); 2*ones(numel(Y{ii,2}),1); ...
             3*ones(numel(Y{ii,3}),1)];
-        [Lbest, Lmax] = behav.singleLearnMaxAndRaw(xs, bs, nan);
+        [Lbest, Lmax] = behav.singleLearnMaxAndRaw(xs, bs, flipSign, nan);
         
         lrn = Lbest/Lmax;
         prms(ii,:) = [ps yDiff yDiffPct xth Lmax Lbest lrn];

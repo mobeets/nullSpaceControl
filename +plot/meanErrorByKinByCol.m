@@ -4,6 +4,9 @@ function meanErrorByKinByCol(D, Hs)
     mx = 0;
     for ii = 1:numel(Hs)
         vs = Hs(ii).errOfMeansByKinByCol;
+        if isempty(vs)
+            continue;
+        end
         mx = max(max(vs(:)), mx);
     end
     
@@ -38,6 +41,6 @@ function meanErrorByKinByCol(D, Hs)
     plot.subtitle(D.datestr, 'FontSize', 18);
     
     set(gcf, 'Position', [100 100 650 600]);
-    set(gcf, 'PaperPosition', get(gcf, 'Position'));
+%     set(gcf, 'PaperPosition', get(gcf, 'Position'));
 
 end

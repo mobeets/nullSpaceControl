@@ -1,5 +1,5 @@
 function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
-    binSz, ptsPerBin, collapseTrial, reduceFcn, slidingBins)
+    binSz, minPtsPerBin, collapseTrial, reduceFcn, slidingBins)
     if nargin < 2
         fldNm = 'progress';
     end
@@ -13,7 +13,7 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
         binSz = 32; % # of trials per bin
     end
     if nargin < 6
-        ptsPerBin = 30;
+        minPtsPerBin = 30;
     end
     if nargin < 7
         collapseTrial = false; % ignore multiple entries per trial
@@ -128,12 +128,12 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
                 else
                     it = xsc >= xsb(jj) & xsc <= xsb(jj+1);
                 end
-                if sum(it) < ptsPerBin
+                if sum(it) < minPtsPerBin
                     continue;
                 end                
                 if ~isempty(Y)
                     nNonNan = sum(~any(isnan(ysc(it,:)),2));
-                    if nNonNan < ptsPerBin
+                    if nNonNan < minPtsPerBin
                         continue;
                     end
                     ysb(jj) = reduceFcn(ysc(it,:));
@@ -145,7 +145,7 @@ function [Ys, Xs, Ns, grps] = behaviorByTrial(D, fldNm, blockInd, grpName, ...
                         ixs(mm,:) = ~any(isnan(yscb{mm}),2);
                     end
                     nNonNan = sum(prod(ixs));
-                    if nNonNan < ptsPerBin
+                    if nNonNan < minPtsPerBin
                         continue;
                     end
                     ysb(jj) = reduceFcn(yscb);

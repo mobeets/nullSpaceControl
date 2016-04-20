@@ -1,4 +1,4 @@
-function B = getDataByBlock(D)
+function [B, trials] = getDataByBlock(D)
     
     % load all timepoints and flatten so that each is a trial
     trials = io.filterTrialsByParams(D.trials, D.params);

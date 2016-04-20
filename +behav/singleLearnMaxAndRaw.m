@@ -1,5 +1,5 @@
 function [L_best, L_max, L_raw, ls] = singleLearnMaxAndRaw(xs, bs, flipSign, binSz)
-    if nargin < 3
+    if nargin < 3 || isnan(flipSign)
         flipSign = false;
     end
     if nargin < 4

@@ -1,4 +1,4 @@
-function quickBehavior(D, behavNm, grpName, fldNms, flipSign)
+function quickBehavior(D, behavNm, grpName, fldNms, flipSign, collapseTrial)
     if nargin < 3
         grpName = '';
     end
@@ -8,10 +8,14 @@ function quickBehavior(D, behavNm, grpName, fldNms, flipSign)
     if nargin < 5
         flipSign = false;
     end
+    if nargin < 6
+        collapseTrial = true;
+    end
     if isa(fldNms, 'char')
         fldNms = {fldNms};
     end
-    [prms, grps, nms] = tools.quickBehavior(D, behavNm, grpName, flipSign);
+    [prms, grps, nms] = tools.quickBehavior(D, behavNm, grpName, ...
+        flipSign, collapseTrial);
     prms(abs(prms) > 1e3) = nan;
     
     set(gcf, 'color', 'w');
@@ -42,7 +46,7 @@ function quickBehavior(D, behavNm, grpName, fldNms, flipSign)
             plot(grps(ii), prms(ii,fldInd), '.', 'Color', clrs(ii,:), ...
                 'MarkerSize', 50);
         end
-        ylabel(nms{fldInd});
+        ylabel([behavNm ' (' nms{fldInd} ')']);
     end
     
     xlabel('\theta');

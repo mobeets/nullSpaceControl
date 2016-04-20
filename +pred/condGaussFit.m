@@ -3,8 +3,9 @@ function Z = condGaussFit(D, opts)
         opts = struct();
     end
     assert(isa(opts, 'struct'));
-    defopts = struct('decoderNm', 'fDecoder', 'byThetaGrps', false, ...
-        'doSample', true, 'obeyBounds', true);
+    defopts = struct('decoderNm', 'fDecoder', 'byGrps', false, ...
+        'doSample', true, 'obeyBounds', true, 'boundsType', 'marginal', ...
+        'grpName', 'thetaGrps');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
@@ -26,11 +27,11 @@ function Z = condGaussFit(D, opts)
     Zsamp = nan(nt,nNull);
     
     % for keeping predictions within observed bounds
-    isOutOfBounds = pred.boundsFcn(B1.latents);
+    isOutOfBounds = pred.boundsFcn(B1.latents, opts.boundsType);
     d = 0;
     
     Zr = B2.latents*(RB2*RB2');
-    if ~opts.byThetaGrps
+    if ~opts.byGrps
         % predict given YR2
         [mubar, sigbar] = tools.condGaussMean(mu, S, ixUnknown);        
         for t = 1:nt
@@ -50,8 +51,8 @@ function Z = condGaussFit(D, opts)
             end
         end
     else
-        gs1 = B1.thetaGrps;
-        gs2 = B2.thetaGrps;
+        gs1 = B1.(opts.grpName);
+        gs2 = B2.(opts.grpName);
         grps = sort(unique(gs2));
         for ii = 1:numel(grps)
             

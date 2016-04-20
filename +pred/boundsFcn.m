@@ -12,8 +12,12 @@ function [isOutOfBoundsFcn, whereOutOfBounds] = boundsFcn(Y, kind)
     elseif strcmpi(kind, 'kde')
         Phatfcn = ksdensity_nd(Y, 1);
         ps = Phatfcn(Y);
-        thresh = prctile(ps, 0.02);
+        thresh = prctile(ps, 0.05);
         isOutOfBoundsFcn = @(z) Phatfcn(z) < thresh;
         whereOutOfBounds = nan;
+    elseif strcmpi(kind, 'hull')
+        thresh = 0.001;
+        isOutOfBoundsFcn = @(z) mean(arrayfun(@(ii) ...
+            all(z < Y(ii,:)) | all(z > Y(ii,:)), 1:size(Y,1))) > thresh;
     end
 end
