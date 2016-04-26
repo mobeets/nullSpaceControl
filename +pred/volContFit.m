@@ -4,7 +4,7 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'addPrecursor', true, ...
-        'useL', false, 'scaleVol', 1, 'obeyBounds', true);
+        'useL', false, 'scaleVol', 1, 'obeyBounds', true, 'thetaTol', 15);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
 
     B1 = D.blocks(1);
@@ -36,14 +36,14 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
         % within 15 degs of theta
         decoder = B2.(opts.decoderNm);
         
-%         Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, nan, true);
+%         Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t), B1, nan, true);
 %         Zvol(t,:) = solveInBounds2(B2, t, decoder, RB1, B1, Zpre(t,:));
 %         Zpre(t,:) = zeros(1,nn);
 %         continue;
         
         if opts.addPrecursor
-            Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t) + 180, B1, ...
-                nan, true);
+            Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t), B1, ...
+                opts.thetaTol, true);
             decoder.M0 = decoder.M0 + decoder.M2*Zpre(t,:)';
         end
 
