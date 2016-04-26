@@ -3,7 +3,7 @@ function D = nullActivity(D, opts)
         opts = struct();
     end
     defopts = struct('decoderNm', 'fDecoder', 'idxFldNm', '', ...
-        'thetaFldNm', 'thetas');
+        'scoreGrpNm', 'thetaGrps');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if ~strcmp(opts.decoderNm, 'fDecoder')
         warning(['Predicting null activity using "' opts.decoderNm '"']);
@@ -30,16 +30,16 @@ end
 
 function sc = nullActivityAll(latents, B, NB, opts)
     idxFld = opts.idxFldNm;
-    thetaFld = opts.thetaFldNm;
+    grpFld = opts.scoreGrpNm;
     
-    thetas = B.(thetaFld);
+    gs = B.(grpFld);
     if ~isempty(idxFld) && isfield(B, idxFld) && ~isempty(B.(idxFld))
         ix = B.(idxFld);
-        if numel(ix) ~= numel(thetas)
-            [numel(ix) numel(thetas)]
+        if numel(ix) ~= numel(gs)
+            [numel(ix) numel(gs)]
             error([idxFld ' is not the same size as thetas']);
         end
-        thetas = thetas(ix);
+        gs = gs(ix);
         latents = latents(ix,:);
     end
     sc = struct();
@@ -48,5 +48,5 @@ function sc = nullActivityAll(latents, B, NB, opts)
         return;
     end
     sc.zNull = latents*NB;
-    [sc.zMu, sc.zCov, ~, sc.zNullBin] = pred.avgByThetaGroup(thetas, sc.zNull);
+    [sc.zMu, sc.zCov, sc.zNullBin] = pred.avgByThetaGroup(sc.zNull, gs);
 end

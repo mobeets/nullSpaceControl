@@ -6,8 +6,14 @@ function Z = cvMeanFit(D, opts)
         opts = struct();
     end
     assert(isa(opts, 'struct'));
-    defopts = struct('decoderNm', 'fDecoder', 'doNull', true);
+    defopts = struct('decoderNm', 'fDecoder', 'doNull', true, ...
+        'doCheat', true);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
+    
+    if ~opts.doCheat
+        Z = repmat(bestMeanObj(D), size(D.blocks(2).latents, 1), 1);
+        return;
+    end
     
     Blk = D.blocks(2);
     ix0 = Blk.idxTrain;
@@ -39,5 +45,20 @@ function Z = cvMeanFit(D, opts)
     if opts.doNull
         Z = Z*NB';
     end
+    
+end
+
+function sol = bestMeanObj(D)
+    % search for best mean rate to predict
+
+    B1 = D.blocks(1);
+    NB = B1.fDecoder.NulM2;
+    
+    zMu = pred.avgByThetaGroup(B1, B1.latents*NB);
+    nd = size(B1.latents,1);
+    obj = @(mu) score.errOfMeans(zMu, ...
+        pred.avgByThetaGroup(B1, repmat(mu, nd, 1)*NB));
+    mu0 = mean(B1.latents);
+    sol = fminunc(obj, mu0);
     
 end

@@ -41,12 +41,13 @@ function [vs, grps] = simpleBehavior(dtstr, behNm, grpNm, doPlot)
     end
 
     if doPlot
-        figure;
+        hold on;
         plot.singleValByGrp(vs(:,1), grps, [], [], ...
             struct('LineMarkerStyle', 'r:'));
-        plot.singleValByGrp(vs(:,3), grps);
+        plot.singleValByGrp(vs(:,3), grps, [], [], ...
+            struct('LineMarkerStyle', 'b-'));
         plot.singleValByGrp(vs(:,2), grps, [], [], ...
-            struct('LineMarkerStyle', 'k:'));
+            struct('LineMarkerStyle', 'b:'));
         ylabel(behNm);
         title(dtstr);
     end
