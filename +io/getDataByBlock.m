@@ -1,8 +1,7 @@
 function [B, trials] = getDataByBlock(D)
     
     % load all timepoints and flatten so that each is a trial
-    trials = io.filterTrialsByParams(D.trials, D.params);
-    trials.angErrorAbs = abs(trials.angError);
+    trials = io.filterTrialsByParams(D.trials, D.params);    
 
     % build struct array grouped by the trial's block
     B = struct([]);

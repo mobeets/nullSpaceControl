@@ -1,10 +1,17 @@
 function Z = sameCloudFit(D, opts)
+% currently, parameters are thetaTol and minDist
+% 	* thetaTol can be removed by setting thetaNm := thetaGrps
+%   for some days this is actually an improvement; on most, it's about
+%   the same
+%   * for minDist, this is basically equivalent to a kNN of 20
+% 
     if nargin < 2
         opts = struct();
     end
     defopts = struct('decoderNm', 'fDecoder', 'thetaTol', 30, ...
-        'rotThetas', 0, 'minDist', 0.35, 'kNN', nan, 'doSample', true, ...
-        'obeyBounds', true, 'boundsType', 'marginal');
+        'thetaNm', 'thetas', 'rotThetas', 0, 'minDist', 0.35, ...
+        'kNN', 20, 'doSample', true, 'obeyBounds', true, ...
+        'boundsType', 'marginal');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if numel(opts.rotThetas) == 1
         opts.rotThetas = opts.rotThetas*ones(8,1);
@@ -30,7 +37,11 @@ function Z = sameCloudFit(D, opts)
     resampleCount = 0;
     invalidCount = 0;
     
+    ths1 = B1.(opts.thetaNm);
+    ths = B2.(opts.thetaNm);
+    
     Zsamp = nan(nt,nn);
+    ms = nan(nt,1);
     for t = 1:nt        
         % calculate distance in current row space
         %   of all intuitive activity from current activity
@@ -39,8 +50,8 @@ function Z = sameCloudFit(D, opts)
         if ~isnan(opts.thetaTol) % make distance inf if theta is too different
             ind = B2.thetaGrps(t) == score.thetaCenters(8);
             rotTheta = opts.rotThetas(ind);
-            th = mod(B2.thetas(t)+rotTheta, 360);
-            dsThetas = getAngleDistance(B1.thetas, th);
+            th = mod(ths(t) + rotTheta, 360);
+            dsThetas = getAngleDistance(ths1, th);
             ds(dsThetas > opts.thetaTol) = inf;
         end
         if isnan(opts.minDist)
@@ -56,6 +67,7 @@ function Z = sameCloudFit(D, opts)
         end
         
         ix = ds <= opts.minDist;
+        ms(t) = sum(ix);
         
         if sum(ix) == 0 % pick the nearest point
             [~,ind] = min(ds);

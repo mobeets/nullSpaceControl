@@ -11,5 +11,11 @@ function D = loadDataByDate(dtstr)
     end
     
     D.params = io.setFilterDefaults(D.datestr);
+    D.trials = addExtraFields(D.trials);
+end
 
+function trials = addExtraFields(trials)
+    trials.angErrorAbs = abs(trials.angError);
+    trials.thetaActualGrps = score.thetaGroup(trials.thetaActuals, ...
+        score.thetaCenters(8));
 end

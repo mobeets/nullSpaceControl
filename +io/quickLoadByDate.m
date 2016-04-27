@@ -37,4 +37,3 @@ function D = quickLoadByDate(dtstr, params, opts)
         D.blocks(2) = B1;
     end
 end
-

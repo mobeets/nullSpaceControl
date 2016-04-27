@@ -3,6 +3,11 @@ dts = io.getAllowedDates();
 
 % grpNm = 'targetAngle';
 grpNm = 'thetaGrps';
+% grpNm = 'thetaActualGrps';
+
+% nms = {'habitual', 'cloud-hab', 'volitional', 'unconstrained'};
+nms = {'cloud-hab'};
+hopts = struct('decoderNm', 'fDecoder', 'scoreGrpNm', grpNm);
 
 for ii = 1:numel(dts)
     dtstr = dts{ii};
@@ -14,7 +19,8 @@ for ii = 1:numel(dts)
     subplot(2,2,3);
     behav.simpleBehavior(dtstr, 'isCorrect', grpNm);
     subplot(2,2,4);
-    D = fitByDate(dtstr, [], {'cloud-hab'});
+    D = fitByDate(dtstr, [], nms, [], [], hopts);    
+%     plot.allErrorByKin(D, D.hyps(2:end));
     vs = D.hyps(2).errOfMeansByKin;
     plot.singleValByGrp(D.hyps(2).errOfMeansByKin, score.thetaCenters);
     ylabel('error in mean');
@@ -24,13 +30,17 @@ end
 
 dts = io.getAllowedDates();
 ths = score.thetaCenters;
-least = [270 315; 135 180; 135 180; 270 315; 0 45];
-most = [45 90; 45 90; 0 45; 90 45; 180 225];
+% thetaGrps:
+% least = [270 315; 135 180; 135 180; 270 315; 0 45];
+% most = [45 90; 45 90; 0 45; 90 45; 180 225];
+
+% thetaActualGrps
+least = [270 315; 0 315; 135 180; 180 315; 0 45];
+most = [45 90; 45 90; 0 45; 90 135; 135 180];
 
 lst_errs = nan(numel(dts),2);
 mst_errs = nan(numel(dts),2);
 
-hopts = struct('decoderNm', 'fDecoder');
 for ii = 1:numel(dts)
     dtstr = dts{ii};
     D = fitByDate(dtstr, [], {'cloud-hab'}, [], [], hopts);
