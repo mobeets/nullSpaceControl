@@ -4,7 +4,8 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'addPrecursor', true, ...
-        'useL', false, 'scaleVol', 1, 'obeyBounds', true, 'thetaTol', 15);
+        'useL', false, 'scaleVol', 1, 'obeyBounds', true, ...
+        'scaleBounds', true, 'thetaTol', 15);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
 
     B1 = D.blocks(1);
@@ -34,36 +35,25 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
     for t = 1:nt
         % sample Z uniformly from times t in T1 where theta_t is
         % within 15 degs of theta
-        decoder = B2.(opts.decoderNm);
-        
-%         Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t), B1, nan, true);
-%         Zvol(t,:) = solveInBounds2(B2, t, decoder, RB1, B1, Zpre(t,:));
-%         Zpre(t,:) = zeros(1,nn);
-%         continue;
-        
-        if opts.addPrecursor
-            Zpre(t,:) = pred.randZIfNearbyTheta(B2.thetas(t), B1, ...
-                opts.thetaTol, true);
-            decoder.M0 = decoder.M0 + decoder.M2*Zpre(t,:)';
-        end
 
-        if opts.useL > 2 % meet kinematics, minimize to baseline
-%             Zvol(t,:) = solveInBounds(B2, t, decoder, RB1, B1, Zpre(t,:));
-            decoder.M2 = decoder.M2*RB1;
-            z = pred.quadFireFit(B2, t, [], decoder, false);
-            Zvol(t,:) = RB1*z;
-        else
-            Zvol(t,:) = pred.rowSpaceFit(B2, decoder, NB1, RB1, t);
-        end
-
+        [Zpre(t,:), Zvol(t,:)] = newSample(t, B1, B2, NB1, RB1, opts);
+        
         if opts.obeyBounds % try scaling down volitional until within bnds
             c = 0;
             while isOutOfBounds(Zpre(t,:) + Zvol(t,:)/opts.scaleVol) && c < 10
-                Zvol(t,:) = Zvol(t,:)/(c+1);
+                if opts.scaleBounds
+                    Zvol(t,:) = Zvol(t,:)/(c+1);
+                else
+                    [Zpre(t,:), Zvol(t,:)] = newSample(t, B1, B2, NB1, ...
+                        RB1, opts);
+                end
                 c = c + 1;
             end
             if c < 10
                 d = d + 1;
+            else
+                Zpre(t,:) = nan(size(Zpre(t,:)));
+                Zvol(t,:) = nan(size(Zvol(t,:)));
             end
         end
     end
@@ -72,6 +62,25 @@ function [Z, Zpre, Zvol] = volContFit(D, opts)
         warning(['Corrected ' num2str(d) ' volitional samples to lie within bounds']);
     end
 end
+
+function [Zpre, Zvol] = newSample(t, B1, B2, NB1, RB1, opts)
+    dec = B2.(opts.decoderNm);
+    if opts.addPrecursor
+        Zpre = pred.randZIfNearbyTheta(B2.thetas(t), B1, ...
+            opts.thetaTol, true);
+        dec.M0 = dec.M0 + dec.M2*Zpre';
+    end
+
+    if opts.useL > 2 % meet kinematics, minimize to baseline
+%         Zvol(t,:) = solveInBounds(B2, t, decoder, RB1, B1, Zpre(t,:));
+        dec.M2 = dec.M2*RB1;
+        z = pred.quadFireFit(B2, t, [], dec, false);
+        Zvol = RB1*z;
+    else
+        Zvol = pred.rowSpaceFit(B2, dec, NB1, RB1, t);
+    end
+end
+
 % 
 % function x = solveInBounds1(Blk, t, decoder, RB, Blk0, zPre)
 %     x1 = Blk.vel(t,:)';

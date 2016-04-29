@@ -16,6 +16,10 @@ function plotAll(D, Hs, opts, hopts)
     else
         fldr = '';
     end
+    
+    % remove observed
+    Hs0 = Hs;
+    Hs = D.hyps(~strcmp('observed', {D.hyps.name}));
 
     % write out params
     if opts.doSave
@@ -67,7 +71,7 @@ function plotAll(D, Hs, opts, hopts)
     
     % Plot hypotheses
     if opts.doSolos
-        for ii = 1:numel(Hs)
+        for ii = 1:numel(Hs0)
             plot.plotHyp(D, Hs(ii), opts, fldr, hopts);
         end
     end

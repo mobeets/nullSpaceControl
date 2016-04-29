@@ -12,7 +12,7 @@ function plotHyp(D, H, opts, fldr, hopts)
         fldr = plot.getFldr(opts);
     end
     assert(isa(opts, 'struct'));
-    defopts = struct('doSave', false, 'doRotate', true, 'doStick', false);
+    defopts = struct('doSave', false, 'doRotate', false, 'doStick', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     defopts = struct('decoderNm', 'fDecoder');

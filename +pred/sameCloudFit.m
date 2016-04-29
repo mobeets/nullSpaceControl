@@ -9,7 +9,7 @@ function Z = sameCloudFit(D, opts)
         opts = struct();
     end
     defopts = struct('decoderNm', 'fDecoder', 'thetaTol', 30, ...
-        'thetaNm', 'thetas', 'rotThetas', 0, 'minDist', 0.35, ...
+        'thetaNm', 'thetas', 'rotThetas', 0, 'minDist', 0.20, ...
         'kNN', 20, 'doSample', true, 'obeyBounds', true, ...
         'boundsType', 'marginal');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
@@ -41,11 +41,12 @@ function Z = sameCloudFit(D, opts)
     ths = B2.(opts.thetaNm);
     
     Zsamp = nan(nt,nn);
-    ms = nan(nt,1);
+    ms = nan(nt,4);
     for t = 1:nt        
         % calculate distance in current row space
         %   of all intuitive activity from current activity
-        ds = getDistances(R1, R2(t,:));
+        ds0 = getDistances(R1, R2(t,:));
+        ds = ds0;
         
         if ~isnan(opts.thetaTol) % make distance inf if theta is too different
             ind = B2.thetaGrps(t) == score.thetaCenters(8);
@@ -67,7 +68,9 @@ function Z = sameCloudFit(D, opts)
         end
         
         ix = ds <= opts.minDist;
-        ms(t) = sum(ix);
+        
+        % [theta prune# cloud# hab#]
+        ms(t,:) = [B2.thetaGrps(t) sum(ix) sum(ds0 <= opts.minDist) sum(dsThetas <= opts.thetaTol)];
         
         if sum(ix) == 0 % pick the nearest point
             [~,ind] = min(ds);
@@ -87,6 +90,23 @@ function Z = sameCloudFit(D, opts)
     end
     Zn = Zsamp*(NB2*NB2');
     Z = Zr + Zn;
+
+%     [mus, ~,~, gs0] = grpstats(ms(:,2:end), ms(:,1));
+%     gs = sort(unique(ms(:,1)));
+%     lw = 3; msz = 7;
+%     figure; set(gcf, 'color', 'w');
+%     hold on; set(gca, 'FontSize', 18);
+%     plot(gs, mus(:,1), '-o', 'LineWidth', lw, 'MarkerSize', msz)
+%     plot(gs, mus(:,2), '-o', 'LineWidth', lw, 'MarkerSize', msz)
+%     plot(gs, mus(:,3), '-o', 'LineWidth', lw, 'MarkerSize', msz)
+%     set(gca, 'XTick', gs);
+%     set(gca, 'XTickLabel', gs0);
+%     legend({'prune #', 'cloud #', 'hab #'});
+%     legend boxoff;
+%     xlabel('\theta');
+%     ylabel('avg # pts sampled');
+%     title(D.datestr);
+%     mus
 
 end
 

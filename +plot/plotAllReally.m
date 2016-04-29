@@ -4,7 +4,9 @@ dtstr = '20131125';
 % dtstr = '20120601';
 % dtstr = '20131205';
 doSave = true;
-nms = {'true', 'zero', 'habitual', 'cloud-hab', 'volitional'};
+% nms = {'true', 'zero', 'habitual', 'cloud-hab', 'volitional'};
+nms = {'true', 'zero', 'habitual', 'cloud-hab', 'cloud-raw', ...
+        'unconstrained', 'minimum', 'baseline', 'volitional'};
 % nms = {'true', 'zero', 'habitual', 'cloud-hab', 'cloud-raw', ...
 %         'unconstrained', 'minimum', 'baseline', 'volitional', ...
 %         'condnrm', 'condnrmkin', 'mean shift'};

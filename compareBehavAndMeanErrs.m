@@ -6,7 +6,7 @@ grpNm = 'thetaGrps';
 % grpNm = 'thetaActualGrps';
 
 % nms = {'habitual', 'cloud-hab', 'volitional', 'unconstrained'};
-nms = {'cloud-hab'};
+nms = {'cloud-hab', 'habitual'};
 hopts = struct('decoderNm', 'fDecoder', 'scoreGrpNm', grpNm);
 
 for ii = 1:numel(dts)
@@ -22,7 +22,9 @@ for ii = 1:numel(dts)
     D = fitByDate(dtstr, [], nms, [], [], hopts);    
 %     plot.allErrorByKin(D, D.hyps(2:end));
     vs = D.hyps(2).errOfMeansByKin;
-    plot.singleValByGrp(D.hyps(2).errOfMeansByKin, score.thetaCenters);
+    vs1 = D.hyps(3).errOfMeansByKin;
+    vs = (vs - vs1)./vs;
+    plot.singleValByGrp(vs, score.thetaCenters);
     ylabel('error in mean');
 end
 

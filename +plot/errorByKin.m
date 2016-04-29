@@ -4,7 +4,7 @@ function errorByKin(Hs, ynm)
     set(gcf, 'color', 'w');
     hold on; set(gca, 'FontSize', 18);
 
-    clrs = cbrewer('qual', 'Set1', numel(Hs));
+    clrs = cbrewer('qual', 'Set2', numel(Hs));
     for ii = 1:numel(Hs)
         clr = clrs(ii,:);
         errs = Hs(ii).(ynm);
