@@ -27,10 +27,12 @@ function D = fitHyps(D, nms, opts)
         D.hyps = pred.addPrediction(D, 'cloud', pred.sameCloudFit(D, custopts));
     end
     if ismember('baseline', nms)
-        D.hyps = pred.addPrediction(D, 'baseline', pred.baseFireFit(D, opts));
+        D.hyps = pred.addPrediction(D, 'baseline', pred.minEnergyFit(D, opts));
     end
     if ismember('minimum', nms)
-        D.hyps = pred.addPrediction(D, 'minimum', pred.minFireFit(D, opts));
+        custopts = struct('minType', 'minimum');
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'minimum', pred.minEnergyFit(D, custopts));
     end
     if ismember('unconstrained', nms)
         D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D, opts));

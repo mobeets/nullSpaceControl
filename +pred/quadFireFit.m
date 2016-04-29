@@ -1,4 +1,4 @@
-function z = quadFireFit(Blk, t, f, decoder, fitInLatent)
+function z = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
 % 
 % Each u(t) in U is solution (using quadprog) to:
 %   min_u norm(u + f)^2
@@ -11,33 +11,27 @@ function z = quadFireFit(Blk, t, f, decoder, fitInLatent)
 %         (1) A*u ? b
 %         (2) Aeq*u = beq
 %
-
-    x0 = Blk.vel(t,:)';
-    if isfield(Blk, 'velNext')
-        x1 = Blk.velNext(t,:)';
-    else
-        assert false;
+    if nargin < 6
+        lb = [];
+        ub = [];
     end
-%     x1 = Blk.vel(t,:)';
-%     x0 = Blk.velPrev(t,:)';
+    x0 = Blk.vel(t,:)';
+    x1 = Blk.velNext(t,:)';
 
     Ac = decoder.M1;
     Bc = decoder.M2;
     cc = decoder.M0;
         
-    if ~fitInLatent
-        nd = size(decoder.M2, 2);
-        H = eye(nd);
-        A = -eye(nd);
-        b = zeros(nd,1);
-    else
+    nd = size(decoder.M2, 2);
+    H = eye(nd);
+    A = -eye(nd);
+    b = zeros(nd,1);
+    if fitInLatent
         %  % L'*L where L = diag(sigma)*L from FactorParams
-        H = []; % ALinv'*ALinv
+%         H = []; % ALinv'*ALinv
         A = []; % -ALinv
         b = []; % mu
-    end
-    lb = [];
-    ub = [];
+    end    
     
     Aeq = Bc; % s.t. Aeq*u = Bc*z(u); might need to add term to beq
     beq = x1 - Ac*x0 - cc;
@@ -50,7 +44,7 @@ function z = quadFireFit(Blk, t, f, decoder, fitInLatent)
         warning('quadprog optimization incomplete, but stopped.');
     end
     if isempty(z)
-%         warning('Relaxing non-negative constraint.');
+%         warning('Relaxing non-negative constraint and bounds.');
         z = quadprog(H, f, [], [], Aeq, beq, ...
             [],[],[], options);
     end

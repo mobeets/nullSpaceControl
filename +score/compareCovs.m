@@ -7,6 +7,7 @@ function [s, s2, s3] = compareCovs(D1, D2, doNormalize)
 % s3 = 0 iff cov(D1) and cov(D2) have same shape
 %
 % if doNormalize, then s,s2,s3 are scaled to be in [0,1]
+%       if D2 predicts D1 better than 0-matrix
 % 
     if nargin < 3
         doNormalize = true;
@@ -26,8 +27,12 @@ function [s, s2, s3] = compareCovs(D1, D2, doNormalize)
     s3 = sum(((v11 + v12) - (v21 + v22)).^2); % shape
     
     if doNormalize
-        smax = 4*(sum(var(D1))^2 + sum(var(D2))^2) + 1e-5;
-        assert(s <= smax && s2 <= smax && s3 <= smax, num2str([s s2 s3 smax]));
+%         [~,~,v] = svd(D1, 'econ');
+%         Dworse = zeros(size(D1)); Dworse(:,1) = 1e7*randn(size(D1,1),1);
+%         smax = score.compareCovs(D1, Dworse*v', false);
+        smax = score.compareCovs(D1, zeros(size(D1)), false);
+%         smax = 4*(sum(var(D1))^2 + sum(var(D2))^2) + 1e-5;
+%         assert(s <= smax && s2 <= smax && s3 <= smax, num2str([s s2 s3 smax]));
         s = s./smax;
         s2 = s2./smax;
         s3 = s3./smax;

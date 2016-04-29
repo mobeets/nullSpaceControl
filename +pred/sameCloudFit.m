@@ -11,7 +11,7 @@ function Z = sameCloudFit(D, opts)
     defopts = struct('decoderNm', 'fDecoder', 'thetaTol', 30, ...
         'thetaNm', 'thetas', 'rotThetas', 0, 'minDist', 0.20, ...
         'kNN', 20, 'doSample', true, 'obeyBounds', true, ...
-        'boundsType', 'marginal');
+        'boundsType', 'marginal', 'minNorm', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if numel(opts.rotThetas) == 1
         opts.rotThetas = opts.rotThetas*ones(8,1);
@@ -32,6 +32,8 @@ function Z = sameCloudFit(D, opts)
     R1 = Z1*RB2;
     R2 = Z2*RB2;
     [nt, nn] = size(Z2);
+    
+    Z1nrms = sqrt(sum(Z1.^2,2));
     
     opts.isOutOfBounds = pred.boundsFcn(B1.latents, opts.boundsType);
     resampleCount = 0;
@@ -59,6 +61,10 @@ function Z = sameCloudFit(D, opts)
             if ~isnan(opts.kNN)
                 [~,ix] = sort(ds);
                 kNNinds = ix(1:opts.kNN); % take nearest neighbors
+                if opts.minNorm % pick neighbor with smallest norm
+                    [~,ix] = min(Z1nrms(kNNinds));
+                    kNNinds = kNNinds(ix);
+                end
                 [Zsamp(t,:),d] = meanOrSample(Z1(kNNinds,:), opts);
             else
                 [Zsamp(t,:),d] = meanOrSample(Z1(~isinf(ds),:), opts);
