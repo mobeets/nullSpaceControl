@@ -26,6 +26,9 @@ function D = fitHyps(D, nms, opts)
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'cloud', pred.sameCloudFit(D, custopts));
     end
+    if ismember('unconstrained', nms)
+        D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D, opts));
+    end
     if ismember('baseline', nms)
         D.hyps = pred.addPrediction(D, 'baseline', pred.minEnergyFit(D, opts));
     end
@@ -33,10 +36,7 @@ function D = fitHyps(D, nms, opts)
         custopts = struct('minType', 'minimum');
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'minimum', pred.minEnergyFit(D, custopts));
-    end
-    if ismember('unconstrained', nms)
-        D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D, opts));
-    end
+    end    
     if ismember('volitional-w-2FAs', nms) || ismember('volitional', nms)
         custopts = struct('addPrecursor', true, 'useL', 2);
         custopts = io.updateParams(opts, custopts, true);

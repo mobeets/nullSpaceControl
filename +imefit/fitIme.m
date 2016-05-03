@@ -1,10 +1,10 @@
 
 % dtstr = '20120601';
 % dtstr = '20120525';
-% dtstr = '20120709';
+dtstr = '20120709';
 % dtstr = '20131125';
 % dtstr = '20131205';
-dtstr = '20120308';
+% dtstr = '20120308';
 params = io.setUnfilteredDefaults();
 params = io.updateParams(params, io.setBlockStartTrials(dtstr), true);
 opts = struct('doRotate', false);
@@ -13,7 +13,7 @@ fnm = io.pathToIme(dtstr);
 
 %% fit velocity-IME model for intuitive and perturbation blocks
 
-for bind = 1:2
+for bind = 1%:2
 
     [U, Y, Xtarget] = imefit.prep(D.blocks(bind));
     basedir = pwd;

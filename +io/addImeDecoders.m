@@ -19,5 +19,9 @@ function D = addImeDecoders(D)
             D.simpleData.nullDecoder);
         [fdec.NulM2, fdec.RowM2] = tools.getNulRowBasis(fdec.M2);
         D.blocks(ii).fImeDecoder = fdec;
+        
+        [pos_ime, ths_ime] = imefit.cursorIme(D.blocks(ii), D.ime(ii));
+        D.blocks(ii).posIme = pos_ime;
+        D.blocks(ii).thetasIme = ths_ime;
     end
 end

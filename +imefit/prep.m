@@ -1,4 +1,4 @@
-function [U, Y, T] = prep(B)
+function [U, Y, T, trs] = prep(B)
 % U = [1 ntrials] cell, U(1) = [ncells ntimes] double
 % Y = [1 ntrials] cell, Y(1) = [2 ntimes] double
 % T = [1 ntrials] cell, T(1) = [2 1] double
@@ -12,13 +12,20 @@ function [U, Y, T] = prep(B)
     U = cell(1, ntrs);
     Y = cell(size(U));
     T = cell(size(U));
+    didWarn = false;
     for ii = 1:ntrs
         it = (ts == trs(ii)) & ib;
         
         % ensure all times are accounted for; remove first 6 time-points
         tms = B.time(it);
-        ntms = max(tms);        
-        assert(all(sort(tms)' == 1:ntms));
+        ntms = max(tms); 
+        
+        alltms = sort(tms);
+        if ~isequal(alltms', 1:ntms) && ~didWarn
+            warning(['Not all times are present. ' ...
+                'If fitting IME, make sure you turn off filtering.']);
+            didWarn = true;
+        end
         it = B.time >= 7 & it;
 
         % target position

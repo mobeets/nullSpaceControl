@@ -17,7 +17,7 @@ for trialNo = 1:N_trials
     trial_indices = const.trial_map{trialNo};
     E_P{trialNo} = [nan(numel(pIdx),T_START) E_X(pIdx,trial_indices)];
     E_V{trialNo} = [nan(numel(vIdx),T_START) E_X(vIdx,trial_indices)];
-    
+
     % P_t = E_X(const.x_pt_idx,trial_indices);
     % V_t = E_X(const.x_vt_idx,trial_indices);
     % P_tp1 = P_t + V_t*const.dt;
