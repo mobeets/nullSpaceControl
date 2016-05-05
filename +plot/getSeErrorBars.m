@@ -13,8 +13,11 @@ function [mus, errL, errR] = getSeErrorBars(ysb)
         errR(ii,:) = es(2,:);
         mus(ii,:) = mean(ysc,1);
     end
-    mus = mus';
-    errL = errL';
-    errR = errR';    
+    
+    if size(mus,2) == 1
+        mus = mus';
+        errL = errL';
+        errR = errR';
+    end
 
 end

@@ -42,7 +42,7 @@ function plotAll(D, opts, hopts)
     eNms = {'errOfMeans', 'covError', 'covErrorOrient', 'covErrorShape'};
     for ii = 1:numel(eNms)
         fig = figure;
-        plot.errorByKin(Hs, [eNms{ii} 'ByKin']);
+        plot.errorByKin(Hs, [eNms{ii} 'ByKin'], [], opts.errBarNm);
         if opts.doSave
             saveas(fig, fullfile(fldr, ...
                 [D.datestr '-' eNms{ii} 'ByKin']), 'png');

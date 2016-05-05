@@ -23,7 +23,9 @@ function barByKin(ys, nms, ylbl, ttl, errBarNm, ysb)
     hold on;
     bar(ys, 'FaceColor', [1 1 1], 'EdgeColor', [0 0 0], 'LineWidth', lw);
     if ~isempty(errL)
-        eb = errorbar(1:numel(nms), ys, ys-errL, errR-ys, 'k.', 'Linewidth', lw);
+%         eb = errorbar(1:numel(nms), ys, ys-errL, errR-ys, 'k.', 'Linewidth', lw);
+        line([1:numel(nms); 1:numel(nms)], [errL; errR], ...
+            'LineWidth', lw, 'Color', 'k');
     end
     set(gca, 'XTickLabel', nms, 'XTick', 1:numel(nms));
     set(gca, 'FontSize', FontSize);

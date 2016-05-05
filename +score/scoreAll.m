@@ -85,11 +85,11 @@ function D = handleBootstrapScores(D, ii)
     D.hyps(ii).errOfMeansByKin_boots = [...
         D.hyps(ii).errOfMeansByKin_boots; D.hyps(ii).errOfMeansByKin];
     D.hyps(ii).covErrorByKin_boots = [...
-        D.hyps(ii).covErrorByKin_boots; D.hyps(ii).covErrorByKin];
+        D.hyps(ii).covErrorByKin_boots; D.hyps(ii).covErrorByKin'];
     D.hyps(ii).covErrorShapeByKin_boots = [...
-        D.hyps(ii).covErrorShapeByKin_boots; D.hyps(ii).covErrorShapeByKin];
+        D.hyps(ii).covErrorShapeByKin_boots; D.hyps(ii).covErrorShapeByKin'];
     D.hyps(ii).covErrorOrientByKin_boots = [...
-        D.hyps(ii).covErrorOrientByKin_boots; D.hyps(ii).covErrorOrientByKin];
+        D.hyps(ii).covErrorOrientByKin_boots; D.hyps(ii).covErrorOrientByKin'];
 end
 
 function [isUndr, isOver, isEither] = checkBounds(Zh, Z)
