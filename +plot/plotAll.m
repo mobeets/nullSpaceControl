@@ -1,4 +1,4 @@
-function plotAll(D, Hs, opts, hopts)
+function plotAll(D, opts, hopts)
     if nargin < 3
         opts = struct();
     end
@@ -8,6 +8,7 @@ function plotAll(D, Hs, opts, hopts)
     assert(isa(opts, 'struct'));
     defopts = struct('doSave', false, 'isMaster', false, ...
         'doSolos', false, 'doTimestampFolder', true, ...
+        'errBarNm', 'se', ... % options are ['', 'se', 'std']
         'plotdir', fullfile('plots', D.datestr));
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);    
     
@@ -18,7 +19,7 @@ function plotAll(D, Hs, opts, hopts)
     end
     
     % remove observed
-    Hs0 = Hs;
+    Hs0 = D.hyps;
     Hs = D.hyps(~strcmp('observed', {D.hyps.name}));
 
     % write out params
@@ -26,40 +27,26 @@ function plotAll(D, Hs, opts, hopts)
         ps = tools.setDefaultOptsWhenNecessary(D.params, D.opts);
         writetable(struct2table(ps), fullfile(fldr, 'params.csv'));
     end
-    
-    % Plot error of means
-    fig = figure;
-    plot.errOfMeans(Hs, D.datestr);
-    if opts.doSave
-        saveas(fig, fullfile(fldr, [D.datestr '-errOfMeans']), 'png');
-    end
-    
-    % Plot error of covariance
-    fig = figure;
-    plot.covError(Hs, D.datestr, 'covError');
-    if opts.doSave
-        saveas(fig, fullfile(fldr, [D.datestr '-covError']), 'png');
-    end
-    
-    % Plot error of covariance orientation
-    fig = figure;
-    plot.covError(Hs, D.datestr, 'covErrorOrient');
-    if opts.doSave
-        saveas(fig, fullfile(fldr, [D.datestr '-covErrorOrient']), 'png');
-    end
 
-    % Plot error of covariance shape
-    fig = figure;
-    plot.covError(Hs, D.datestr, 'covErrorShape');
-    if opts.doSave
-        saveas(fig, fullfile(fldr, [D.datestr '-covErrorShape']), 'png');
+    % Plot total errors
+    eNms = {'errOfMeans', 'covError', 'covErrorOrient', 'covErrorShape'};
+    for ii = 1:numel(eNms)
+        fig = figure;
+        plot.barByKinQuick(D, Hs, eNms{ii}, opts.errBarNm);
+        if opts.doSave
+            saveas(fig, fullfile(fldr, [D.datestr '-' eNms{ii}]), 'png');
+        end
     end
-
+    
     % Plot errors by kin
-    fig = figure;
-    plot.allErrorByKin(D, Hs);
-    if opts.doSave
-        saveas(fig, fullfile(fldr, [D.datestr '-errorByKin']), 'png');
+    eNms = {'errOfMeans', 'covError', 'covErrorOrient', 'covErrorShape'};
+    for ii = 1:numel(eNms)
+        fig = figure;
+        plot.errorByKin(Hs, [eNms{ii} 'ByKin']);
+        if opts.doSave
+            saveas(fig, fullfile(fldr, ...
+                [D.datestr '-' eNms{ii} 'ByKin']), 'png');
+        end
     end
     
     % Plot errors by kin by col

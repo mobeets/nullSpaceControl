@@ -9,12 +9,12 @@ function errorByKin(Hs, ynm, clrs)
     
     for ii = 1:numel(Hs)
         clr = clrs(ii,:);
-        errs = Hs(ii).(ynm);
-        if isempty(errs)
-            errs = nan(size(ths));
+        vals = Hs(ii).(ynm);
+        if isempty(vals)
+            vals = nan(size(ths));
         end
         
-        plot(ths, errs, '-o', ...
+        plot(ths, vals, '-o', ...
             'Color', clr, 'MarkerFaceColor', clr, ...
             'MarkerEdgeColor', clr, 'LineWidth', 5);
     end

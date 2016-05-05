@@ -12,13 +12,14 @@ function D = scoreAll(D, baseHypNm)
     zMu = actual.zMu;
     zCov = actual.zCov;
     
-    for ii = 1:numel(D.hyps)
+    for ii = 1:numel(D.hyps)        
         if strcmp(D.hyps(ii).name, baseHypNm)
             D.hyps(ii).errOfMeans = nan;
             D.hyps(ii).covRatio = nan;
             D.hyps(ii).covError = nan;
             D.hyps(ii).covErrorOrient = nan;
             D.hyps(ii).covErrorShape = nan;
+            D.hyps(ii).errOfMeansByKin = nan;
             continue;
         end
         hyp = D.hyps(ii).null(bind);
@@ -51,7 +52,44 @@ function D = scoreAll(D, baseHypNm)
                 ' points out of bounds (' num2str(isUndr) ' under, ' ...
                 num2str(isOver) ' over).']);
         end
+        D = handleBootstrapScores(D, ii);
+        
     end
+end
+
+function D = handleBootstrapScores(D, ii)
+% n.b. can't pass D.hyps(ii) because we have to 
+%   modify it within scope of the full hyps struct
+%
+    if ~isfield(D.hyps(ii), 'errOfMeans_boots')
+        assert(~isfield(D.hyps(ii), 'errOfMeansByKin_boots'));
+        D.hyps(ii).errOfMeans_boots = [];
+        D.hyps(ii).covError_boots = [];
+        D.hyps(ii).covErrorShape_boots = [];
+        D.hyps(ii).covErrorOrient_boots = [];
+        
+        D.hyps(ii).errOfMeansByKin_boots = [];
+        D.hyps(ii).covErrorByKin_boots = [];
+        D.hyps(ii).covErrorShapeByKin_boots = [];
+        D.hyps(ii).covErrorOrientByKin_boots = [];
+    end
+    D.hyps(ii).errOfMeans_boots = [D.hyps(ii).errOfMeans_boots; ...
+        D.hyps(ii).errOfMeans];
+    D.hyps(ii).covError_boots = [D.hyps(ii).covError_boots; ...
+        D.hyps(ii).covError];
+    D.hyps(ii).covErrorShape_boots = [D.hyps(ii).covErrorShape_boots; ...
+        D.hyps(ii).covErrorShape];
+    D.hyps(ii).covErrorOrient_boots = [D.hyps(ii).covErrorOrient_boots; ...
+        D.hyps(ii).covErrorOrient];
+    
+    D.hyps(ii).errOfMeansByKin_boots = [...
+        D.hyps(ii).errOfMeansByKin_boots; D.hyps(ii).errOfMeansByKin];
+    D.hyps(ii).covErrorByKin_boots = [...
+        D.hyps(ii).covErrorByKin_boots; D.hyps(ii).covErrorByKin];
+    D.hyps(ii).covErrorShapeByKin_boots = [...
+        D.hyps(ii).covErrorShapeByKin_boots; D.hyps(ii).covErrorShapeByKin];
+    D.hyps(ii).covErrorOrientByKin_boots = [...
+        D.hyps(ii).covErrorOrientByKin_boots; D.hyps(ii).covErrorOrientByKin];
 end
 
 function [isUndr, isOver, isEither] = checkBounds(Zh, Z)

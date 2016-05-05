@@ -15,13 +15,19 @@ function D = fitByDate(dtstr, params, nms, plotopts, opts, hypopts)
     if nargin < 6 || isempty(hypopts)
         hypopts = struct();
     end
+    if ~isfield(hypopts, 'nBoots')
+        hypopts.nBoots = 0;
+    end
     
     D = io.quickLoadByDate(dtstr, params, opts);
-    D = pred.fitHyps(D, nms, hypopts);
-    D = pred.nullActivity(D, hypopts);
-    D = score.scoreAll(D);
-
+    for ii = 1:hypopts.nBoots+1
+        D = pred.fitHyps(D, nms, hypopts);
+        D = pred.nullActivity(D, hypopts);
+        D = score.scoreAll(D);
+    end
+    
     if numel(fieldnames(plotopts)) > 0
-        figure; plot.plotAll(D, D.hyps, plotopts, hypopts);
+        figure; plot.plotAll(D, plotopts, hypopts);
     end
 end
+
