@@ -19,5 +19,7 @@ function [isOutOfBoundsFcn, whereOutOfBounds] = boundsFcn(Y, kind)
         thresh = 0.001;
         isOutOfBoundsFcn = @(z) mean(arrayfun(@(ii) ...
             all(z < Y(ii,:)) | all(z > Y(ii,:)), 1:size(Y,1))) > thresh;
+    elseif strcmpi(kind, 'none')
+        isOutOfBoundsFcn = @(z) false;
     end
 end

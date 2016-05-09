@@ -76,7 +76,7 @@ function Z = sameCloudFit(D, opts)
         ix = ds <= opts.minDist;
         
         % [theta prune# cloud# hab#]
-        ms(t,:) = [B2.thetaGrps(t) sum(ix) sum(ds0 <= opts.minDist) sum(dsThetas <= opts.thetaTol)];
+%         ms(t,:) = [B2.thetaGrps(t) sum(ix) sum(ds0 <= opts.minDist) sum(dsThetas <= opts.thetaTol)];
         
         if sum(ix) == 0 % pick the nearest point
             [~,ind] = min(ds);

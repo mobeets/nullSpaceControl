@@ -32,7 +32,7 @@ function plotAll(D, opts, hopts)
     eNms = {'errOfMeans', 'covError', 'covErrorOrient', 'covErrorShape'};
     for ii = 1:numel(eNms)
         fig = figure;
-        plot.barByKinQuick(D, Hs, eNms{ii}, opts.errBarNm);
+        plot.barByHypQuick(D, Hs, eNms{ii}, opts.errBarNm);
         if opts.doSave
             saveas(fig, fullfile(fldr, [D.datestr '-' eNms{ii}]), 'png');
         end

@@ -10,7 +10,8 @@ function D = quickLoadByDate(dtstr, params, opts)
     if nargin < 3 || isempty(opts)
         opts = struct();        
     end
-    defopts = struct('doRotate', true, 'doStretch', true, 'doSwap', false);
+    defopts = struct('doRotate', true, 'doStretch', true, ...
+        'doSwap', false, 'postLoadFcn', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     if isa(dtstr, 'double')
@@ -35,5 +36,8 @@ function D = quickLoadByDate(dtstr, params, opts)
         B2 = D.blocks(2);
         D.blocks(1) = B2;
         D.blocks(2) = B1;
+    end
+    if isa(opts.postLoadFcn, 'function_handle')
+        D = opts.postLoadFcn(D);
     end
 end

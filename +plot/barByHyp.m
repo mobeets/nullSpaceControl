@@ -1,4 +1,4 @@
-function barByKin(ys, nms, ylbl, ttl, errBarNm, ysb)
+function barByHyp(ys, nms, ylbl, ttl, errBarNm, ysb)
     if nargin < 3
         ylbl = '';
     end
