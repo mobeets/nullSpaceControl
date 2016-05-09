@@ -5,7 +5,7 @@ function Z = habContFit(D, opts)
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'thetaNm', 'thetas', ...
         'thetaTol', 15, 'doSample', true, 'obeyBounds', true, ...
-        'boundsType', 'marginal', 'localThresh', nan);
+        'boundsType', 'marginal', 'boundsThresh', inf);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
@@ -18,32 +18,21 @@ function Z = habContFit(D, opts)
     Zr = B2.latents*(RB2*RB2');
     Zsamp = nan(nt,nn);
     
+    YR1 = B1.latents*RB2;
+    YN1 = B1.latents*NB2;
+    
     isOutOfBounds = pred.boundsFcn(B1.latents, opts.boundsType);
     d = 0;
     for t = 1:nt
-        
-        if isnan(opts.localThresh)
-            outOfBndsCur = @(z) false;
-        else % find empirical bounds of current nul space
-            ds = bsxfun(@minus, B1.latents*RB2, B2.latents(t,:)*RB2);
-            ds = sqrt(sum(ds.^2,2));
-%             nearbyIdxs = ds <= prctile(ds, opts.localThresh);
-            nearbyIdxs = ds <= opts.localThresh;
-            Yc = B1.latents(nearbyIdxs,:)*NB2;
-            mn = min(Yc); mx = max(Yc);
-            if sum(nearbyIdxs) == 0
-                outOfBndsCur = @(z) false;
-            else
-                outOfBndsCur = @(z) any(isnan(z) | any(z < mn) | any(z > mx));
-            end
-        end
+        isOutOfBndsNul = pred.boundsFcnCond(B2.latents(t,:)*RB2, ...
+            YR1, YN1, opts);
         
         Zsamp(t,:) = pred.randZIfNearbyTheta(ths(t), B1, ...
             opts.thetaTol, ~opts.doSample);
         
         c = 0;        
         while opts.obeyBounds && (isOutOfBounds(Zsamp(t,:)*(NB2*NB2') + ...
-                Zr(t,:)) || outOfBndsCur(Zsamp(t,:)*NB2)) && c < 10
+                Zr(t,:)) || isOutOfBndsNul(Zsamp(t,:)*NB2)) && c < 10
             Zsamp(t,:) = pred.randZIfNearbyTheta(ths(t), B1, ...
                 opts.thetaTol, ~opts.doSample);
             c = c + 1;

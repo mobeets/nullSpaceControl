@@ -65,9 +65,9 @@ function Z = sameCloudFit(D, opts)
                     [~,ix] = min(Z1nrms(kNNinds));
                     kNNinds = kNNinds(ix);
                 end
-                [Zsamp(t,:),d] = meanOrSample(Z1(kNNinds,:), opts);
+                [Zsamp(t,:),d] = meanOrSample(Z1(kNNinds,:), Zr(t,:), NB2, opts);
             else
-                [Zsamp(t,:),d] = meanOrSample(Z1(~isinf(ds),:), opts);
+                [Zsamp(t,:),d] = meanOrSample(Z1(~isinf(ds),:), Zr(t,:), NB2, opts);
             end
             resampleCount = resampleCount + d;
             continue;
@@ -83,7 +83,7 @@ function Z = sameCloudFit(D, opts)
             ix(ind) = true;
             invalidCount = invalidCount + 1;
         end
-        [Zsamp(t,:),d] = meanOrSample(Z1(ix, :), opts);
+        [Zsamp(t,:),d] = meanOrSample(Z1(ix, :), Zr(t,:), NB2, opts);
         resampleCount = resampleCount + d;
     end
     if invalidCount > 0
@@ -97,29 +97,15 @@ function Z = sameCloudFit(D, opts)
     Zn = Zsamp*(NB2*NB2');
     Z = Zr + Zn;
 
-%     [mus, ~,~, gs0] = grpstats(ms(:,2:end), ms(:,1));
-%     gs = sort(unique(ms(:,1)));
-%     lw = 3; msz = 7;
-%     figure; set(gcf, 'color', 'w');
-%     hold on; set(gca, 'FontSize', 18);
-%     plot(gs, mus(:,1), '-o', 'LineWidth', lw, 'MarkerSize', msz)
-%     plot(gs, mus(:,2), '-o', 'LineWidth', lw, 'MarkerSize', msz)
-%     plot(gs, mus(:,3), '-o', 'LineWidth', lw, 'MarkerSize', msz)
-%     set(gca, 'XTick', gs);
-%     set(gca, 'XTickLabel', gs0);
-%     legend({'prune #', 'cloud #', 'hab #'});
-%     legend boxoff;
-%     xlabel('\theta');
-%     ylabel('avg # pts sampled');
-%     title(D.datestr);
-%     mus
-
 end
 
-function [z,d] = meanOrSample(zs, opts)
+function [z,d] = meanOrSample(zs, zr, NB2, opts)
     d = 0;
     c = 0;
     outOfBnds = opts.isOutOfBounds;
+    if isfield(opts, 'youIdiot')
+        outOfBnds = @(z) opts.isOutOfBounds(z*(NB2*NB2') + zr);
+    end
     if opts.doSample
         z = zs(randi(size(zs,1),1),:);
         while opts.obeyBounds && outOfBnds(z) && c < 10

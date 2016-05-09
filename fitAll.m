@@ -15,20 +15,23 @@ lopts = struct();
 fldr = fullfile('plots', 'all', 'tmp');
 
 dts = io.getAllowedDates();
-for ii = 4:5 % 2:numel(dts)
+for ii = 1:numel(dts)
     dtstr = dts{ii}
     D = fitByDate(dtstr, [], nms, popts, lopts, hypopts);
     
-%     nns = [20 40 60 80 100];
-    nns = [0.8 1.0 1.5 2.0];
-%     nns = [0.4 0.8 1.0 1.2 1.4];
-%     nns = [2 4 6];
-    for jj = 1:numel(nns)
-        nn = nns(jj);
-        curopts = struct('localThresh', nn);
-        Z = pred.habContFit(D, curopts);
-        D.hyps = pred.addPrediction(D, ['hab-' num2str(nn)], Z);
-    end
+    Z = pred.sameCloudFit(D, struct('youIdiot', true));
+    D.hyps = pred.addPrediction(D, 'pruning-real', Z);
+%     
+% %     nns = [20 40 60 80 100];
+%     nns = [0.8 1.0 1.5 2.0];
+% %     nns = [0.4 0.8 1.0 1.2 1.4];
+% %     nns = [2 4 6];
+%     for jj = 1:numel(nns)
+%         nn = nns(jj);
+%         curopts = struct('localThresh', nn);
+%         Z = pred.habContFit(D, curopts);
+%         D.hyps = pred.addPrediction(D, ['hab-' num2str(nn)], Z);
+%     end
 
     D = pred.nullActivity(D);
     D = score.scoreAll(D);
