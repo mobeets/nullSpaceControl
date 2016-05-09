@@ -11,7 +11,7 @@ function Z = sameCloudFit(D, opts)
     defopts = struct('decoderNm', 'fDecoder', 'thetaTol', 30, ...
         'thetaNm', 'thetas', 'rotThetas', 0, 'minDist', 0.20, ...
         'kNN', 20, 'doSample', true, 'obeyBounds', true, ...
-        'boundsType', 'marginal', 'minNorm', false);
+        'boundsType', 'marginal', 'minNorm', false, 'boundsThresh', inf);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if numel(opts.rotThetas) == 1
         opts.rotThetas = opts.rotThetas*ones(8,1);
@@ -29,7 +29,8 @@ function Z = sameCloudFit(D, opts)
     Z1 = B1.latents;
     Z2 = B2.latents;
     Zr = Z2*(RB2*RB2');
-    R1 = Z1*RB2;
+    N1 = Z1*NB2;
+    R1 = Z1*RB2;    
     R2 = Z2*RB2;
     [nt, nn] = size(Z2);
     
@@ -43,12 +44,13 @@ function Z = sameCloudFit(D, opts)
     ths = B2.(opts.thetaNm);
     
     Zsamp = nan(nt,nn);
-    ms = nan(nt,4);
-    for t = 1:nt        
+    for t = 1:nt
         % calculate distance in current row space
         %   of all intuitive activity from current activity
         ds0 = getDistances(R1, R2(t,:));
         ds = ds0;
+        opts.isOutOfBndsNul = pred.boundsFcnCond(R2(t,:), R1, N1, ...
+            opts.boundsThresh, opts.boundsType);
         
         if ~isnan(opts.thetaTol) % make distance inf if theta is too different
             ind = B2.thetaGrps(t) == score.thetaCenters(8);
@@ -75,9 +77,6 @@ function Z = sameCloudFit(D, opts)
         
         ix = ds <= opts.minDist;
         
-        % [theta prune# cloud# hab#]
-%         ms(t,:) = [B2.thetaGrps(t) sum(ix) sum(ds0 <= opts.minDist) sum(dsThetas <= opts.thetaTol)];
-        
         if sum(ix) == 0 % pick the nearest point
             [~,ind] = min(ds);
             ix(ind) = true;
@@ -102,10 +101,9 @@ end
 function [z,d] = meanOrSample(zs, zr, NB2, opts)
     d = 0;
     c = 0;
-    outOfBnds = opts.isOutOfBounds;
-    if isfield(opts, 'youIdiot')
-        outOfBnds = @(z) opts.isOutOfBounds(z*(NB2*NB2') + zr);
-    end
+    outOfBnds = @(z) opts.isOutOfBounds(z*(NB2*NB2') + zr) || ...
+        opts.isOutOfBndsNul(z*NB2);
+%     outOfBnds = @(z) opts.isOutOfBounds(z*(NB2*NB2') + zr);
     if opts.doSample
         z = zs(randi(size(zs,1),1),:);
         while opts.obeyBounds && outOfBnds(z) && c < 10

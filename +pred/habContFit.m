@@ -25,7 +25,7 @@ function Z = habContFit(D, opts)
     d = 0;
     for t = 1:nt
         isOutOfBndsNul = pred.boundsFcnCond(B2.latents(t,:)*RB2, ...
-            YR1, YN1, opts);
+            YR1, YN1, opts.boundsThresh, opts.boundsType);
         
         Zsamp(t,:) = pred.randZIfNearbyTheta(ths(t), B1, ...
             opts.thetaTol, ~opts.doSample);
