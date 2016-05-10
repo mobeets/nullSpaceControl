@@ -63,7 +63,19 @@ function D = fitHyps(D, nms, opts)
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'condnrmkin', pred.condGaussFit(D, custopts));
     end
+    if ismember('mean shift prune', nms)
+        rotThetas = pred.rotThetasFromMeanShift(D, struct('thetaTol', inf));
+        custopts = struct('rotThetas', -rotThetas);
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'prune + mean shift', pred.sameCloudFit(D, custopts));
+    end
+    if ismember('mean shift og', nms)
+        rotThetas = -pred.findReaimingAnglesWithIntuitive(D);
+        custopts = struct('rotThetas', -rotThetas);
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'prune + mean shift og', pred.sameCloudFit(D, custopts));
+    end
     if ismember('mean shift', nms)
         D.hyps = pred.addPrediction(D, 'mean shift', pred.meanShiftFit(D, opts));
-    end    
+    end
 end

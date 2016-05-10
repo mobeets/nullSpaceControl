@@ -4,9 +4,13 @@ function Z = habContFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'thetaNm', 'thetas', ...
-        'thetaTol', 15, 'doSample', true, 'obeyBounds', true, ...
-        'boundsType', 'marginal', 'boundsThresh', inf);
+        'thetaTol', 15, 'grpNm', 'thetaGrps', 'doSample', true, ...
+        'obeyBounds', true, 'boundsType', 'marginal', ...
+        'rotThetas', 0, 'boundsThresh', inf);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
+    if numel(opts.rotThetas) == 1
+        opts.rotThetas = opts.rotThetas*ones(8,1);
+    end
     
     B1 = D.blocks(1);
     B2 = D.blocks(2);
@@ -14,6 +18,7 @@ function Z = habContFit(D, opts)
     RB2 = B2.(opts.decoderNm).RowM2;
     [nt, nn] = size(B2.latents);
     ths = B2.(opts.thetaNm);
+    gs = B2.(opts.grpNm);
 
     Zr = B2.latents*(RB2*RB2');
     Zsamp = nan(nt,nn);
@@ -27,8 +32,9 @@ function Z = habContFit(D, opts)
         isOutOfBndsNul = pred.boundsFcnCond(B2.latents(t,:)*RB2, ...
             YR1, YN1, opts.boundsThresh, opts.boundsType);
         
+        rotTheta = opts.rotThetas(score.thetaCenters == gs(t));
         Zsamp(t,:) = pred.randZIfNearbyTheta(ths(t), B1, ...
-            opts.thetaTol, ~opts.doSample);
+            opts.thetaTol, ~opts.doSample, false, rotTheta);
         
         c = 0;        
         while opts.obeyBounds && (isOutOfBounds(Zsamp(t,:)*(NB2*NB2') + ...

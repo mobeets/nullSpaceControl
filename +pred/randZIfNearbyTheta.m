@@ -1,4 +1,5 @@
-function Zsamp = randZIfNearbyTheta(theta, B, theta_tol, takeTheMean, useActuals)
+function Zsamp = randZIfNearbyTheta(theta, B, theta_tol, takeTheMean, ...
+    useActuals, offset)
     if nargin < 3
         theta_tol = nan;
     end
@@ -7,6 +8,9 @@ function Zsamp = randZIfNearbyTheta(theta, B, theta_tol, takeTheMean, useActuals
     end
     if nargin < 5
         useActuals = false;
+    end
+    if nargin < 6
+        offset = 0;
     end
     if useActuals
         thNm = 'thetaActuals';
@@ -19,7 +23,8 @@ function Zsamp = randZIfNearbyTheta(theta, B, theta_tol, takeTheMean, useActuals
     else
         bnds = mod([theta - theta_tol theta + theta_tol], 360);
     end
-    nearbyIdxs = tools.isInRange(B.(thNm), bnds);
+    ths = mod(B.(thNm) + offset, 360);
+    nearbyIdxs = tools.isInRange(ths, bnds);
     if takeTheMean
         Zsamp = nanmean(B.latents(nearbyIdxs,:));
         return;

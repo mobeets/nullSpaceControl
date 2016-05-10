@@ -6,6 +6,9 @@ function cursorMovementByBlock(D, base, useLatents, doNormalize)
         doNormalize = true;
     end
     
+    grpNm = 'thetaGrps';
+%     grpNm = 'targetAngle';
+%     grpNm = 'thetaActualGrps';
     B1 = D.blocks(1);
     B2 = D.blocks(2);
     if useLatents
@@ -42,8 +45,8 @@ function cursorMovementByBlock(D, base, useLatents, doNormalize)
     xs = B2.trial_index;
     xsb = prctile(xs, [25 75]);
     
-    gs1 = B1.thetaGrps;
-    gs2 = B2.thetaGrps;
+    gs1 = B1.(grpNm);
+    gs2 = B2.(grpNm);
     grps = sort(unique(gs2));
     clrs = cbrewer('div', 'RdYlGn', numel(grps));
 
