@@ -1,11 +1,11 @@
-function Z = meanShiftFit(D, opts)
+function [Z, rotThetas] = meanShiftFit(D, opts)
     if nargin < 2
         opts = struct();
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'thetaNm', 'thetas', ...
         'doSample', true, 'obeyBounds', true, 'boundsType', 'marginal', ...
-        'grpName', 'thetaGrps');
+        'grpName', 'thetaGrps', 'boundsThresh', inf);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
@@ -16,6 +16,7 @@ function Z = meanShiftFit(D, opts)
     
     Y1 = B1.latents;
     YR1 = Y1*RB2;
+    YN1 = Y1*NB2;
     YR2 = B2.latents*RB2;
     
     ths1 = B1.(opts.thetaNm);
@@ -28,6 +29,7 @@ function Z = meanShiftFit(D, opts)
     clrs = cbrewer('div', 'RdYlGn', numel(grps));
     opts.isOutOfBounds = pred.boundsFcn(Y1, opts.boundsType);
     d = 0;
+    rotThetas = zeros(numel(grps), 1);
     for ii = 1:numel(grps)
         ix = grps(ii) == gs;
         mu = mean(YR2(ix,:));
@@ -46,18 +48,21 @@ function Z = meanShiftFit(D, opts)
         
         [~,ixOffset] = min(errs);        
         ixc = newGroup(ths1, offsets(ixOffset)) == grps(ii);
+        rotThetas(ii) = offsets(ixOffset);
         Ys = Y1(ixc,:);
         
 %         [grps(ii) offsets(ixOffset) errs]
 %         figure(1); hold on; plot(offsets, errs, 'Color', clrs(ii,:), 'LineWidth', 4);
 %         figure(2); hold on; plot(offsets, terrs, 'Color', clrs(ii,:), 'LineWidth', 4);
 %         figure(1); hold on; plot3(offsets, errs, terrs, '-o', 'Color', clrs(ii,:), 'LineWidth', 4);
-%         plot3(0, errs(offsets == 0), terrs(offsets == 0), 'ko', 'LineWidth', 4);
+%         plot3(offsets(ixOffset), errs(offsets == offsets(ixOffset)), terrs(offsets == offsets(ixOffset)), 'ko', 'LineWidth', 4);
 %         hold on; bar(grps(ii), offsets(ixo), 'FaceColor', clrs(ii,:), ...
 %             'EdgeColor', 'k');
 
         ts = 1:nt; ts = ts(ix);
         for jj = 1:numel(ts)
+            opts.isOutOfBndsNul = pred.boundsFcnCond(YR2(ts(jj),:), ...
+                YR1, YN1, opts.boundsThresh, opts.boundsType);
             [Zsamp(ts(jj),:), dc] = meanOrSample(Ys, opts, Zr(ts(jj),:), NB2);
             d = d + dc;
         end
@@ -82,7 +87,8 @@ end
 function [z,d] = meanOrSample(zs, opts, zr, NB2)
     d = 0;
     c = 0;
-    outOfBnds = @(z) opts.isOutOfBounds(z*(NB2*NB2') + zr);
+    outOfBnds = @(z) opts.isOutOfBounds(z*(NB2*NB2') + zr) || ...
+        opts.isOutOfBndsNul(z*NB2);
     if opts.doSample
         z = zs(randi(size(zs,1),1),:);
         while opts.obeyBounds && outOfBnds(z) && c < 10
