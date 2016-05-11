@@ -1,6 +1,7 @@
 function trials = filterTrialsByParams(trials, params)
     
-    ix = true(size(trials.angError));
+    ix = true(size(trials.time));
+%     ix = ix & trials.time > 6; % ignore timesteps when cursor is frozen
     if ~isnan(params.MIN_ANGULAR_ERROR)
         ix = ix & abs(trials.angError) >= params.MIN_ANGULAR_ERROR;
     end
@@ -15,7 +16,7 @@ function trials = filterTrialsByParams(trials, params)
     end
     if params.REMOVE_INCORRECTS
         ix = ix & trials.isCorrect;
-    end
+    end    
     trials = io.filterTrialsByIdx(trials, ix);
     
     % filter out shuffle and washout trials prior to 'START_' params

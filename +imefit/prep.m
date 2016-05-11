@@ -19,7 +19,6 @@ function [U, Y, T, trs] = prep(B)
         % ensure all times are accounted for; remove first 6 time-points
         tms = B.time(it);
         ntms = max(tms); 
-        
         alltms = sort(tms);
         if ~isequal(alltms', 1:ntms) && ~didWarn
             warning(['Not all times are present. ' ...
@@ -44,7 +43,7 @@ function [U, Y, T, trs] = prep(B)
             ixNan = any(isnan(cU));
             indFirstNan = find(ixNan, 1, 'first');
             numNonNans = sum(~ixNan(indFirstNan:end));
-            assert(numNonNans == 0);
+%             assert(numNonNans == 0);
             cU = cU(:,1:indFirstNan-1);
             cY = cY(:,1:indFirstNan-1);
         end
