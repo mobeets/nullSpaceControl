@@ -48,5 +48,5 @@ function sc = nullActivityAll(latents, B, NB, opts)
         return;
     end
     sc.zNull = latents*NB;
-    [sc.zMu, sc.zCov, sc.zNullBin] = pred.avgByThetaGroup(sc.zNull, gs);
+    [sc.zMu, sc.zCov, sc.zNullBin, sc.grps] = pred.avgByThetaGroup(sc.zNull, gs);
 end

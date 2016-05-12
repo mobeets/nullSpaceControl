@@ -4,7 +4,7 @@ function D = fitHyps(D, nms, opts)
 % 
     if nargin < 3
         opts = struct();
-    end    
+    end
     D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
     if ismember('true', nms)
         D.hyps = pred.addPrediction(D, 'true', pred.cvMeanFit(D, opts));

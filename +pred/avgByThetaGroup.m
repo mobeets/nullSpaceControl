@@ -1,4 +1,4 @@
-function [zMu, zCov, zByGrp] = avgByThetaGroup(Z, gs)
+function [zMu, zCov, zByGrp, grps] = avgByThetaGroup(Z, gs)
     
     grps = sort(unique(gs));
     ngrps = numel(grps);

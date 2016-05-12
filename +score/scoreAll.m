@@ -1,5 +1,8 @@
-function D = scoreAll(D, baseHypNm)
+function D = scoreAll(D, doBoots, baseHypNm)
     if nargin < 2
+        doBoots = false;
+    end
+    if nargin < 3 || isempty(baseHypNm)
         baseHypNm = 'observed';
     end
     bind = 2; % use 2nd block null map
@@ -26,6 +29,7 @@ function D = scoreAll(D, baseHypNm)
         zNull0 = hyp.zNullBin;
         zMu0 = hyp.zMu;
         zCov0 = hyp.zCov;
+        grps = hyp.grps;
         if isempty(zMu0)
             continue;
         end
@@ -35,6 +39,7 @@ function D = scoreAll(D, baseHypNm)
         else
             D.hyps(ii).errOfMeansFull = nan;
         end
+        D.hyps(ii).grps = grps;
         D.hyps(ii).errOfMeansByKinByCol = abs(cell2mat(zMu') - cell2mat(zMu0'))';
         [D.hyps(ii).errOfMeans, e2, e3] = score.errOfMeans(zMu, zMu0);
         D.hyps(ii).pctErrOfMeansByKin = e3; % pct of norm captured
@@ -53,8 +58,9 @@ function D = scoreAll(D, baseHypNm)
                 ' points out of bounds (' num2str(isUndr) ' under, ' ...
                 num2str(isOver) ' over).']);
         end
-        D = handleBootstrapScores(D, ii);
-        
+        if doBoots
+            D = handleBootstrapScores(D, ii);
+        end        
     end
 end
 

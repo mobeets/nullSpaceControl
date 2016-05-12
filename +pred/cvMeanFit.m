@@ -40,6 +40,9 @@ function Z = cvMeanFit(D, opts)
     
     for ii = 1:numel(cnts)
         ix = cnts(ii) == grps;
+        if sum(ix) == 0
+            continue;
+        end
         Z(ix & ix1,:) = mvnrnd(mus(ii,:), covs{ii}, sum(ix & ix1));
     end
     if opts.doNull

@@ -23,7 +23,7 @@ function D = fitByDate(dtstr, params, nms, plotopts, opts, hypopts)
     for ii = 1:hypopts.nBoots+1
         D = pred.fitHyps(D, nms, hypopts);
         D = pred.nullActivity(D, hypopts);
-        D = score.scoreAll(D);
+        D = score.scoreAll(D, true); % true = doBoots
     end
     
     if numel(fieldnames(plotopts)) > 0
