@@ -25,6 +25,8 @@ function D = addImeDecoders(D)
         D.blocks(ii).posIme = pos_ime;
         D.blocks(ii).thetasIme = ths_ime;
         D.blocks(ii).angErrorIme = angErr_ime;
+        D.blocks(ii).thetaImeGrps = score.thetaGroup(ths_ime, ...
+            score.thetaCenters(8));
     end
 end
 
@@ -33,10 +35,10 @@ function [ths_ime, angErr_ime] = addImeStats(B, pos_ime)
     movVec = diff(pos_ime); % or do we compare true pos to next pos_ime?
     
     ths_ime = arrayfun(@(t) tools.computeAngle(vec2trg(t,:), [1; 0]), ...
-        1:size(vec2trg,1));
+        1:size(vec2trg,1))';
     ths_ime = mod(ths_ime, 360);
     
     angErr_ime = arrayfun(@(t) tools.computeAngle(movVec(t,:), ...
         vec2trg(t,:)), 1:size(vec2trg,1)-1);
-    angErr_ime = [angErr_ime nan]; % for last time step
+    angErr_ime = [angErr_ime nan]'; % for last time step
 end

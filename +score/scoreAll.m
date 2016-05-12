@@ -36,8 +36,9 @@ function D = scoreAll(D, baseHypNm)
             D.hyps(ii).errOfMeansFull = nan;
         end
         D.hyps(ii).errOfMeansByKinByCol = abs(cell2mat(zMu') - cell2mat(zMu0'))';
-        [D.hyps(ii).errOfMeans, e2] = score.errOfMeans(zMu, zMu0);
-        D.hyps(ii).errOfMeansByKin = e2;
+        [D.hyps(ii).errOfMeans, e2, e3] = score.errOfMeans(zMu, zMu0);
+        D.hyps(ii).pctErrOfMeansByKin = e3; % pct of norm captured
+        D.hyps(ii).errOfMeansByKin = e2; % errs by mean
         D.hyps(ii).covRatio = score.covRatio(zCov, zCov0);
         [s, s2, s3, S,S2,S3] = score.covError(zNull, zNull0);
         D.hyps(ii).covError = s;

@@ -1,23 +1,24 @@
 function D = tmp2(D)
+    
+    D.blocks(1).thetas = D.blocks(1).thetasIme;
+    D.blocks(2).thetas = D.blocks(2).thetasIme;
+    D.blocks(1).fDecoder = D.blocks(1).fImeDecoder;
+    D.blocks(2).fDecoder = D.blocks(2).fImeDecoder;
+    D.blocks(1).thetaGrps = D.blocks(1).thetaImeGrps;
+    D.blocks(2).thetaGrps = D.blocks(2).thetaImeGrps;
+    
+    D.blocks(1) = rmThNans(D.blocks(1));
+    D.blocks(2) = rmThNans(D.blocks(2));
+end
 
-    NB1 = D.blocks(1).fDecoder.NulM2;
-    RB1 = D.blocks(1).fDecoder.RowM2;
-    NB2 = D.blocks(2).fDecoder.NulM2;
-    RB2 = D.blocks(2).fDecoder.RowM2;
-	
-    colnrm = @(Y) sqrt(sum(Y.^2,2));
-    
-    Y1 = D.blocks(1).latents;
-%     YN1 = Y1*(NB1*NB1');
-%     YN1 = YN1*(NB2*NB2');
-%     Y1 = Y1*(RB1*RB1') + YN1;
-%     D.blocks(1).latents = Y1;
-    
-    Y2 = D.blocks(2).latents;
-    YN = Y2*(NB1*NB1');
-    YN = YN*(NB2*NB2');
-    YR = Y2*(RB2*RB2');
-    Y2 = YN + YR;
-    D.blocks(2).latents = Y2;
+function B = rmThNans(B)
+    fns = fieldnames(B);
+    ix = ~isnan(B.thetas);
+    for ii = 1:numel(fns)
+        x = B.(fns{ii});
+        if size(x,1) == numel(ix)
+            B.(fns{ii}) = x(ix,:);
+        end
+    end
 
 end

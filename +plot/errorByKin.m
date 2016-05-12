@@ -10,7 +10,11 @@ function errorByKin(Hs, ynm, clrs, errBarNm)
     set(gcf, 'color', 'w');
     hold on; set(gca, 'FontSize', 24);
     
-    vb = {Hs.([ynm '_boots'])};
+    fldnm = [ynm '_boots'];
+    if ~isfield(Hs(1), fldnm)
+        fldnm = ynm;
+    end
+    vb = {Hs.(fldnm)};
     if strcmpi(errBarNm, 'se')
        [valsA, errL, errR] = plot.getSeErrorBars(vb);
     else

@@ -5,20 +5,21 @@
 % clrs = [clrW; 0.85*clrG; clrG; 0.9*clrO; 0.9*clrY; clrY; clrO]/255;
 
 % nms = {'true', 'zero', 'cloud-hab', 'habitual', 'mean shift', 'cloud-raw'};
-nms = {'true', 'habitual', 'cloud-hab', 'mean shift', 'mean shift 2'};
+nms = {'true', 'habitual', 'cloud-hab', 'mean shift'};%, 'unconstrained'};
 % nms = {'zero', 'habitual', 'cloud-hab', 'cloud-raw', ...
 %         'unconstrained', 'minimum', 'baseline'};
 
 hypopts = struct();% struct('nBoots', 3);
-popts = struct();
+% lopts = struct('postLoadFcn', @tmp2);
 lopts = struct();
+popts = struct();
 fldr = fullfile('plots', 'all', 'tmp');
 
 dts = io.getAllowedDates();
-for ii = 5%1:numel(dts)
+for ii = 3:5%1:numel(dts)
     dtstr = dts{ii}
     D = fitByDate(dtstr, [], nms, popts, lopts, hypopts);
-%     
+
 %     [~, rotThetas] = pred.meanShiftFit(D);
 %     Z = pred.sameCloudFit(D, struct('rotThetas', -rotThetas));
 %     D.hyps = pred.addPrediction(D, 'prune-rot', Z);
@@ -28,12 +29,15 @@ for ii = 5%1:numel(dts)
     
     [~, inds] = sort({D.hyps.name});
 %     inds = 2:numel(D.hyps);
-    figure;
-    subplot(1,2,1); plot.barByHypQuick(D, D.hyps(inds), 'errOfMeans', 'se');
-    subplot(1,2,2); plot.barByHypQuick(D, D.hyps(inds), 'covError', 'se');
+%     figure;
+%     subplot(1,2,1); plot.barByHypQuick(D, D.hyps(inds), 'errOfMeans', 'se');
+%     subplot(1,2,2); plot.barByHypQuick(D, D.hyps(inds), 'covError', 'se');
     figure;
     subplot(1,2,1); plot.errorByKin(D.hyps(inds), 'errOfMeansByKin', [], 'se');
     subplot(1,2,2); plot.errorByKin(D.hyps(inds), 'covErrorByKin', [], 'se');
+    
+    figure; plot.errorByKin(D.hyps(inds), 'pctErrOfMeansByKin', [], 'se');
+    
 end
 
 

@@ -35,8 +35,9 @@ for bind = 1%:2
     figure; plot(LL); title([D.datestr ' block ' num2str(bind) ' ime LL']);
 
     cd(basedir);
-    imefit.plotImeVsCursor(D, bind, U, Y, Xtarget, estParams, ...
+    [mdlErrs, cErrs] = imefit.imeErrs(U, Y, Xtarget, estParams, ...
         TARGET_RADIUS, T_START);
+    imefit.plotImeVsCursor(D, bind, mdlErrs, cErrs);
 end
 
 %% save
