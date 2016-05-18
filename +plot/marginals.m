@@ -1,57 +1,60 @@
-function marginals(Y1, Y2, gs1, gs2, opts)
-    if nargin < 4 || isempty(gs2)
-        gs2 = gs1;
-    end
-    if nargin < 5
+function marginals(Ys, gs, opts)
+    if nargin < 3
         opts = struct();
-    end
+    end    
     defopts = struct('splitKinsByFig', false, 'doHistOnly', false, ...
-        'clr2', [200 37 6]/255, 'clr1', [22 79 134]/255, ...
-        'h1', 0.2, 'h2', 0.2);
+        'clrs', [], 'hs', 0.2);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
-    clr1 = opts.clr1;
-    clr2 = opts.clr2;
-    grps = sort(unique(gs2));    
+    % check defaults
+    nitems = numel(Ys);
+    assert(isa(Ys, 'cell'));
+    if ~isa(gs, 'cell')
+        tmp = repmat(gs, 1, nitems);
+        gs = num2cell(tmp, 1);
+    end
+    if all(isempty(opts.clrs))
+        clrs = cbrewer('qual', 'Set1', nitems);
+    end
+    if numel(opts.hs) == 1
+        opts.hs = opts.hs*ones(nitems,1);
+    end
+    grps = sort(unique(gs{1}));
+    nfeats = size(Ys{1},2);
 
     if ~opts.splitKinsByFig
+        figure;
         set(gcf, 'color', 'w');
         ncols = numel(grps);
-        nrows = size(Y2,2);
+        nrows = size(Ys{1},2);
     end
 
-    mns = min([Y2; Y1]);
-    mxs = max([Y2; Y1]);
+    allYs = cell2mat(Ys');
+    mns = min(allYs);
+    mxs = max(allYs);
 
     C = 0;
     for jj = 1:numel(grps)
-        ix1 = grps(jj) == gs1;
-        Y1c = Y1(ix1,:);
-        ix2 = grps(jj) == gs2;
-        Y2c = Y2(ix2,:);        
-
         if opts.splitKinsByFig
             figure;
             set(gcf, 'color', 'w');
-            ncols = ceil(sqrt(size(Y2,2)));
-            nrows = ceil(size(Y2,2)/ncols);
+            ncols = ceil(sqrt(nfeats));
+            nrows = ceil(nfeats/ncols);
             C = 0;
         end
-        
-        for ii = 1:size(Y2,2)
-            YR1c = Y1c(:,ii);
-            YR2c = Y2c(:,ii);            
+        for ii = 1:nfeats            
             C = C + 1;
-            
-            subplot(ncols,nrows,C); hold on;
+            subplot(ncols, nrows, C); hold on;
             xs = linspace(min(mns), max(mxs));
 %             xs = linspace(mns(ii), mxs(ii));
-            ysh = singleMarginal(YR1c, opts.h1, xs, clr1, [], opts);
-            ylm = [min(ysh) max(ysh)];
-            singleMarginal(YR2c, opts.h2, xs, clr2, ylm, opts);
-            
-            % histogram
-            % [c,b] = hist(YR2c, 30); c = c./trapz(b,c);
+
+            ylm = [];
+            for kk = 1:nitems
+                YRc = Ys{kk}(grps(jj) == gs{kk},ii);
+                ysh = singleMarginal(YRc, opts.hs(kk), xs, clrs(kk,:), ...
+                    ylm, opts);
+                ylm = [min(ysh) max(ysh)];
+            end
             
             set(gca, 'XTick', []);
             set(gca, 'YTick', []);

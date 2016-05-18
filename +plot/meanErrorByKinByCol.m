@@ -20,7 +20,11 @@ function meanErrorByKinByCol(D, Hs)
         vs = Hs(ii).errOfMeansByKinByCol';
         imagesc(1:numel(ths), 1:size(vs,2), vs);
         axis image;
-        title(Hs(ii).name);
+        ttl = Hs(ii).name;
+        if numel(Hs) == 1
+            ttl = [D.datestr ': ' ttl];
+        end
+        title(ttl);
         caxis([0 mx]);
         colormap gray;
         axis square;
@@ -38,7 +42,9 @@ function meanErrorByKinByCol(D, Hs)
         end
         set(gca, 'YDir', 'reverse');
     end
-    plot.subtitle(D.datestr, 'FontSize', 18);
+    if numel(Hs) > 1
+        plot.subtitle(D.datestr, 'FontSize', 18);
+    end
     
     set(gcf, 'Position', [100 100 650 600]);
 %     set(gcf, 'PaperPosition', get(gcf, 'Position'));

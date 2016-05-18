@@ -4,8 +4,8 @@ function pos_ime = cursorIme(B, ime)
     [U, Y, Xtarget, ~] = imefit.prep(B);
     [E_P, ~] = velime_extract_prior_whiskers(U, Y, Xtarget, ime);
     % n.b. E_P{t} always has at least T_START cols, but Y{t} may have fewer
-    pos_ime = arrayfun(@(t) E_P{t}(end-1:end,1:size(Y{t},2)), 1:numel(E_P), ...
-        'uni', 0); % n.b. rows 1:2 are cursor pos TAU timesteps ago
+    pos_ime = arrayfun(@(t) E_P{t}(end-1:end,1:size(Y{t},2)), ...
+        1:numel(E_P), 'uni', 0); % n.b. rows 1:2 are cursor pos TAU timesteps ago
     pos_ime = cell2mat(pos_ime)';
     
     % expand pos_ime to have nans at start of trial

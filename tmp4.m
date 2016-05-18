@@ -1,5 +1,5 @@
 
-dtstr = '20120709';
+dtstr = '20120525';
 nms = {'habitual', 'cloud-hab', 'cloud-raw', 'unconstrained'};
 D = fitByDate(dtstr, [], nms);
 
@@ -16,13 +16,13 @@ figure; plot.meanErrorByKinByCol(D, pred.getHyp(D, 'pruning'));
 %%
 
 opts = struct('splitKinsByFig', true, 'doHistOnly', true);
-grps = D.blocks(2).thetaGrps;
+grps = D.blocks(2).thetaActualGrps;
 NB = D.blocks(2).fDecoder.NulM2;
 Y1 = pred.getHyp(D, 'observed').latents;
-Y2 = pred.getHyp(D, 'pruning').latents;
+Y2 = pred.getHyp(D, 'unconstrained').latents;
 
 ix = 1:size(grps,1);
-ix = grps == 225;
+% ix = grps == 225;
 Y1 = Y1(ix,:); Y2 = Y2(ix,:); grps = grps(ix,:);
 plot.marginals(Y1*NB, Y2*NB, grps, [], opts);
 
