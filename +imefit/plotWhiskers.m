@@ -1,10 +1,13 @@
-function plotWhiskers(D, bind, trialNo)
+function plotWhiskers(D, bind, trialNo, doLatents)
+    if nargin < 4
+        doLatents = false;
+    end
 
     TAU = 3;
     T_START = TAU + 2;
     TARGET_RADIUS = 20 + 18;
 
-    [U, Y, Xtarget] = imefit.prep(D.blocks(bind));
+    [U, Y, Xtarget] = imefit.prep(D.blocks(bind), doLatents);
     [E_P, ~] = velime_extract_prior_whiskers(U, Y, Xtarget, D.ime(bind));
     
     plot.init;

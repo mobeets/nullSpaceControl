@@ -1,8 +1,8 @@
 
 % dtstr = '20120601';
 % dtstr = '20120525';
-dtstr = '20120709';
-% dtstr = '20131125';
+% dtstr = '20120709';
+dtstr = '20131125';
 % dtstr = '20131205';
 % dtstr = '20120308';
 params = io.setUnfilteredDefaults();
@@ -13,9 +13,12 @@ fnm = io.pathToIme(dtstr);
 
 %% fit velocity-IME model for intuitive and perturbation blocks
 
-for bind = 1%:2
+bs = [];
+doLatents = true;
 
-    [U, Y, Xtarget] = imefit.prep(D.blocks(bind));
+for bind = 1:2
+
+    [U, Y, Xtarget] = imefit.prep(D.blocks(bind), doLatents);
     basedir = pwd;
     cd('velime_codepack_v1.0/');
 
@@ -35,10 +38,18 @@ for bind = 1%:2
     figure; plot(LL); title([D.datestr ' block ' num2str(bind) ' ime LL']);
 
     cd(basedir);
-    [mdlErrs, cErrs] = imefit.imeErrs(U, Y, Xtarget, estParams, ...
-        TARGET_RADIUS, T_START);
-    imefit.plotImeVsCursor(D, bind, mdlErrs, cErrs);
+%     [mdlErrs, cErrs] = imefit.imeErrs(U, Y, Xtarget, estParams, ...
+%         TARGET_RADIUS, T_START);
+%     imefit.plotImeVsCursor(D, bind, mdlErrs, cErrs);
+    D0 = io.quickLoadByDate(dtstr, io.setUnfilteredDefaults(), struct('doRotate', false));
+    D0.ime(bind) = estParams;
+    b = imefit.plotImeStats(D0, bind, doLatents);
+    saveas(gcf, fullfile('plots', 'ime2', [dtstr '_' num2str(bind) '_lts.png']));
+    bs = [bs b];
 end
+
+imefit.plotErrByBlock(bs(1), bs(2)); title(D.datestr);
+saveas(gcf, fullfile('plots', 'ime2', [dtstr '_byTrial_lts.png']));
 
 %% save
 

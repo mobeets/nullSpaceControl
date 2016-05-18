@@ -1,23 +1,28 @@
-function by_trial = plotImeStats(D, bind)
+function by_trial = plotImeStats(D, bind, doLatents)
+    if nargin < 3
+        doLatents = false;
+    end
 
     TAU = 3;
     T_START = TAU + 2;
     TARGET_RADIUS = 20 + 18;
-    [U, Y, Xtarget] = imefit.prep(D.blocks(bind));
+    [U, Y, Xtarget] = imefit.prep(D.blocks(bind), doLatents);
     [mdlErrs, cErrs, result, by_trial] = imefit.imeErrs(U, Y, Xtarget, ...
         D.ime(bind), TARGET_RADIUS, T_START);
-        
-    imefit.plotWhiskers(Xtarget, Y, E_P, trialNo, TARGET_RADIUS, T_START);
+
+    trialNo = 1;
+%     imefit.plotWhiskers(D, bind, trialNo, doLatents);
     
     % scatter of cursor and ime errors
     plot.init; subplot(1,2,1); hold on; set(gca, 'FontSize', 18);
     plot(mdlErrs, cErrs, '.');
-    xlabel('internal model error (degrees)');
-    ylabel('cursor error (degrees)');
+    xlabel('internal model error (deg)');
+    ylabel('cursor error (deg)');
     title([D.datestr ' Blk' num2str(bind)]);
     xlim([0 180]); ylim(xlim);
     set(gca, 'XTick', 0:45:180);
     set(gca, 'YTick', 0:45:180);
+    axis square;
     
     % bar plot of average angular errors
     cErrAvg = nanmean(cellfun(@(e) mean(abs(e)), by_trial.cErrs));
@@ -31,7 +36,8 @@ function by_trial = plotImeStats(D, bind)
     ylim([0 ymx]);
     ytcks = unique(round(get(gca, 'YTick')));
     set(gca, 'YTick', ytcks);
-    ylabel('absolute angular error (degrees)');
+    ylabel('absolute angular error (deg)');
     title([D.datestr ' Blk' num2str(bind)]);
+    axis square;
 
 end

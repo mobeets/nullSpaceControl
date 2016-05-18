@@ -1,8 +1,12 @@
-function [U, Y, T, trs] = prep(B)
+function [U, Y, T, trs] = prep(B, doLatents)
 % U = [1 ntrials] cell, U(1) = [ncells ntimes] double
 % Y = [1 ntrials] cell, Y(1) = [2 ntimes] double
 % T = [1 ntrials] cell, T(1) = [2 1] double
+    if nargin < 2
+        doLatents = false;
+    end
     
+    B.latents(2:end,:) = B.latents(1:end-1,:);
     B.spikes(2:end,:) = B.spikes(1:end-1,:);
     ib = logical(B.isCorrect);
 
@@ -33,8 +37,11 @@ function [U, Y, T, trs] = prep(B)
         % cursor position
         cY = B.pos(it,:)';
 
-        % spikes
+        % spikes (or latents)
         cU = B.spikes(it,:)';
+        if doLatents
+            cU = B.latents(it,:)';
+        end
 
         % remove columns with nans
         assert(not(any(isnan(cY(:)))));

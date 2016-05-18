@@ -5,7 +5,7 @@ function marginals(Y1, Y2, gs1, gs2, opts)
     if nargin < 5
         opts = struct();
     end
-    defopts = struct('splitKinsByFig', false, ...
+    defopts = struct('splitKinsByFig', false, 'doHistOnly', false, ...
         'clr2', [200 37 6]/255, 'clr1', [22 79 134]/255, ...
         'h1', 0.2, 'h2', 0.2);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
@@ -44,10 +44,11 @@ function marginals(Y1, Y2, gs1, gs2, opts)
             C = C + 1;
             
             subplot(ncols,nrows,C); hold on;
-            xs = linspace(mns(ii), mxs(ii));
-            ysh = singleMarginal(YR1c, opts.h1, xs, clr1);
+            xs = linspace(min(mns), max(mxs));
+%             xs = linspace(mns(ii), mxs(ii));
+            ysh = singleMarginal(YR1c, opts.h1, xs, clr1, [], opts);
             ylm = [min(ysh) max(ysh)];
-            singleMarginal(YR2c, opts.h2, xs, clr2, ylm);
+            singleMarginal(YR2c, opts.h2, xs, clr2, ylm, opts);
             
             % histogram
             % [c,b] = hist(YR2c, 30); c = c./trapz(b,c);
@@ -63,8 +64,8 @@ function marginals(Y1, Y2, gs1, gs2, opts)
     end
 end
 
-function ysh = singleMarginal(Y, h, xs, clr, ylm)
-    if nargin < 5
+function ysh = singleMarginal(Y, h, xs, clr, ylm, opts)
+    if nargin < 5 || isempty(ylm)
         ylm = [];
     end
 
@@ -74,7 +75,14 @@ function ysh = singleMarginal(Y, h, xs, clr, ylm)
     if ~isempty(ylm)
         ysh = ysh*(ylm(2)/max(ysh));
     end
-    plot(xs, ysh, '-', 'Color', clr); % normalize to ymx
+    if ~opts.doHistOnly
+        plot(xs, ysh, '-', 'Color', clr); % normalize to ymx
+    end
+    
+    if opts.doHistOnly
+        [c,b] = hist(Y, xs); c = c./trapz(b,c);
+        plot(xs, c, '-', 'Color', clr);
+    end
     
     % show bounds
     mu = mean(Y);
