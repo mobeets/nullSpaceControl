@@ -56,6 +56,15 @@ function plotAll(D, opts, hopts)
         saveas(fig, fullfile(fldr, [D.datestr '-errorByKinByCol']), 'png');
     end
     
+    % plot histogram errors by kin
+    grps = Hs(1).marginalHistograms_grps;
+    errs = cell2mat({Hs.histErrByKin})';
+    fig = plot.init; plot.valsByGrp(errs, grps, {Hs.name});
+    xlabel('\theta'); ylabel('sum of L_2 histogram error');
+    if opts.doSave
+        saveas(fig, fullfile(fldr, [D.datestr '-errorHistByKin']), 'png');
+    end
+    
     % Plot hypotheses
     if opts.doSolos
         for ii = 1:numel(Hs0)

@@ -21,6 +21,12 @@ popts = struct('doSave', doSave, 'doSolos', doSolos, ...
 hypopts = struct();
 D = fitByDate(dtstr, [], nms, popts, [], hypopts);
 
+%% marginal histograms
+
+D = D.hyps(2:end);
+plot.marginalDists({Hs.marginalHistograms}', ...
+    Hs(1).marginalHistograms_Xs, Hs(1).marginalHistograms_grps);
+
 %% hyp fits over time
 
 close all;
