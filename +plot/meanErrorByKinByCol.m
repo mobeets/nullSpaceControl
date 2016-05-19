@@ -13,7 +13,7 @@ function meanErrorByKinByCol(D, Hs)
     set(gcf, 'color', 'w');
     ncols = round(sqrt(numel(Hs)));
     nrows = ceil(numel(Hs)/ncols);
-    ths = score.thetaCenters;
+    ths = Hs(1).grps;
     for ii = 1:numel(Hs)
         subplot(ncols, nrows, ii); hold on;
         set(gca, 'FontSize', 18);

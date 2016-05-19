@@ -7,7 +7,7 @@ function Z = cvMeanFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'doNull', true, ...
-        'doCheat', true);
+        'doCheat', true, 'thetaNm', 'thetaActuals');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     if ~opts.doCheat
@@ -21,8 +21,8 @@ function Z = cvMeanFit(D, opts)
     NB = Blk.(opts.decoderNm).NulM2;
     
     % mean for each kinematics condition
-    ths = Blk.thetas(ix0,:);
-    cnts = score.thetaCenters(8);
+    ths = Blk.(opts.thetaNm); ths = ths(ix0,:);
+    cnts = sort(unique(ths));
     ys = Blk.latents(ix0,:);
     if opts.doNull
         ys = ys*NB;
@@ -30,7 +30,7 @@ function Z = cvMeanFit(D, opts)
     [mus, ses, covs] = score.avgByThetaGroup(ths, ys, cnts);
     
     % find kinematics condition for each point in test data
-    grps = score.thetaGroup(Blk.thetas, cnts);
+    grps = score.thetaGroup(Blk.(opts.thetaNm), cnts);
     
     if opts.doNull
         Z = nan(size(Blk.latents,1), size(NB,2));

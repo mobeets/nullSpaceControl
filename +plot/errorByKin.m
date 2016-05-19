@@ -1,12 +1,13 @@
 function errorByKin(Hs, ynm, clrs, errBarNm)
     if nargin < 3 || isempty(clrs)
-        clrs = cbrewer('qual', 'Set2', numel(Hs));
+        clrs = [get(gca,'ColorOrder'); parula(64)];
+%         clrs = cbrewer('qual', 'Set2', numel(Hs));
     end
     if nargin < 4
         errBarNm = '';
     end
     
-    ths = score.thetaCenters;    
+    ths = Hs(1).grps;
     set(gcf, 'color', 'w');
     hold on; set(gca, 'FontSize', 24);
     
@@ -35,10 +36,10 @@ function errorByKin(Hs, ynm, clrs, errBarNm)
         
         plot(ths, vals, '-o', ...
             'Color', clr, 'MarkerFaceColor', clr, ...
-            'MarkerEdgeColor', clr, 'LineWidth', 5);
+            'MarkerEdgeColor', clr, 'LineWidth', 3);
         if ~isempty(valsA)
             line([ths ths]', [errL(ii,:); errR(ii,:)], 'Color', clr, ...
-                'LineWidth', 5, 'HandleVisibility', 'off');
+                'LineWidth', 3, 'HandleVisibility', 'off');
 %             errorbar(ths, vals, vals - errL(ii,:), errR(ii,:) - vals, ...
 %                 'LineWidth', 5, 'Color', clr, 'LineStyle', '-');
         end

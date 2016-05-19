@@ -29,20 +29,30 @@ function plotAll(D, opts, hopts)
     end
 
     % Plot total errors
-    eNms = {'errOfMeans', 'covError', 'covErrorOrient', 'covErrorShape'};
+    eNms = {'errOfMeans', 'covError', 'covErrorOrient', 'covErrorShape', 'histErr'};
     for ii = 1:numel(eNms)
         fig = figure;
-        plot.barByHypQuick(D, Hs, eNms{ii}, opts.errBarNm);
+        if strcmp(eNms{ii}, 'histErr')
+            Hsc = D.hyps(~ismember({D.hyps.name}, {'observed', 'zero'}));
+        else
+            Hsc = Hs;
+        end
+        plot.barByHypQuick(D, Hsc, eNms{ii}, opts.errBarNm);
         if opts.doSave
             saveas(fig, fullfile(fldr, [D.datestr '-' eNms{ii}]), 'png');
         end
     end
     
     % Plot errors by kin
-    eNms = {'errOfMeans', 'covError', 'covErrorOrient', 'covErrorShape'};
+    eNms = {'errOfMeans', 'covError', 'covErrorOrient', 'covErrorShape', 'histErr'};
     for ii = 1:numel(eNms)
         fig = figure;
-        plot.errorByKin(Hs, [eNms{ii} 'ByKin'], [], opts.errBarNm);
+        if strcmp(eNms{ii}, 'histErr')
+            Hsc = D.hyps(~ismember({D.hyps.name}, {'observed', 'zero'}));
+        else
+            Hsc = Hs;
+        end
+        plot.errorByKin(Hsc, [eNms{ii} 'ByKin'], [], opts.errBarNm);
         if opts.doSave
             saveas(fig, fullfile(fldr, ...
                 [D.datestr '-' eNms{ii} 'ByKin']), 'png');
@@ -54,15 +64,6 @@ function plotAll(D, opts, hopts)
     plot.meanErrorByKinByCol(D, Hs);
     if opts.doSave
         saveas(fig, fullfile(fldr, [D.datestr '-errorByKinByCol']), 'png');
-    end
-    
-    % plot histogram errors by kin
-    grps = Hs(1).marginalHistograms_grps;
-    errs = cell2mat({Hs.histErrByKin})';
-    fig = plot.init; plot.valsByGrp(errs, grps, {Hs.name});
-    xlabel('\theta'); ylabel('sum of L_2 histogram error');
-    if opts.doSave
-        saveas(fig, fullfile(fldr, [D.datestr '-errorHistByKin']), 'png');
     end
     
     % Plot hypotheses

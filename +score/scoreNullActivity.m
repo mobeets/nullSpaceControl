@@ -19,6 +19,7 @@ function D = scoreNullActivity(D, opts)
             D.hyps(ii).covErrorOrient = nan;
             D.hyps(ii).covErrorShape = nan;
             D.hyps(ii).errOfMeansByKin = nan;
+            D.hyps(ii).grps = D.hyps(ii).null(opts.scoreBlkInd).grps;
             continue;
         end
         hyp = D.hyps(ii).null(opts.scoreBlkInd);

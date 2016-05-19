@@ -5,8 +5,7 @@ function D = addHistogramError(D, opts)
     defopts = struct('scoreGrpNm', 'thetaGrps', ...
         'decoderNm', 'fDecoder', 'baseHypNm', 'observed');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
-    H = pred.getHyp(D, opts.baseHypNm);
-    if ~isequal(H, D.hyps(1)) % assumes first hyp is baseHyp
+    if ~strcmp(opts.baseHypNm, D.hyps(1).name) % assumes first hyp is baseHyp
         error(['"' opts.baseHypNm '" must be first hypothesis.']);
     end
     lfcn = @(y,yh) sum((y-yh).^2);    

@@ -32,7 +32,8 @@ function barByHyp(ys, nms, ylbl, ttl, errBarNm, ysb)
     set(gcf, 'color', 'w');    
 
     if max(ys) > 1
-        set(gca,'YTick', 0:ceil(max(ys)));
+        ytcks = unique(ceil(get(gca, 'YTick')));        
+        set(gca,'YTick', ytcks);
     end
     set(gca,'LineWidth', lw);
     set(gca, 'box', 'off')

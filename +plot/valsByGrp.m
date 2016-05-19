@@ -17,6 +17,7 @@ function valsByGrp(vs, grps, nms, clrs)
         legend(nms);
         legend boxoff;
     end
-    set(gca, 'XTickLabel', arrayfun(@num2str, grps, 'uni', 0)); 
+    set(gca, 'XTick', grps);
+    set(gca, 'XTickLabel', arrayfun(@num2str, grps, 'uni', 0));
     set(gca, 'XTickLabelRotation', 45);
 end
