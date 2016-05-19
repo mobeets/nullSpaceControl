@@ -7,12 +7,15 @@ function hyps = addPrediction(D, name, latents)
         if not(any(ix))
             hyps(nhyps+1).name = name;
             hyps(nhyps+1).latents = latents;
+            hyps(nhyps+1).timestamp = datetime;
         else
             hyps(ix).latents = latents;
+            hyps(ix).timestamp = datetime;
         end
     else
         hyps(1).name = name;
         hyps(1).latents = latents;
+        hyps(1).timestamp = datetime;
     end
 
 end

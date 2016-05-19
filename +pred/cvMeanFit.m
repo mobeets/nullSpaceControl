@@ -7,7 +7,7 @@ function Z = cvMeanFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'doNull', true, ...
-        'doCheat', true, 'thetaNm', 'thetaActuals');
+        'doCheat', true, 'thetaNm', 'thetaActuals', 'grpNm', 'thetaActualGrps');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     if ~opts.doCheat
@@ -22,7 +22,7 @@ function Z = cvMeanFit(D, opts)
     
     % mean for each kinematics condition
     ths = Blk.(opts.thetaNm); ths = ths(ix0,:);
-    cnts = sort(unique(ths));
+    cnts = sort(unique(Blk.(opts.grpNm)));
     ys = Blk.latents(ix0,:);
     if opts.doNull
         ys = ys*NB;

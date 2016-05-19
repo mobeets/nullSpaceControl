@@ -47,7 +47,7 @@ function D = addHistogramError(D, opts)
             err = zeros(size(errs(:,:,1)));
         else
             err = errs(:,:,ii-1);
-        end        
+        end
         D.hyps(ii).histErrByKinByCol = err;
         D.hyps(ii).histErrByKin = sum(err,2);
         D.hyps(ii).histErrByCol = sum(err,1)';
