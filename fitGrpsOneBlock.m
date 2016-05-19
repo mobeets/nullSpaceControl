@@ -18,8 +18,7 @@ function [Hs, H0] = fitGrpsOneBlock(D, nms, hypopts, grpNm, blkToFit)
     
     D0 = D;
     D = pred.fitHyps(D, nms, hypopts);
-    D = pred.nullActivity(D, hypopts);
-    D = score.scoreAll(D);
+    D = score.scoreAll(D, hypopts);
     H0 = D.hyps;
     D = D0;
     

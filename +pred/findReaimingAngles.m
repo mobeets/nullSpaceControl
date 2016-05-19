@@ -22,7 +22,6 @@ baseInd = 2;
 while ~isGood
     D.hyps = pred.addPrediction(D, ['cloud-hab-' num2str(rotTheta)], ...
         pred.sameCloudFit(D, 0.35, 30, {}, {}, rotTheta));    
-    D = pred.nullActivity(D);
     D = score.scoreAll(D);
     ys = [ys rotTheta];
     rotTheta
@@ -38,7 +37,6 @@ while ~isGood
         baseInd = numel(D.hyps);
     end
 end
-D = pred.nullActivity(D);
 D = score.scoreAll(D);
 
 %% fit at all fixed rotation angles
@@ -48,10 +46,8 @@ D = score.scoreAll(D);
 for rotTheta = ys
     D.hyps = pred.addPrediction(D, ['cloud-hab-' num2str(rotTheta)], ...
         pred.sameCloudFit(D, 0.35, 30, {}, {}, rotTheta));    
-    D = pred.nullActivity(D);
     D = score.scoreAll(D);
 end
-D = pred.nullActivity(D);
 D = score.scoreAll(D);
 
 %% find the best per kinematics angle

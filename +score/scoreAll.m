@@ -1,114 +1,57 @@
-function D = scoreAll(D, doBoots, baseHypNm)
+function D = scoreAll(D, opts)
     if nargin < 2
-        doBoots = false;
+        opts = struct();
     end
-    if nargin < 3 || isempty(baseHypNm)
-        baseHypNm = 'observed';
+    defopts = struct('decoderNm', 'fDecoder', 'idxFldNm', '', ...
+        'scoreGrpNm', 'thetaGrps', 'doBoots', true, ...
+        'baseHypNm', 'observed', 'scoreBlkInd', 2);
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
+    if ~strcmp(opts.decoderNm, 'fDecoder')
+        warning(['Predicting null activity using "' opts.decoderNm '"']);
     end
-    bind = 2; % use 2nd block null map
 
-%     ix = strcmp(baseHypNm, {D.hyps.name});
-%     actual = D.hyps(ix).null(bind);
-    H = pred.getHyp(D, baseHypNm);
-    actual = H.null(bind);
-    zNull = actual.zNullBin;
-    zMu = actual.zMu;
-    zCov = actual.zCov;
+    NBf = @(ii) D.blocks(ii).(opts.decoderNm).NulM2;
     
-    for ii = 1:numel(D.hyps)        
-        if strcmp(D.hyps(ii).name, baseHypNm)
-            D.hyps(ii).errOfMeans = nan;
-            D.hyps(ii).covRatio = nan;
-            D.hyps(ii).covError = nan;
-            D.hyps(ii).covErrorOrient = nan;
-            D.hyps(ii).covErrorShape = nan;
-            D.hyps(ii).errOfMeansByKin = nan;
-            continue;
-        end
-        hyp = D.hyps(ii).null(bind);
-        zNull0 = hyp.zNullBin;
-        zMu0 = hyp.zMu;
-        zCov0 = hyp.zCov;
-        grps = hyp.grps;
-        if isempty(zMu0)
-            continue;
-        end
-        
-        if isequal(size(cell2mat(zNull)), size(cell2mat(zNull0)))
-            D.hyps(ii).errOfMeansFull = score.errOfMeans(zNull, zNull0);
-        else
-            D.hyps(ii).errOfMeansFull = nan;
-        end
-        D.hyps(ii).grps = grps;
-        D.hyps(ii).errOfMeansByKinByCol = abs(cell2mat(zMu') - cell2mat(zMu0'))';
-        [D.hyps(ii).errOfMeans, e2, e3] = score.errOfMeans(zMu, zMu0);
-        D.hyps(ii).pctErrOfMeansByKin = e3; % pct of norm captured
-        D.hyps(ii).errOfMeansByKin = e2; % errs by mean
-        D.hyps(ii).covRatio = score.covRatio(zCov, zCov0);
-        [s, s2, s3, S,S2,S3] = score.covError(zNull, zNull0);
-        D.hyps(ii).covError = s;
-        D.hyps(ii).covErrorOrient = s2;
-        D.hyps(ii).covErrorShape = s3;
-        D.hyps(ii).covErrorByKin = S;
-        D.hyps(ii).covErrorOrientByKin = S2;
-        D.hyps(ii).covErrorShapeByKin = S3;
-        [isUndr, isOver, isEither] = checkBounds(D.hyps(ii).latents, H.latents);
-        if isEither > 0
-            disp([D.hyps(ii).name ' hypothesis has ' num2str(isEither) ...
-                ' points out of bounds (' num2str(isUndr) ' under, ' ...
-                num2str(isOver) ' over).']);
-        end
-        if doBoots
-            D = handleBootstrapScores(D, ii);
-        end        
+    % mean/cov of null activity in second block
+    for ii = 1:numel(D.hyps)
+        D.hyps(ii).null(1) = nullActivityAll(...
+            D.hyps(ii).latents, D.blocks(2), NBf(1), opts);
+        D.hyps(ii).null(2) = nullActivityAll(...
+            D.hyps(ii).latents, D.blocks(2), NBf(2), opts);
     end
+    
+    % mean/cov of null activity for observed activity
+    ix = strcmp('observed', {D.hyps.name});
+    D.hyps(ix).nullOG(1) = nullActivityAll(...
+        D.blocks(1).latents, D.blocks(1), NBf(1), opts);
+    D.hyps(ix).nullOG(2) = nullActivityAll(...
+        D.blocks(1).latents, D.blocks(1), NBf(2), opts);
+    
+    % score
+    D = score.scoreNullActivity(D, opts);
+    D = score.addHistogramError(D, opts);
+
 end
 
-function D = handleBootstrapScores(D, ii)
-% n.b. can't pass D.hyps(ii) because we have to 
-%   modify it within scope of the full hyps struct
-%
-    if ~isfield(D.hyps(ii), 'errOfMeans_boots')
-        assert(~isfield(D.hyps(ii), 'errOfMeansByKin_boots'));
-        D.hyps(ii).errOfMeans_boots = [];
-        D.hyps(ii).covError_boots = [];
-        D.hyps(ii).covErrorShape_boots = [];
-        D.hyps(ii).covErrorOrient_boots = [];
-        
-        D.hyps(ii).errOfMeansByKin_boots = [];
-        D.hyps(ii).covErrorByKin_boots = [];
-        D.hyps(ii).covErrorShapeByKin_boots = [];
-        D.hyps(ii).covErrorOrientByKin_boots = [];
+function sc = nullActivityAll(latents, B, NB, opts)
+    idxFld = opts.idxFldNm;
+    grpFld = opts.scoreGrpNm;
+    
+    gs = B.(grpFld);
+    if ~isempty(idxFld) && isfield(B, idxFld) && ~isempty(B.(idxFld))
+        ix = B.(idxFld);
+        if numel(ix) ~= numel(gs)
+            [numel(ix) numel(gs)]
+            error([idxFld ' is not the same size as thetas']);
+        end
+        gs = gs(ix);
+        latents = latents(ix,:);
     end
-    D.hyps(ii).errOfMeans_boots = [D.hyps(ii).errOfMeans_boots; ...
-        D.hyps(ii).errOfMeans];
-    D.hyps(ii).covError_boots = [D.hyps(ii).covError_boots; ...
-        D.hyps(ii).covError];
-    D.hyps(ii).covErrorShape_boots = [D.hyps(ii).covErrorShape_boots; ...
-        D.hyps(ii).covErrorShape];
-    D.hyps(ii).covErrorOrient_boots = [D.hyps(ii).covErrorOrient_boots; ...
-        D.hyps(ii).covErrorOrient];
-    
-    D.hyps(ii).errOfMeansByKin_boots = [...
-        D.hyps(ii).errOfMeansByKin_boots; D.hyps(ii).errOfMeansByKin];
-    D.hyps(ii).covErrorByKin_boots = [...
-        D.hyps(ii).covErrorByKin_boots; D.hyps(ii).covErrorByKin'];
-    D.hyps(ii).covErrorShapeByKin_boots = [...
-        D.hyps(ii).covErrorShapeByKin_boots; D.hyps(ii).covErrorShapeByKin'];
-    D.hyps(ii).covErrorOrientByKin_boots = [...
-        D.hyps(ii).covErrorOrientByKin_boots; D.hyps(ii).covErrorOrientByKin'];
-end
-
-function [isUndr, isOver, isEither] = checkBounds(Zh, Z)
-    mns = min(Z);
-    mxs = max(Z);
-    mnsc = repmat(mns, size(Z,1), 1);
-    mxsc = repmat(mxs, size(Z,1), 1);
-    isUndr = sum(Zh < mnsc,2);
-    isOver = sum(Zh > mxsc,2);
-    isEither = isOver + isUndr > 0;
-    
-    isUndr = sum(isUndr);
-    isOver = sum(isOver);
-    isEither = sum(isEither);
+    sc = struct();
+    if isempty(latents)
+        sc.zNull = []; sc.zMu = {}; sc.zCov = {}; sc.zNullBin = {};
+        return;
+    end
+    sc.zNull = latents*NB;
+    [sc.zMu, sc.zCov, sc.zNullBin, sc.grps] = pred.avgByThetaGroup(sc.zNull, gs);
 end

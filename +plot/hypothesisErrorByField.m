@@ -9,8 +9,7 @@ function [errMus, ns, allErrMus, errMusKins, allErrMusKins, nsKins] = ...
     errName = 'errOfMeans';
     errKinName = [errName 'ByKin'];
     
-    D = pred.nullActivity(D, hypopts);
-    D = score.scoreAll(D);
+    D = score.scoreAll(D, hypopts);
     allErrMus = [D.hyps(2:end).(errName)];
     allErrMusKins = cell2mat({D.hyps(2:end).(errKinName)}');
 
@@ -37,8 +36,7 @@ function [errMus, ns, allErrMus, errMusKins, allErrMusKins, nsKins] = ...
             vs0 = D.blocks(2).(extraNm);
             ns(ii) = nanmean(vs0(D.blocks(2).idxScore));
         end
-        D = pred.nullActivity(D, hypopts);
-        D = score.scoreAll(D);
+        D = score.scoreAll(D, hypopts);
         errMus(ii,:) = [D.hyps(2:end).(errName)];
         
         % note: want each one of these like errMus
@@ -54,8 +52,7 @@ function [errMus, ns, allErrMus, errMusKins, allErrMusKins, nsKins] = ...
 %         E = io.quickLoadByDate(dtstr, ps);
 %         E.hyps = pred.addPrediction(E, 'observed', E.blocks(2).latents);
 %         E.hyps = pred.addPrediction(E, 'kinematics mean', pred.cvMeanFit(E, true));
-%         E = pred.nullActivity(E);
-%         E = score.scoreAll(E);
+%         E = score.scoreAll(E, hypopts);
 %         errMus(ii,1) = E.hyps(2).errOfMeans;
     end
 end

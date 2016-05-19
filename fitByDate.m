@@ -22,8 +22,7 @@ function D = fitByDate(dtstr, params, nms, plotopts, opts, hypopts)
     D = io.quickLoadByDate(dtstr, params, opts);
     for ii = 1:hypopts.nBoots+1
         D = pred.fitHyps(D, nms, hypopts);
-        D = pred.nullActivity(D, hypopts);
-        D = score.scoreAll(D, true); % true = doBoots
+        D = score.scoreAll(D, hypopts);
     end
     
     if numel(fieldnames(plotopts)) > 0

@@ -1,46 +1,31 @@
-function [Zs, Xs, grps] = marginals(Ys, gs, opts)
-    if nargin < 3
+function marginalDists(Zs, Xs, grps, opts)
+    if nargin < 4
         opts = struct();
     end    
-    defopts = struct('splitKinsByFig', true, 'doHistOnly', true, ...
-        'sameLimsPerPanel', true, 'showSe', true, 'nbins', 200, ...
-        'clrs', [], 'hs', 0.2);
+    defopts = struct('splitKinsByFig', true, 'showSe', true, ...
+        'clrs', []);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     % check defaults
-    nitems = numel(Ys);
-    assert(isa(Ys, 'cell'));
-    if ~isa(gs, 'cell')
-        tmp = repmat(gs, 1, nitems);
-        gs = num2cell(tmp, 1);
-    end
+    nitems = numel(Zs);
+    assert(isa(Zs, 'cell'));
+    assert(isa(Xs, 'cell'));
     if all(isempty(opts.clrs))
         clrs = cbrewer('qual', 'Set1', nitems);
     end
-    if numel(opts.hs) == 1
-        opts.hs = opts.hs*ones(nitems,1);
-    end
-    grps = sort(unique(gs{1}));
-    nfeats = size(Ys{1},2);
+    [nbins, nfeats] = size(Zs{1}{1});
+    ngrps = numel(grps);
 
     if ~opts.splitKinsByFig
-        figure;
-        set(gcf, 'color', 'w');
-        ncols = numel(grps);
-        nrows = size(Ys{1},2);
+        figure; set(gcf, 'color', 'w');
+        ncols = ngrps;
+        nrows = nfeats;
     end
-
-    allYs = cell2mat(Ys');
-    mns = min(allYs);
-    mxs = max(allYs);
-    Xs = cell(numel(grps), nfeats);
-    Zs = cell(numel(grps), nfeats);
-
+    
     C = 0;
     for jj = 1:numel(grps)
         if opts.splitKinsByFig
-            figure;
-            set(gcf, 'color', 'w');
+            figure; set(gcf, 'color', 'w');
             ncols = ceil(sqrt(nfeats));
             nrows = ceil(nfeats/ncols);
             C = 0;
@@ -48,21 +33,31 @@ function [Zs, Xs, grps] = marginals(Ys, gs, opts)
         for ii = 1:nfeats            
             C = C + 1;
             subplot(ncols, nrows, C); hold on;
-            xs = linspace(min(mns), max(mxs), opts.nbins);
-            if ~opts.sameLimsPerPanel
-                xs = linspace(mns(ii), mxs(ii), opts.nbins);
-            end
-            Xs{jj,ii} = xs;
-            Zs{jj,ii} = nan(nitems, numel(xs));
-
-            ylm = [];
+            xs = Xs{jj}(:,ii);
+            
             for kk = 1:nitems
-                YRc = Ys{kk}(grps(jj) == gs{kk},ii);
-                ysh = singleMarginal(YRc, opts.hs(kk), xs, clrs(kk,:), ...
-                    ylm, opts);
-                Zs{jj,ii}(kk,:) = ysh;
-                ylm = [min(ysh) max(ysh)];
+                ys = Zs{kk}{jj}(:,ii);
+                clr = clrs(kk,:);
+                plot(xs, ys, '-', 'Color', clr);
+                
+                ylm = [min(ys) max(ys)];
+                mu = mean(ys);
+                cps = cumsum(ys/sum(ys));
+                mn = xs(find(cps > 0.25, 1, 'first'));
+                mx = xs(find(cps > 0.75, 1, 'first'));
+                plot([mu mu], 0.2*ylm, 'Color', clr);
+                plot([mn mn], ylm, 'Color', clr);
+                plot([mx mx], ylm, 'Color', clr);                
             end
+
+%             ylm = [];
+%             for kk = 1:nitems
+%                 YRc = Ys{kk}(grps(jj) == gs{kk},ii);
+%                 ysh = singleMarginal(YRc, opts.hs(kk), xs, clrs(kk,:), ...
+%                     ylm, opts);
+%                 Zs{jj,ii}(kk,:) = ysh;
+%                 ylm = [min(ysh) max(ysh)];
+%             end
             
             set(gca, 'XTick', []);
             set(gca, 'YTick', []);
