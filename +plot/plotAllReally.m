@@ -23,9 +23,13 @@ D = fitByDate(dtstr, [], nms, popts, [], hypopts);
 
 %% marginal histograms
 
-D = D.hyps(2:end);
-plot.marginalDists({Hs.marginalHistograms}', ...
-    Hs(1).marginalHistograms_Xs, Hs(1).marginalHistograms_grps);
+Hs = D.hyps(2:end);
+grps = Hs(1).marginalHistograms_grps;
+Zs = {Hs.marginalHistograms}';
+Xs = Hs(1).marginalHistograms_Xs;
+
+grps(~(grps == 0)) = nan; % only show grps == 0
+plot.marginalDists(Zs, Xs, grps);
 
 %% hyp fits over time
 
