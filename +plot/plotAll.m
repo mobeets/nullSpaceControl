@@ -8,7 +8,6 @@ function plotAll(D, opts, hopts)
     assert(isa(opts, 'struct'));
     defopts = struct('doSave', false, 'isMaster', false, ...
         'doSolos', false, 'doTimestampFolder', true, ...
-        'errBarNm', 'se', ... % options are ['', 'se', 'std']
         'plotdir', fullfile('plots', D.datestr));
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);    
     

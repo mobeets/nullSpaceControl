@@ -1,20 +1,12 @@
-function by_trial = plotImeStats(D, bind, doLatents)
-    if nargin < 3
-        doLatents = false;
-    end
-
-    TAU = 3;
-    T_START = TAU + 2;
-    TARGET_RADIUS = 20 + 18;
-    [U, Y, Xtarget] = imefit.prep(D.blocks(bind), doLatents);
-    [mdlErrs, cErrs, result, by_trial] = imefit.imeErrs(U, Y, Xtarget, ...
-        D.ime(bind), TARGET_RADIUS, T_START);
+function fig = plotImeStats(D, bind, mdlErrs, cErrs, by_trial)
 
     trialNo = 1;
 %     imefit.plotWhiskers(D, bind, trialNo, doLatents);
     
+    fig = plot.init;
+    
     % scatter of cursor and ime errors
-    plot.init; subplot(1,2,1); hold on; set(gca, 'FontSize', 18);
+    subplot(1,2,1); hold on; set(gca, 'FontSize', 18);
     plot(mdlErrs, cErrs, '.');
     xlabel('internal model error (deg)');
     ylabel('cursor error (deg)');

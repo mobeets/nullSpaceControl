@@ -31,6 +31,7 @@ function Z = cvMeanFit(D, opts)
     
     % find kinematics condition for each point in test data
     grps = score.thetaGroup(Blk.(opts.thetaNm), cnts);
+%     grps = grps(ix0);
     
     if opts.doNull
         Z = nan(size(Blk.latents,1), size(NB,2));

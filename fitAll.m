@@ -11,15 +11,16 @@ nms = {'true', 'zero', 'habitual', 'cloud-hab', 'cloud-raw', ...
 % nms = {'zero', 'habitual', 'cloud-hab', 'cloud-raw', ...
 %         'unconstrained', 'minimum', 'baseline'};
 
-hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps');
-lopts = struct('postLoadFcn', nan);
-popts = struct('plotdir', '', 'doSave', false, ...
+% hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16');
+hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualImeGrps16');
+lopts = struct('postLoadFcn', @tmp2);
+popts = struct('plotdir', '', 'doSave', true, ...
     'doTimestampFolder', false, 'errBarNm', '');
 
 dts = io.getAllowedDates();
-for ii = 3%1:numel(dts)
+for ii = 4%1:numel(dts)
     dtstr = dts{ii}
-    popts.plotdir = fullfile('plots', 'allFineGrid', dtstr);
+    popts.plotdir = fullfile('plots', 'allFineGrid_ime', dtstr);
     D = fitByDate(dtstr, [], nms, popts, lopts, hypopts);
 %     close all;
 %     E = fitByDate(dtstr, [], nms, popts, struct('postLoadFcn', @tmp2), hypopts);

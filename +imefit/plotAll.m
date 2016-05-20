@@ -1,17 +1,6 @@
 
 dts = io.getAllowedDates();
-for ii = 4%1:numel(dts)
-    dtstr = dts{ii}
-    D = io.quickLoadByDate(dtstr, io.setUnfilteredDefaults);
-    b1 = imefit.plotImeStats(D, 1);
-%     saveas(gcf, fullfile('plots', 'ime3', [dtstr '_1.png']));
-    b2 = imefit.plotImeStats(D, 2);
-%     saveas(gcf, fullfile('plots', 'ime3', [dtstr '_2.png']));
-
-    imefit.plotErrByBlock(b1, b2); title(dtstr);
-%     saveas(gcf, fullfile('plots', 'ime3', [dtstr '_byTrial.png']));
-
-%     bind = 1;
-%     trialNo = 2;
-%     imefit.plotWhiskers(D, bind, trialNo);
+opts = struct('plotdir', 'plots/imeCv', 'doCv', true);
+for ii = [1 2 3 5] % 1:numel(dts)
+    [D, Stats, LLs] = imefit.fitSession(dts{ii}, opts);
 end

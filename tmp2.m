@@ -2,6 +2,8 @@ function D = tmp2(D)
     
     D.blocks(1).thetas = D.blocks(1).thetasIme;
     D.blocks(2).thetas = D.blocks(2).thetasIme;
+    D.blocks(1).thetaActuals = D.blocks(1).thetaActualsIme;
+    D.blocks(2).thetaActuals = D.blocks(2).thetaActualsIme;    
     D.blocks(1).fDecoder = D.blocks(1).fImeDecoder;
     D.blocks(2).fDecoder = D.blocks(2).fImeDecoder;
     D.blocks(1).thetaGrps = D.blocks(1).thetaImeGrps;
@@ -13,7 +15,7 @@ end
 
 function B = rmThNans(B)
     fns = fieldnames(B);
-    ix = ~isnan(B.thetas);
+    ix = ~isnan(B.thetas) & ~isnan(B.thetaActuals);
     for ii = 1:numel(fns)
         x = B.(fns{ii});
         if size(x,1) == numel(ix)
