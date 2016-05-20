@@ -19,8 +19,8 @@ function plotAll(D, opts, hopts)
     end
     
     % remove observed
-    Hs0 = D.hyps;
-    Hs = D.hyps(~strcmp('observed', {D.hyps.name}));
+    Hs0 = D.score;
+    Hs = D.score(~strcmp('observed', {D.hyps.name}));
 
     % write out params
     if opts.doSave
@@ -33,11 +33,13 @@ function plotAll(D, opts, hopts)
     for ii = 1:numel(eNms)
         fig = figure;
         if strcmp(eNms{ii}, 'histErr')
-            Hsc = D.hyps(~ismember({D.hyps.name}, {'observed', 'zero'}));
+            Hsc = D.score(~ismember({D.hyps.name}, {'observed', 'zero'}));
         else
             Hsc = Hs;
         end
-        plot.barByHypQuick(D, Hsc, eNms{ii}, opts.errBarNm);
+        plot.barByHyp([Hsc.(eNms{ii})], {Hsc.name}, eNms{ii}, ...
+            [Hsc.([eNms{ii} '_se'])]);
+        title(D.datestr);
         if opts.doSave
             saveas(fig, fullfile(fldr, [D.datestr '-' eNms{ii}]), 'png');
         end
@@ -48,11 +50,12 @@ function plotAll(D, opts, hopts)
     for ii = 1:numel(eNms)
         fig = figure;
         if strcmp(eNms{ii}, 'histErr')
-            Hsc = D.hyps(~ismember({D.hyps.name}, {'observed', 'zero'}));
+            Hsc = D.score(~ismember({D.hyps.name}, {'observed', 'zero'}));
         else
             Hsc = Hs;
         end
-        plot.errorByKin(Hsc, [eNms{ii} 'ByKin'], [], opts.errBarNm);
+        plot.errorByKin(Hsc, [eNms{ii} 'ByKin']);
+        title(D.datestr);
         if opts.doSave
             saveas(fig, fullfile(fldr, ...
                 [D.datestr '-' eNms{ii} 'ByKin']), 'png');

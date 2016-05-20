@@ -10,30 +10,25 @@ function D = scoreAll(D, opts)
         warning(['Predicting null activity using "' opts.decoderNm '"']);
     end
 
-    NBf = @(ii) D.blocks(ii).(opts.decoderNm).NulM2;
-    
-    % mean/cov of null activity in second block
+    % compute null activity means/covs and marginal histograms
+    B = D.blocks(opts.scoreBlkInd);
+    NB = B.(opts.decoderNm).NulM2;
+    Xs = []; grps = [];
     for ii = 1:numel(D.hyps)
-        D.hyps(ii).null(1) = nullActivityAll(...
-            D.hyps(ii).latents, D.blocks(2), NBf(1), opts);
-        D.hyps(ii).null(2) = nullActivityAll(...
-            D.hyps(ii).latents, D.blocks(2), NBf(2), opts);
+        [D.hyps(ii).nullActivity, gs] = nullActivityAll(...
+        D.hyps(ii).latents, B, NB, opts);
+        YN = D.hyps(ii).nullActivity.zNull;
+        [D.hyps(ii).marginalHist, Xs, grps] = histErrors(YN, gs, Xs, grps);
+        D.hyps(ii).grps = grps;
     end
-    
-    % mean/cov of null activity for observed activity
-    ix = strcmp('observed', {D.hyps.name});
-    D.hyps(ix).nullOG(1) = nullActivityAll(...
-        D.blocks(1).latents, D.blocks(1), NBf(1), opts);
-    D.hyps(ix).nullOG(2) = nullActivityAll(...
-        D.blocks(1).latents, D.blocks(1), NBf(2), opts);
-    
-    % score
-    D = score.scoreNullActivity(D, opts);
-    D = score.addHistogramError(D, opts);
-
+    % score hypotheses' predictions of null activity means/covs and hists
+    objs = score.scoreNullActivity(D, opts);
+    D = score.appendScores(D, objs, 'scores');
+    % combine scores (with repetitions) into avg score obj
+    D = score.summarizeScores(D);
 end
 
-function sc = nullActivityAll(latents, B, NB, opts)
+function [sc, gs] = nullActivityAll(latents, B, NB, opts)
     idxFld = opts.idxFldNm;
     grpFld = opts.scoreGrpNm;
     
@@ -55,3 +50,16 @@ function sc = nullActivityAll(latents, B, NB, opts)
     sc.zNull = latents*NB;
     [sc.zMu, sc.zCov, sc.zNullBin, sc.grps] = pred.avgByThetaGroup(sc.zNull, gs);
 end
+
+function [sc, Xs, grps] = histErrors(YN, gs, Xs, grps)
+    if isempty(Xs)
+        [Zs, Xs, grps] = tools.marginalDist(YN, gs);
+    else
+        Zs = tools.marginalDist(YN, gs, [], Xs);
+    end
+    sc = struct();
+    sc.Zs = Zs;
+    sc.Xs = Xs;
+    sc.grps = grps;
+end
+

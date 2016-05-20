@@ -1,44 +1,30 @@
-function errorByKin(Hs, ynm, clrs, errBarNm)
+function errorByKin(Hs, ynm, clrs)
     if nargin < 3 || isempty(clrs)
         clrs = [get(gca,'ColorOrder'); parula(64)];
 %         clrs = cbrewer('qual', 'Set2', numel(Hs));
-    end
-    if nargin < 4
-        errBarNm = '';
-    end
-    
-    ths = Hs(1).grps;
+    end    
     set(gcf, 'color', 'w');
     hold on; set(gca, 'FontSize', 24);
     
-    fldnm = [ynm '_boots'];
-    if ~isfield(Hs(1), fldnm)
-        fldnm = ynm;
-    end
-    vb = {Hs.(fldnm)};
-    if strcmpi(errBarNm, 'se')
-       [valsA, errL, errR] = plot.getSeErrorBars(vb);
-    else
-        valsA = [];
-    end
-    
+    ths = Hs(1).grps;
     for ii = 1:numel(Hs)
         clr = clrs(ii,:);
-        
-        if isempty(valsA)
-            vals = Hs(ii).(ynm);
+        vals = Hs(ii).(ynm);
+        if isfield(Hs(ii), [ynm '_se'])
+            errs = Hs(ii).([ynm '_se']);
         else
-            vals = valsA(ii,:);
-        end        
-        if isempty(vals)
-            vals = nan(size(ths));
+            errs = [];
         end
-        
         plot(ths, vals, '-o', ...
             'Color', clr, 'MarkerFaceColor', clr, ...
             'MarkerEdgeColor', clr, 'LineWidth', 3);
-        if ~isempty(valsA)
-            line([ths ths]', [errL(ii,:); errR(ii,:)], 'Color', clr, ...
+        if ~isempty(errs)
+            errL = vals - errs;
+            errR = vals + errs;
+            if size(errL,1) ~= 1
+                errL = errL'; errR = errR';
+            end
+            line([ths ths]', [errL; errR], 'Color', clr, ...
                 'LineWidth', 3, 'HandleVisibility', 'off');
 %             errorbar(ths, vals, vals - errL(ii,:), errR(ii,:) - vals, ...
 %                 'LineWidth', 5, 'Color', clr, 'LineStyle', '-');
