@@ -23,10 +23,13 @@ D = fitByDate(dtstr, [], nms, popts, [], hypopts);
 
 %% marginal histograms
 
-Hs = D.hyps(1:end);
-grps = Hs(1).marginalHistograms_grps;
-Zs = {Hs.marginalHistograms}';
-Xs = Hs(1).marginalHistograms_Xs;
+% Hs = D.hyps(1:end);
+Hs = D.hyps([1 6 4]);
+hists = [Hs.marginalHist];
+
+grps = hists(1).grps;
+Xs = hists(1).Xs;
+Zs = {hists.Zs};
 
 grps(~(grps == 0)) = nan; % only show grps == 0
 plot.marginalDists(Zs, Xs, grps, struct('ttl', D.datestr), {Hs.name});

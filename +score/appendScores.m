@@ -3,7 +3,7 @@ function D = appendScores(D, objs, fldNm)
         scs = D.(fldNm);
         [nreps, nhyps] = size(scs);
         if nhyps ~= numel(objs)
-            error('New hyp added. You must drop old ones.');
+            error('New hyp added. You must first remove scores object.');
         end
         scs(nreps+1,:) = objs;
     else

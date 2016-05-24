@@ -1,12 +1,14 @@
 function errorByKin(Hs, ynm, clrs)
     if nargin < 3 || isempty(clrs)
-        clrs = [get(gca,'ColorOrder'); parula(64)];
-%         clrs = cbrewer('qual', 'Set2', numel(Hs));
+        clrs = get(gca,'ColorOrder');
+        clrs2 = cbrewer('qual', 'Set2', numel(Hs));
+        clrs = [clrs; clrs2];
     end    
     set(gcf, 'color', 'w');
     hold on; set(gca, 'FontSize', 24);
     
     ths = Hs(1).grps;
+    nms = {};
     for ii = 1:numel(Hs)
         clr = clrs(ii,:);
         vals = Hs(ii).(ynm);
@@ -15,6 +17,10 @@ function errorByKin(Hs, ynm, clrs)
         else
             errs = [];
         end
+        if isempty(vals) || all(isnan(vals))
+            continue;
+        end
+        nms = [nms Hs(ii).name];
         plot(ths, vals, '-o', ...
             'Color', clr, 'MarkerFaceColor', clr, ...
             'MarkerEdgeColor', clr, 'LineWidth', 3);
@@ -34,7 +40,7 @@ function errorByKin(Hs, ynm, clrs)
     set(gca, 'XTickLabelRotation', 45);
     xlabel('\theta');
     ylabel(ynm);
-    legend({Hs.name}, 'Location', 'Best');
+    legend(nms, 'Location', 'Best');
     legend boxoff;
 
 end

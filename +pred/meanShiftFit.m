@@ -62,7 +62,7 @@ function [Z, rotThetas] = meanShiftFit(D, opts)
         ts = 1:nt; ts = ts(ix);
         for jj = 1:numel(ts)
             opts.isOutOfBndsNul = pred.boundsFcnCond(YR2(ts(jj),:), ...
-                YR1, YN1, opts.boundsThresh, opts.boundsType);
+                YR1, YN1, opts.boundsThresh);
             [Zsamp(ts(jj),:), dc] = meanOrSample(Ys, opts, Zr(ts(jj),:), NB2);
             d = d + dc;
         end

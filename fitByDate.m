@@ -26,7 +26,7 @@ function D = fitByDate(dtstr, params, nms, plotopts, opts, hypopts)
     end
     
     if numel(fieldnames(plotopts)) > 0
-        figure; plot.plotAll(D, plotopts, hypopts);
+        plot.plotAll(D, plotopts, hypopts);
     end
 end
 

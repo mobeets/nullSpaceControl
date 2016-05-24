@@ -4,7 +4,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
     end    
     defopts = struct('oneKinPerFig', true, 'oneColPerFig', false, ...
         'showSe', true, 'clrs', [], 'tightXs', true, 'ttl', '', ...
-        'smoothing', 10);
+        'smoothing', 0);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
 
     % check defaults
@@ -58,7 +58,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
                 ixmna = min(ixmna, ixmn); ixmxa = max(ixmxa, ixmx);
                 
                 clr = clrs(kk,:);
-                if ~isnan(opts.smoothing)
+                if ~isnan(opts.smoothing) && opts.smoothing > 0
                     ys = smooth(ys, opts.smoothing);
                 end
                 plot(xs, ys, '-', 'Color', clr);

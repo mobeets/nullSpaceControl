@@ -5,8 +5,8 @@ function [Zs, Xs, grps] = marginalDist(Y, gs, opts, Xs0)
     if nargin < 4
         Xs0 = [];
     end
-    defopts = struct('doHist', true, 'nbins', 200, 'h', 0.2, ...
-        'sameLimsPerPanel', true);
+    defopts = struct('doHist', true, 'nbins', 20, 'h', 0.2, ...
+        'sameLimsPerPanel', true, 'smoothing', 0);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     grps = sort(unique(gs));
     ngrps = numel(grps);
@@ -43,6 +43,9 @@ function ysh = singleMarginal(Y, xs, opts)
     else
         Phatfcn = ksdensity_nd(Y, opts.h);
         ysh = Phatfcn(xs');
+    end
+    if opts.smoothing > 0
+        ysh = smooth(ysh, opts.smoothing);
     end
 end
 

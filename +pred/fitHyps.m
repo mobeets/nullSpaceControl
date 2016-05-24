@@ -8,10 +8,7 @@ function D = fitHyps(D, nms, opts)
     D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
     if ismember('true', nms)
         D.hyps = pred.addPrediction(D, 'true', pred.cvMeanFit(D, opts));
-    end
-    if ismember('zero', nms)
-        D.hyps = pred.addPrediction(D, 'zero', pred.dummyFit(D, opts));
-    end
+    end    
     if ismember('habitual', nms)        
         D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D, opts));
     end
@@ -77,5 +74,8 @@ function D = fitHyps(D, nms, opts)
     end
     if ismember('mean shift', nms)
         D.hyps = pred.addPrediction(D, 'mean shift', pred.meanShiftFit(D, opts));
+    end
+    if ismember('zero', nms)
+        D.hyps = pred.addPrediction(D, 'zero', pred.dummyFit(D, opts));
     end
 end

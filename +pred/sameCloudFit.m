@@ -52,7 +52,7 @@ function Z = sameCloudFit(D, opts)
         ds0 = getDistances(R1, R2(t,:));
         ds = ds0;
         opts.isOutOfBndsNul = pred.boundsFcnCond(R2(t,:), R1, N1, ...
-            opts.boundsThresh, opts.boundsType);
+            opts.boundsThresh);
         
         if ~isnan(opts.thetaTol) % make distance inf if theta is too different
             ind = grps(t) == score.thetaCenters(8);

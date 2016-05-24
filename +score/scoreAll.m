@@ -1,9 +1,12 @@
-function D = scoreAll(D, opts)
+function D = scoreAll(D, opts, histopts)
     if nargin < 2
         opts = struct();
     end
+    if nargin < 3
+        histopts = struct();
+    end
     defopts = struct('decoderNm', 'fDecoder', 'idxFldNm', '', ...
-        'scoreGrpNm', 'thetaActualGrps16', 'doBoots', true, ...
+        'scoreGrpNm', 'thetaActualGrps', 'doBoots', true, ...
         'baseHypNm', 'observed', 'scoreBlkInd', 2);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if ~strcmp(opts.decoderNm, 'fDecoder')
@@ -16,9 +19,10 @@ function D = scoreAll(D, opts)
     Xs = []; grps = [];
     for ii = 1:numel(D.hyps)
         [D.hyps(ii).nullActivity, gs] = nullActivityAll(...
-        D.hyps(ii).latents, B, NB, opts);
+            D.hyps(ii).latents, B, NB, opts);
         YN = D.hyps(ii).nullActivity.zNull;
-        [D.hyps(ii).marginalHist, Xs, grps] = histErrors(YN, gs, Xs, grps);
+        [D.hyps(ii).marginalHist, Xs, grps] = makeHists(YN, gs, Xs, ...
+            grps, histopts);
         D.hyps(ii).grps = grps;
     end
     % score hypotheses' predictions of null activity means/covs and hists
@@ -30,9 +34,8 @@ end
 
 function [sc, gs] = nullActivityAll(latents, B, NB, opts)
     idxFld = opts.idxFldNm;
-    grpFld = opts.scoreGrpNm;
+    gs = B.(opts.scoreGrpNm);
     
-    gs = B.(grpFld);
     if ~isempty(idxFld) && isfield(B, idxFld) && ~isempty(B.(idxFld))
         ix = B.(idxFld);
         if numel(ix) ~= numel(gs)
@@ -51,11 +54,14 @@ function [sc, gs] = nullActivityAll(latents, B, NB, opts)
     [sc.zMu, sc.zCov, sc.zNullBin, sc.grps] = pred.avgByThetaGroup(sc.zNull, gs);
 end
 
-function [sc, Xs, grps] = histErrors(YN, gs, Xs, grps)
+function [sc, Xs, grps] = makeHists(YN, gs, Xs, grps, opts)
+    if nargin < 5
+        opts = struct();
+    end
     if isempty(Xs)
-        [Zs, Xs, grps] = tools.marginalDist(YN, gs);
+        [Zs, Xs, grps] = tools.marginalDist(YN, gs, opts);
     else
-        Zs = tools.marginalDist(YN, gs, [], Xs);
+        Zs = tools.marginalDist(YN, gs, opts, Xs);
     end
     sc = struct();
     sc.Zs = Zs;

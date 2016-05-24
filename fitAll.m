@@ -7,49 +7,58 @@
 % nms = {'true', 'zero', 'cloud-hab', 'habitual', 'mean shift', 'cloud-raw'};
 nms = {'true', 'zero', 'habitual', 'cloud-hab', 'cloud-raw', ...
     'unconstrained', 'mean shift'};
+nms = {'true', 'unconstrained'};
 % nms = {'mean shift', 'mean shift prune', 'mean shift og'};
 % nms = {'zero', 'habitual', 'cloud-hab', 'cloud-raw', ...
 %         'unconstrained', 'minimum', 'baseline'};
 
-% hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16');
-hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualImeGrps16');
+hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps');
 lopts = struct('postLoadFcn', @tmp2);
-popts = struct('plotdir', '', 'doSave', true, ...
-    'doTimestampFolder', false, 'errBarNm', '');
+popts = struct();%'plotdir', '', 'doSave', false, 'doTimestampFolder', false);
 
 dts = io.getAllowedDates();
-for ii = 4%1:numel(dts)
+for ii = 1:numel(dts)
     dtstr = dts{ii}
-    popts.plotdir = fullfile('plots', 'allFineGrid_ime', dtstr);
+    D = io.quickLoadByDate(dtstr);
+    grps = D.blocks(2).thetaActualGrps;
+    median(grpstats(grps, grps, @numel))
+    continue;
+
+    hypopts.boundsType = 'marginal';
+    hypopts.boundsThresh = inf;
     D = fitByDate(dtstr, [], nms, popts, lopts, hypopts);
-%     close all;
-%     E = fitByDate(dtstr, [], nms, popts, struct('postLoadFcn', @tmp2), hypopts);
-% 
-% %     ps = [0.1 0.2 0.3 0.4 0.5 0.6 0.7];
-%     ps = [20 50 100 200 300];
-%     for kk = 1:(hypopts.nBoots+1)
-%         for jj = 1:numel(ps)
-%             copts = struct('thetaTol', nan, 'minDist', nan, 'kNN', ps(jj));
-%             Z = pred.sameCloudFit(D, copts);
-%             D = pred.addAndScoreHypothesis(D, Z, ['cloud-' num2str(ps(jj))]);
-%             Z = pred.sameCloudFit(E, copts);
-%             E = pred.addAndScoreHypothesis(E, Z, ['cloud-' num2str(ps(jj))]);
-%         end
-%     end
-%     
-%     [~, inds] = sort({D.hyps.name});
-% %     inds = 2:numel(D.hyps);
-%     figure;
-%     subplot(2,2,1); plot.barByHypQuick(D, D.hyps(inds), 'errOfMeans', 'se');
-%     subplot(2,2,2); plot.barByHypQuick(D, D.hyps(inds), 'covError', 'se');
-%     subplot(2,2,3); plot.barByHypQuick(E, E.hyps(inds), 'errOfMeans', 'se');
-%     subplot(2,2,4); plot.barByHypQuick(E, E.hyps(inds), 'covError', 'se');
-% %     figure;
-% %     subplot(2,1,1); plot.errorByKin(D.hyps(inds), 'errOfMeansByKin', [], 'se');
-% %     subplot(2,1,2); plot.errorByKin(D.hyps(inds), 'covErrorByKin', [], 'se');
-% %     subplot(2,2,3); plot.errorByKin(E.hyps(inds), 'errOfMeansByKin', [], 'se');
-% %     subplot(2,2,4); plot.errorByKin(E.hyps(inds), 'covErrorByKin', [], 'se');
-%     title(D.datestr);
+
+%     ps = [20 30 50 100];
+%     ps = 1:10;
+%     ps = 0.5:0.5:4;
+    ps = [0.25 0.5 1 2 3 4];
+    Zs = cell(numel(ps),1);
+    nms = cell(size(Zs));
+    for jj = 1:numel(ps)
+        ps(jj)
+        hypopts.boundsType = 'none';
+        hypopts.boundsThresh = ps(jj);
+        Zs{jj} = pred.uncContFit(D, hypopts);
+        nms{jj} = ['unc-' num2str(ps(jj))];
+    end
+    D = pred.addAndScoreHypothesis(D, Zs, nms);
+%     continue;
+    
+    [~, inds] = sort({D.hyps.name});
+%     [~, inds1] = sort({E.hyps.name});
+%     inds = 2:numel(D.hyps);
+    figure;
+    subplot(2,1,1); plot.barByHypQuick(D.score(inds), 'errOfMeans');
+    subplot(2,1,2); plot.barByHypQuick(D.score(inds), 'covError');
+%     subplot(2,2,3); plot.barByHypQuick(E.score(inds1), 'errOfMeans');
+%     subplot(2,2,4); plot.barByHypQuick(E.score(inds1), 'covError');
+    title(D.datestr);
+    figure;
+    subplot(2,1,1); plot.errorByKin(D.score(inds), 'errOfMeansByKin');
+    subplot(2,1,2); plot.errorByKin(D.score(inds), 'covErrorByKin');
+%     subplot(2,2,3); plot.errorByKin(E.score(inds1), 'errOfMeansByKin');
+%     subplot(2,2,4); plot.errorByKin(E.score(inds1), 'covErrorByKin');
+    title(D.datestr);
     
 end
 

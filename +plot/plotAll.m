@@ -36,8 +36,9 @@ function plotAll(D, opts, hopts)
         else
             Hsc = Hs;
         end
-        plot.barByHyp([Hsc.(eNms{ii})], {Hsc.name}, eNms{ii}, ...
-            [Hsc.([eNms{ii} '_se'])]);
+%         plot.barByHyp([Hsc.(eNms{ii})], {Hsc.name}, eNms{ii}, ...
+%             [Hsc.([eNms{ii} '_se'])]);
+        plot.barByHypQuick(Hsc, eNms{ii});
         title(D.datestr);
         if opts.doSave
             saveas(fig, fullfile(fldr, [D.datestr '-' eNms{ii}]), 'png');

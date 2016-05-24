@@ -1,4 +1,7 @@
 function isOutOfBoundsFcn = boundsFcnCond(yr, YR, YN, boundsThresh, boundsType)
+    if nargin < 5
+        boundsType = 'marginal';
+    end
     if isinf(boundsThresh) || isnan(boundsThresh)
         isOutOfBoundsFcn = @(z) false;
         return;

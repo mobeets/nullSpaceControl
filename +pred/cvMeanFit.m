@@ -7,7 +7,8 @@ function Z = cvMeanFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'doNull', true, ...
-        'doCheat', true, 'thetaNm', 'thetaActuals', 'grpNm', 'thetaActualGrps');
+        'doCheat', true, 'thetaNm', 'thetaActuals', ...
+        'grpNm', 'thetaActualGrps');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     if ~opts.doCheat
