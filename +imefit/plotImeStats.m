@@ -17,14 +17,20 @@ function fig = plotImeStats(D, bind, mdlErrs, cErrs, by_trial)
     axis square;
     
     % bar plot of average angular errors
+    scale = 1.96/sqrt(numel(by_trial.cErrs));
     cErrAvg = nanmean(cellfun(@(e) mean(abs(e)), by_trial.cErrs));
     mErrAvg = nanmean(cellfun(@(e) mean(abs(e)), by_trial.mdlErrs));
+    cErrStd = scale*nanstd(cellfun(@(e) mean(abs(e)), by_trial.cErrs));
+    mErrStd = scale*nanstd(cellfun(@(e) mean(abs(e)), by_trial.mdlErrs));
+    
     subplot(1,2,2); hold on; set(gca, 'FontSize', 18);
     bar(1:2, [cErrAvg, mErrAvg], 'FaceColor', [1 1 1], ...
         'EdgeColor', [0 0 0], 'LineWidth', 1);
+    plot([1 1], [cErrAvg-cErrStd cErrAvg+cErrStd], 'k-');
+    plot([2 2], [mErrAvg-mErrStd mErrAvg+mErrStd], 'k-');
     nms = {'cursor', 'ime'};
     set(gca, 'XTickLabel', nms, 'XTick', 1:numel(nms));
-    ymx = ceil(max([cErrAvg, mErrAvg]));
+    ymx = ceil(max([cErrAvg+cErrStd, mErrAvg+mErrStd]));
     ylim([0 ymx]);
     ytcks = unique(round(get(gca, 'YTick')));
     set(gca, 'YTick', ytcks);

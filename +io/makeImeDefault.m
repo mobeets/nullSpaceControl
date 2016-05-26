@@ -1,4 +1,4 @@
-function D = tmp2(D)
+function D = makeImeDefault(D)
     
     D.blocks(1).thetas = D.blocks(1).thetasIme;
     D.blocks(2).thetas = D.blocks(2).thetasIme;

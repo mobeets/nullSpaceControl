@@ -78,4 +78,7 @@ function D = fitHyps(D, nms, opts)
     if ismember('zero', nms)
         D.hyps = pred.addPrediction(D, 'zero', pred.dummyFit(D, opts));
     end
+    if ismember('uniform', nms)
+        D.hyps = pred.addPrediction(D, 'uniform', pred.uniFit(D, opts));
+    end
 end

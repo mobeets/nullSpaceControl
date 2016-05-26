@@ -2,8 +2,8 @@ function [D, Stats, LLs] = fitSession(dtstr, opts)
     if nargin < 2
         opts = struct();
     end
-    defopts = struct('doLatents', false, 'doSave', false, 'doPlot', true, ...
-        'doCv', false, 'plotdir', '');
+    defopts = struct('doLatents', false, 'doSave', false, ...
+        'doPlot', true, 'doCv', false, 'plotdir', '');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
 
     params = io.setUnfilteredDefaults();
@@ -16,7 +16,7 @@ function [D, Stats, LLs] = fitSession(dtstr, opts)
     Stats = cell(2,1);
     for ii = 1:2
         [estParams, LL, stats] = imefit.fitBlock(D.blocks(ii), opts);        
-        D.ime(ii) = estParams;        
+        D.ime(ii) = estParams;
         
         if opts.doPlot
             fig = imefit.plotImeStats(D, ii, ...
