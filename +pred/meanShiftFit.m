@@ -22,6 +22,7 @@ function [Z, rotThetas] = meanShiftFit(D, opts)
     ths1 = B1.(opts.thetaNm);
     gs = B2.(opts.grpNm);
     grps = sort(unique(gs));
+    ngs = numel(grps);
 
     Zr = B2.latents*(RB2*RB2');
     Zsamp = nan(nt,nn);
@@ -38,16 +39,16 @@ function [Z, rotThetas] = meanShiftFit(D, opts)
         errs = nan(size(offsets));
         terrs = nan(size(errs));
         for jj = 1:numel(offsets)
-            ixc = newGroup(ths1, offsets(jj)) == grps(ii);
+            ixc = newGroup(ths1, offsets(jj), ngs) == grps(ii);
             mu1 = mean(YR1(ixc,:));
             errs(jj) = norm(mu1 - mu);
             
             terrs(jj) = norm(mean(B2.latents(ix,:)*NB2) - mean(Y1(ixc,:)*NB2));
         end
-        assert(all(newGroup(ths1,0) == B1.(opts.grpNm)));
+        assert(all(newGroup(ths1,0,ngs) == B1.(opts.grpNm)));
         
         [~,ixOffset] = min(errs);        
-        ixc = newGroup(ths1, offsets(ixOffset)) == grps(ii);
+        ixc = newGroup(ths1, offsets(ixOffset), ngs) == grps(ii);
         rotThetas(ii) = offsets(ixOffset);
         Ys = Y1(ixc,:);
         
@@ -79,9 +80,9 @@ function [Z, rotThetas] = meanShiftFit(D, opts)
 %     xlabel('offset'); ylabel('row space err'); zlabel('null space err');
 end
 
-function gs = newGroup(ths, offset)
+function gs = newGroup(ths, offset, ngs)
     ths = mod(ths + offset, 360);
-    gs = score.thetaGroup(ths, score.thetaCenters(8));
+    gs = score.thetaGroup(ths, score.thetaCenters(ngs));
 end
 
 function [z,d] = meanOrSample(zs, opts, zr, NB2)

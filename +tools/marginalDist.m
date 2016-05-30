@@ -4,7 +4,7 @@ function [Zs, Xs, grps] = marginalDist(Y, gs, opts, Xs0)
     end
     if nargin < 4
         Xs0 = [];
-    end
+    end    
     defopts = struct('doHist', true, 'nbins', 20, 'h', 0.2, ...
         'sameLimsPerPanel', true, 'smoothing', 0);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);

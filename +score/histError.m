@@ -1,6 +1,6 @@
 function errs = histError(Y, Yh)
     % calculate histogram error
-    lfcn = @(y,yh) sum((y-yh).^2);
+    lfcn = @(y,yh) mean((y-yh).^2);
     ngrps = numel(Y);
     ncols = size(Y{1},2);
     errs = nan(ngrps, ncols);

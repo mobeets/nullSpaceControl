@@ -14,7 +14,7 @@ function D = summarizeScores(D)
             items = cat(3, sc.(fns{jj})); % stack reps
             items = items(:,:,inds); % remove duplicates
             mu = nanmean(items, 3); % avg across reps
-            se = nanstd(items, [], 3)/sqrt(size(items,3));
+            se = 1.96*nanstd(items, [], 3)/sqrt(size(items,3));
             Hs(ii).(fns{jj}) = mu;
             Hs(ii).([fns{jj} '_se']) = se;
         end

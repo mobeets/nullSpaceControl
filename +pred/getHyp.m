@@ -1,4 +1,4 @@
-function hyp = getHyp(D, name)
+function [hyp, ix] = getHyp(D, name)
     if ~isfield(D, 'hyps')
         hyp = []; return;
     end

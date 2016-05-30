@@ -13,11 +13,7 @@ function Z = sameCloudFit(D, opts)
         'grpNm', 'thetaGrps', 'kNN', 20, 'doSample', true, ...
         'obeyBounds', true, 'boundsType', 'marginal', 'minNorm', false, ...
         'boundsThresh', inf);
-    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
-    if numel(opts.rotThetas) == 1
-        opts.rotThetas = opts.rotThetas*ones(8,1);
-    end
-    assert(numel(opts.rotThetas) == 8);
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);    
     if ~isnan(opts.kNN) && ~isnan(opts.minDist)
         warning('Ignoring kNN option because minDist is set.');
     end
@@ -44,6 +40,12 @@ function Z = sameCloudFit(D, opts)
     ths1 = B1.(opts.thetaNm);
     ths = B2.(opts.thetaNm);
     grps = B2.(opts.grpNm);
+    ngs = numel(unique(grps));
+    
+    if numel(opts.rotThetas) == 1
+        opts.rotThetas = opts.rotThetas*ones(ngs,1);
+    end
+    assert(numel(opts.rotThetas) == ngs);
     
     Zsamp = nan(nt,nn);
     for t = 1:nt
@@ -55,7 +57,7 @@ function Z = sameCloudFit(D, opts)
             opts.boundsThresh);
         
         if ~isnan(opts.thetaTol) % make distance inf if theta is too different
-            ind = grps(t) == score.thetaCenters(8);
+            ind = grps(t) == score.thetaCenters(ngs);
             rotTheta = opts.rotThetas(ind);
             th = mod(ths(t) + rotTheta, 360);
             dsThetas = getAngleDistance(ths1, th);
