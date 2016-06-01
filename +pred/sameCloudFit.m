@@ -4,13 +4,17 @@ function Z = sameCloudFit(D, opts)
 %   for some days this is actually an improvement; on most, it's about
 %   the same
 %   * for minDist, this is basically equivalent to a kNN of 20
+%
+% and last i checked, pruning that takes the closest point is basically
+%   identical to normal pruning for all sessions, 
+%       except it's higher in covariance error on 20120709
 % 
     if nargin < 2
         opts = struct();
     end
     defopts = struct('decoderNm', 'fDecoder', 'thetaTol', 30, ...
         'thetaNm', 'thetas', 'rotThetas', 0, 'minDist', 0.20, ...
-        'grpNm', 'thetaGrps', 'kNN', 20, 'doSample', true, ...
+        'grpNm', 'thetaGrps', 'kNN', nan, 'doSample', true, ...
         'obeyBounds', true, 'boundsType', 'marginal', 'minNorm', false, ...
         'boundsThresh', inf);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);    
@@ -51,7 +55,7 @@ function Z = sameCloudFit(D, opts)
     for t = 1:nt
         % calculate distance in current row space
         %   of all intuitive activity from current activity
-        ds0 = getDistances(R1, R2(t,:));
+        ds0 = getDistances(R1, R2(t,:));        
         ds = ds0;
         opts.isOutOfBndsNul = pred.boundsFcnCond(R2(t,:), R1, N1, ...
             opts.boundsThresh);

@@ -24,14 +24,15 @@ D = fitByDate(dtstr, [], nms, popts, [], hypopts);
 %% marginal histograms
 
 % Hs = D.hyps(1:end);
-Hs = D.hyps([1 6 4]);
+Hs = D.hyps([2 3]);
+% Hs(1).marginalHist = rmfield(Hs(1).marginalHist, 'baseErr');
 hists = [Hs.marginalHist];
 
 grps = hists(1).grps;
 Xs = hists(1).Xs;
 Zs = {hists.Zs};
 
-grps(~(grps == 0)) = nan; % only show grps == 0
+grps(~(grps == 90)) = nan; % only show grps == 0
 plot.marginalDists(Zs, Xs, grps, struct('ttl', D.datestr), {Hs.name});
 
 %% hyp fits over time

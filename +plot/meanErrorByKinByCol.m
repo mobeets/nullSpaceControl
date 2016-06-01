@@ -18,7 +18,7 @@ function meanErrorByKinByCol(D, Hs)
         subplot(ncols, nrows, ii); hold on;
         set(gca, 'FontSize', 18);
         vs = Hs(ii).errOfMeansByKinByCol';
-        imagesc(1:numel(ths), 1:size(vs,2), vs);
+        imagesc(1:numel(ths), 1:size(vs,1), vs);
         axis image;
         ttl = Hs(ii).name;
         if numel(Hs) == 1
@@ -34,7 +34,7 @@ function meanErrorByKinByCol(D, Hs)
             set(gca, 'XTick', 1:numel(lbls));
             set(gca, 'XTickLabel', lbls');            
             set(gca, 'XTickLabelRotation', 45);
-            set(gca, 'YTick', 1:size(vs,2));
+            set(gca, 'YTick', 1:size(vs,1));
             xlabel('\theta');
         else
             set(gca, 'XTick', []);

@@ -59,7 +59,7 @@ if __name__ == '__main__':
     parser.add_argument('-f', "--infile", default=None, type=str, help="Journal directory.")
     parser.add_argument('-g', "--outfile", default=None, type=str, help="Journal directory.")
     args = parser.parse_args()
-    if args.text == 'all':
+    if args.text and args.text[0] == 'all':
         print load_and_score(args.infile, args.outfile)
     else:
         print eval_all(args.infile, args.outfile)

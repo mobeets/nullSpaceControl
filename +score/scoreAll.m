@@ -26,7 +26,8 @@ function D = scoreAll(D, opts, histopts)
     % set default bin size using heuristic
     if ~isfield(histopts, 'nbins')        
         Y = pred.getHyp(D, opts.baseHypNm).nullActivity.zNull;
-        nb = round(median(max(range(Y))./(2*iqr(Y)/size(Y,1)^(1/3))));
+        nb = score.optimalBinCount(Y, gs, false);
+%         nb = round(median(max(range(Y))./(2*iqr(Y)/size(Y,1)^(1/3))));
         histopts.nbins = nb;
     end
 
@@ -86,3 +87,9 @@ function [sc, Xs, grps] = makeHists(YN, gs, Xs, grps, opts)
     sc.grps = grps;
 end
 
+function defaultBinSize(YN, gs)
+
+    Y = D.hyps(1).nullActivity.zNull;
+    score.optimalBinCount(Y, gs, true)
+
+end

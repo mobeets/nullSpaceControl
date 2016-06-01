@@ -6,7 +6,7 @@ function [Zs, Xs, grps] = marginalDist(Y, gs, opts, Xs0)
         Xs0 = [];
     end    
     defopts = struct('doHist', true, 'nbins', 20, 'h', 0.2, ...
-        'sameLimsPerPanel', true, 'smoothing', 0);
+        'sameLimsPerPanel', true, 'smoothing', 0, 'getCounts', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     grps = sort(unique(gs));
     ngrps = numel(grps);
@@ -39,6 +39,10 @@ end
 function ysh = singleMarginal(Y, xs, opts)
     if opts.doHist
         [c,b] = hist(Y, xs);
+        if opts.getCounts
+            ysh = c;
+            return;
+        end
         ysh = c./trapz(b,c);
     else
         Phatfcn = ksdensity_nd(Y, opts.h);

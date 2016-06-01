@@ -107,3 +107,38 @@ end
 
 %%
 
+Y = D.blocks(2).latents*D.blocks(2).fDecoder.NulM2;
+gs = D.blocks(2).thetaActualGrps;
+% gs = ones(size(Y,1),1);
+% [Zs, Xs] = tools.marginalDist(Y, gs);
+
+plot.init;
+grps = sort(unique(gs));
+yc = cell(numel(grps),1);
+for ii = 1:numel(grps)
+    ix = grps(ii) == gs;
+    Yc = Y(ix,:);
+    n = size(Yc,1);
+    rng = range(Yc);
+    rng = max(max(Yc)) - min(min(Yc));
+
+    crit = @(cs, h) 2./((n-1).*h) - sum(cs.^2)*(n+1)./((n-1)*n^2.*h);
+%     crit = @(cs, h) (2*mean(cs) - var(cs, 1))/h^2;
+    
+    cfcn = @(h) tools.marginalDist(Yc, ones(n,1), struct('nbins', h, ...
+        'getCounts', true));
+    getcellind = @(fcn, ind) fcn{ind};
+    obj = @(h) crit(getcellind(cfcn(h), 1), rng/h);
+    
+    xs = 10:200;
+    ys = cell2mat(arrayfun(obj, xs, 'uni', 0)');
+    yc{ii} = mean(zscore(ys),2);
+    plot(xs, yc{ii}, '-', 'LineWidth', 2);
+%     for jj = 1:size(ys,2)
+%         plot(xs, zscore(ys(:,jj)), '-');
+%     end
+    
+end
+ya = mean(cell2mat(yc'),2);
+plot(xs, ya, 'k-', 'LineWidth', 3);
+
