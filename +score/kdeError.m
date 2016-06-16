@@ -11,6 +11,13 @@ function scores = kdeError(Y, Yhs, kind)
         % fit kdes to each of Y and Yh in Yhs, evaluate L2 norm of diff
         kind = ' all';
     end
+    
+    [u,s,v] = svd(Y);
+    v = v(:,1:2);
+    Y = Y*v;
+    Yhs = cellfun(@(Yh) Yh*v, Yhs, 'uni', 0);
+    [~, ~, ~, ~, ~, ~, scores] = compareKde(Y, Yhs, true);
+    return;
 
     % save activity to .mat
     fnm = [datestr(datetime) '.mat'];

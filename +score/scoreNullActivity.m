@@ -13,6 +13,7 @@ function objs = scoreNullActivity(D, opts)
     zMu = actual.zMu;
     zCov = actual.zCov;
     zHist = H.marginalHist.Zs;
+    zKde = H.jointKde.ps;
     
     objs = [];
     for ii = 1:numel(D.hyps)
@@ -29,6 +30,7 @@ function objs = scoreNullActivity(D, opts)
         zMu0 = hyp.zMu;
         zCov0 = hyp.zCov;
         zHist0 = D.hyps(ii).marginalHist.Zs;
+        zKde0 = D.hyps(ii).jointKde.ps;
         
         if strcmp(D.hyps(ii).name, opts.baseHypNm) || isempty(zMu0)            
             objs = fillEmptyFields(objs, obj);
@@ -59,6 +61,10 @@ function objs = scoreNullActivity(D, opts)
         obj.histErrByKin = sum(histErr,2);
         obj.histErrByCol = sum(histErr,1)';
         obj.histErr = sum(histErr(:));
+        
+        kdeErr = score.jKdeError(zKde, zKde0);
+        obj.kdeErrByKin = kdeErr;
+        obj.kdeErr = sum(kdeErr);
         
         reportOutOfBounds(D.hyps(ii).latents, H.latents, D.hyps(ii).name);
         objs = fillEmptyFields(objs, obj);

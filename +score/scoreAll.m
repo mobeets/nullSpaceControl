@@ -7,7 +7,7 @@ function D = scoreAll(D, opts, histopts)
     end
     defopts = struct('decoderNm', 'fDecoder', 'idxFldNm', '', ...
         'scoreGrpNm', 'thetaActualGrps', 'doBoots', true, ...
-        'baseHypNm', 'observed', 'scoreBlkInd', 2);
+        'baseHypNm', 'observed', 'scoreBlkInd', 2, 'jointKdeDimNo', 2);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if ~strcmp(opts.decoderNm, 'fDecoder')
         warning(['Predicting null activity using "' opts.decoderNm '"']);
@@ -42,6 +42,28 @@ function D = scoreAll(D, opts, histopts)
     Y = H.nullActivity.zNull;
     baseErr = score.baseHistError(Y, Xs, gs, histopts);
     D.hyps(hind).marginalHist.baseErr = baseErr;
+    
+    % make and score joint kdes using first ds of null activity
+    [H, ~] = pred.getHyp(D, opts.baseHypNm);
+    Z1 = H.nullActivity.zNull;
+    [u,s,v] = svd(Z1); v = v(:,1:opts.jointKdeDimNo); % 2d probably
+    Z1 = Z1*v;
+    Zs = arrayfun(@(ii) D.hyps(ii).nullActivity.zNull*v, ...
+        2:numel(D.hyps), 'uni', 0);
+    [P1, Ps, X, Y, bw] = compareKde(Z1, Zs, true);
+    for ii = 1:numel(D.hyps)
+        if ii == 1
+            Pc = P1;
+            xs = X; ys = Y;
+        else
+            Pc = Ps{ii-1};
+            xs = []; ys = [];
+        end
+        D.hyps(ii).jointKde.ps = Pc;
+        D.hyps(ii).jointKde.bw = bw;
+        D.hyps(ii).jointKde.xs = xs;
+        D.hyps(ii).jointKde.ys = ys;
+    end
     
     % score hypotheses' predictions of null activity means/covs and hists
     objs = score.scoreNullActivity(D, opts);

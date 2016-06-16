@@ -28,6 +28,11 @@ function D = fitHyps(D, nms, opts)
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'cloud', pred.sameCloudFit(D, custopts));
     end
+    if ismember('cloud-og', nms)
+        custopts = struct('thetaTol', nan, 'minDist', nan, 'kNN', 200);
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'cloud-og', pred.sameCloudFit(D, custopts));
+    end
     if ismember('unconstrained', nms)
         D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D, opts));
     end
