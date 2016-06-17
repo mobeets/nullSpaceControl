@@ -28,6 +28,8 @@ function D = addImeDecoders(D)
         D.blocks(ii).angErrorIme = angErr_ime;
         D.blocks(ii).thetaImeGrps = score.thetaGroup(ths_ime, ...
             score.thetaCenters(8));
+        D.blocks(ii).thetaImeGrps16 = score.thetaGroup(ths_ime, ...
+            score.thetaCenters(16));
         D.blocks(ii).thetaActualImeGrps = score.thetaGroup(thsact_ime, ...
             score.thetaCenters(8));
         D.blocks(ii).thetaActualImeGrps16 = score.thetaGroup(thsact_ime, ...
@@ -52,4 +54,10 @@ function [ths_ime, angErr_ime, thsact_ime] = addImeStats(B, pos_ime)
     thsact_ime = [thsact_ime; nan]; % for last time step
     thsact_ime = mod(thsact_ime, 360);
 
+    % thsact_ime needs to change at the or of the below;
+    % (because time and trial changes have already been filtered out,
+    % movVec's diff above is off)
+    ix = diff(B.trial_index) ~= 0 | diff(B.time) ~= 1;
+    thsact_ime(ix) = nan;
+    angErr_ime(ix) = nan;
 end

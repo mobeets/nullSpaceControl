@@ -13,7 +13,9 @@ function objs = scoreNullActivity(D, opts)
     zMu = actual.zMu;
     zCov = actual.zCov;
     zHist = H.marginalHist.Zs;
-    zKde = H.jointKde.ps;
+    if isfield(H, 'jointKde')
+        zKde = H.jointKde.ps;
+    end
     
     objs = [];
     for ii = 1:numel(D.hyps)
@@ -29,8 +31,10 @@ function objs = scoreNullActivity(D, opts)
         zNull0 = hyp.zNullBin;
         zMu0 = hyp.zMu;
         zCov0 = hyp.zCov;
-        zHist0 = D.hyps(ii).marginalHist.Zs;
-        zKde0 = D.hyps(ii).jointKde.ps;
+        zHist0 = D.hyps(ii).marginalHist.Zs;        
+        if isfield(D.hyps(ii), 'jointKde')
+            zKde0 = D.hyps(ii).jointKde.ps;
+        end
         
         if strcmp(D.hyps(ii).name, opts.baseHypNm) || isempty(zMu0)            
             objs = fillEmptyFields(objs, obj);
@@ -62,9 +66,11 @@ function objs = scoreNullActivity(D, opts)
         obj.histErrByCol = sum(histErr,1)';
         obj.histErr = sum(histErr(:));
         
-        kdeErr = score.jKdeError(zKde, zKde0);
-        obj.kdeErrByKin = kdeErr;
-        obj.kdeErr = sum(kdeErr);
+        if exist('zKde', 'var')
+            kdeErr = score.jKdeError(zKde, zKde0);
+            obj.kdeErrByKin = kdeErr;
+            obj.kdeErr = sum(kdeErr);
+        end
         
         reportOutOfBounds(D.hyps(ii).latents, H.latents, D.hyps(ii).name);
         objs = fillEmptyFields(objs, obj);

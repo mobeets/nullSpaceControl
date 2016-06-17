@@ -1,5 +1,5 @@
-function D = makeImeDefault(D)
-    
+function D = makeImeDefault(D)    
+
     D.blocks(1).thetas = D.blocks(1).thetasIme;
     D.blocks(2).thetas = D.blocks(2).thetasIme;
     D.blocks(1).thetaActuals = D.blocks(1).thetaActualsIme;
@@ -15,6 +15,7 @@ function D = makeImeDefault(D)
     
     D.blocks(1) = rmThNans(D.blocks(1));
     D.blocks(2) = rmThNans(D.blocks(2));
+    
 end
 
 function B = rmThNans(B)

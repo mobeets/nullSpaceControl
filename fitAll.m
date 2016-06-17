@@ -2,20 +2,69 @@
 % nms = {'habitual', 'pruning', 'cloud', 'unconstrained', 'mean shift prune'};
 nms = {'unconstrained', 'habitual', 'pruning', 'cloud', 'cloud-og', ...
     'mean shift prune', 'mean shift'};
-% nms = {'habitual', 'pruning'};
+nms = {'unconstrained', 'habitual', 'pruning', 'cloud'};
 
 hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16');
+
 lopts = struct('postLoadFcn', @io.makeImeDefault);
 % lopts = struct('postLoadFcn', nan);
 popts = struct();
 % popts = struct('plotdir', '', 'doSave', true, 'doTimestampFolder', false);
 
 dts = io.getAllowedDates();
-Ss = cell(numel(dts),1);
+% Ss = cell(numel(dts),1);
+
+for ii = 1:numel(dts)
+    dtstr = dts{ii}
+%     lopts = struct('postLoadFcn', @io.makeImeDefault);
+%     D = io.quickLoadByDate(dtstr, [], lopts);
+    lopts = struct('postLoadFcn', nan);
+    D = io.quickLoadByDate(dtstr, [], lopts);
+    B = D.blocks(2);
+    
+    [thsIme, errIme, actIme] = mvStats(B, B.posIme);
+    [thsObs, errObs, actObs] = mvStats(B, B.pos);
+    
+    
+    [nanmean(abs(errObs)) nanmean(abs(errIme))]
+    continue;
+    
+    [mean(D.blocks(2).thetaGrps == D.blocks(2).thetaActualGrps) mean(D.blocks(2).thetaImeGrps == D.blocks(2).thetaActualImeGrps)]
+    [nanmean(abs(D.blocks(2).angError)) nanmean(abs(D.blocks(2).angErrorIme))]
+%     plot.init;
+%     plot(D.blocks(2).angError, D.blocks(2).angErrorIme, '.');
+%     xs = D.blocks(2).thetasIme; ys = D.blocks(2).thetaActualsIme;
+%     subplot(1,2,1); hold on; plot(xs, ys, '.');
+%     xs = D.blocks(2).thetas; ys = D.blocks(2).thetaActuals;
+%     subplot(1,2,2); hold on; plot(xs, ys, '.');
+end
+
+%%
+
 for ii = 1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/allNewNoIme/' dtstr];
-    D = fitByDate(dtstr, [], nms, popts, lopts, hypopts);    
+    D = fitByDate(dtstr, [], nms, popts, lopts, hypopts);
+    continue;
+    
+    plot.init;
+    hypopts.nullCols = nan;
+    D = fitByDate(dtstr, [], nms, popts, lopts, hypopts);
+    subplot(3,3,1); hold on;
+    plot.barByHypQuick(D.score(2:end), 'errOfMeans');
+    title([dtstr ' all']);
+        
+    for jj = 1:8
+        hypopts.nullCols = jj;
+        D = rmfield(D, 'score');
+        D = rmfield(D, 'scores');
+        D = score.scoreAll(D, hypopts);
+        subplot(3,3,jj+1); hold on;
+        plot.barByHypQuick(D.score(2:end), 'errOfMeans');
+        title([dtstr ' col ' num2str(jj)]);
+    end
+    continue;
+    
 %     Ss{ii} = D.score;
 %     continue;
 % 

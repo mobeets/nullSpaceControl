@@ -12,12 +12,12 @@ function scores = kdeError(Y, Yhs, kind)
         kind = ' all';
     end
     
-    [u,s,v] = svd(Y);
-    v = v(:,1:2);
-    Y = Y*v;
-    Yhs = cellfun(@(Yh) Yh*v, Yhs, 'uni', 0);
-    [~, ~, ~, ~, ~, ~, scores] = compareKde(Y, Yhs, true);
-    return;
+%     [u,s,v] = svd(Y);
+%     v = v(:,1:2);
+%     Y = Y*v;
+%     Yhs = cellfun(@(Yh) Yh*v, Yhs, 'uni', 0);
+%     [~, ~, ~, ~, ~, ~, scores] = compareKde(Y, Yhs, true);
+%     return;
 
     % save activity to .mat
     fnm = [datestr(datetime) '.mat'];

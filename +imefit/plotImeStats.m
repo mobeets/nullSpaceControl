@@ -18,10 +18,10 @@ function fig = plotImeStats(D, bind, mdlErrs, cErrs, by_trial)
     
     % bar plot of average angular errors
     scale = 1.96/sqrt(numel(by_trial.cErrs));
-    cErrAvg = nanmean(cellfun(@(e) mean(abs(e)), by_trial.cErrs));
-    mErrAvg = nanmean(cellfun(@(e) mean(abs(e)), by_trial.mdlErrs));
-    cErrStd = scale*nanstd(cellfun(@(e) mean(abs(e)), by_trial.cErrs));
-    mErrStd = scale*nanstd(cellfun(@(e) mean(abs(e)), by_trial.mdlErrs));
+    cErrAvg = nanmean(cellfun(@(e) nanmean(abs(e)), by_trial.cErrs));
+    mErrAvg = nanmean(cellfun(@(e) nanmean(abs(e)), by_trial.mdlErrs));
+    cErrStd = scale*nanstd(cellfun(@(e) nanmean(abs(e)), by_trial.cErrs));
+    mErrStd = scale*nanstd(cellfun(@(e) nanmean(abs(e)), by_trial.mdlErrs));
     
     subplot(1,2,2); hold on; set(gca, 'FontSize', 18);
     bar(1:2, [cErrAvg, mErrAvg], 'FaceColor', [1 1 1], ...

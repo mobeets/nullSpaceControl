@@ -54,6 +54,11 @@ function trial = addNewFields(trial, D)
 %     trial.movementVector = [nan nan; movementVector];
     trial.movementVector = [movementVector; nan nan];
 
+%     pos_tp1 = trial.pos(:,T_START+1:end);
+%     pos_t = trial.pos(:,T_START:end-1);
+%     [angles, theta, phi, p] = angular_error_from_perimeter(pos_t, ...
+%         pos_tp1, trial.target(1,:), TARGET_RADIUS);
+    
     ntimes = size(trial.spikes,1);
     trial.time = (1:ntimes)';
     trial.rs = nan(ntimes,1);
