@@ -1,5 +1,6 @@
 function hyps = addPrediction(D, name, latents)
 
+    disp(['Fitting "' name '" hypothesis.']);
     if isfield(D, 'hyps')
         hyps = D.hyps;
         nhyps = numel(hyps);

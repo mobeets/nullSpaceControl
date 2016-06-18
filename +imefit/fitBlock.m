@@ -12,7 +12,7 @@ function [estParams, LL, stats] = fitBlock(Blk, opts)
     else
         BlkTrain = Blk; BlkTest = Blk;
     end
-    [U, Y, Xtarget] = imefit.prep(BlkTrain, opts.doLatents);
+    [U, Y, Xtarget] = imefit.prep(BlkTrain, opts.doLatents, true);
     basedir = pwd;
     cd('velime_codepack_v1.0/');
     [estParams,LL] = velime_fit(U, Y, Xtarget, opts.TAU,...

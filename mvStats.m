@@ -1,6 +1,10 @@
-function [ths_ime, angErr_ime, thsact_ime] = mvStats(B, pos_ime)
+function [ths_ime, angErr_ime, thsact_ime] = mvStats(B, pos_ime, vel_ime)
     vec2trg = B.target - pos_ime;
-    movVec = diff(pos_ime); % or do we compare true pos to next pos_ime?
+    if nargin < 3
+        movVec = diff(pos_ime); % or do we compare true pos to next pos_ime?
+    else
+        movVec = vel_ime;
+    end
     
     ths_ime = arrayfun(@(t) tools.computeAngle(vec2trg(t,:), [1; 0]), ...
         1:size(vec2trg,1))';

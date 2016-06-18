@@ -55,7 +55,7 @@ function rotThetas = rotThetasFromMeanShift(D, opts)
         [~, ixOffset] = min(errs);
         rotThetas(ii) = offsets(ixOffset);
         
-        figure(1); hold on; plot(offsets, errs, 'Color', clrs(ii,:), 'LineWidth', 4);
+%         figure(1); hold on; plot(offsets, errs, 'Color', clrs(ii,:), 'LineWidth', 4);
     end
 end
 

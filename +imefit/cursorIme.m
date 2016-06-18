@@ -1,12 +1,16 @@
-function pos_ime = cursorIme(B, ime)
+function [pos_ime, vel_ime] = cursorIme(B, ime)
 % cursor movement using ime decoder
 
-    [U, Y, Xtarget, ~] = imefit.prep(B);
-    [E_P, ~] = velime_extract_prior_whiskers(U, Y, Xtarget, ime);
+    dt = 0.045;
+    [U, Y, Xtarget, ~] = imefit.prep(B, false, false);
+    [E_P, V_P] = velime_extract_prior_whiskers(U, Y, Xtarget, ime);
     % n.b. E_P{t} always has at least T_START cols, but Y{t} may have fewer
     pos_ime = arrayfun(@(t) E_P{t}(end-1:end,1:size(Y{t},2)), ...
         1:numel(E_P), 'uni', 0); % n.b. rows 1:2 are cursor pos TAU timesteps ago
     pos_ime = cell2mat(pos_ime)';
+    vel_ime = arrayfun(@(t) V_P{t}(end-1:end,1:size(Y{t},2)), ...
+        1:numel(V_P), 'uni', 0);
+    vel_ime = cell2mat(vel_ime)';
     
     % expand pos_ime to have nans at start of trial
     ix = B.time >= 7;
@@ -14,6 +18,10 @@ function pos_ime = cursorIme(B, ime)
     pos2 = nan(size(B.pos));
     pos2(ix,:) = pos_ime;
     pos_ime = pos2;
+    
+    vel2 = nan(size(B.pos));
+    vel2(ix,:) = vel_ime;
+    vel_ime = vel2*dt;
 
 end
 

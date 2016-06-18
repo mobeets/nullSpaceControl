@@ -1,10 +1,13 @@
 
 % nms = {'habitual', 'pruning', 'cloud', 'unconstrained', 'mean shift prune'};
-nms = {'unconstrained', 'habitual', 'pruning', 'cloud', 'cloud-og', ...
-    'mean shift prune', 'mean shift'};
-nms = {'unconstrained', 'habitual', 'pruning', 'cloud'};
+% nms = {'unconstrained', 'habitual', 'pruning', 'cloud', ...
+%     'mean shift prune', 'mean shift'};
+nms = {'habitual', 'pruning', 'cloud', 'cloud-og', 'pruning-1', ...
+    'mean shift prune', 'mean shift', 'unconstrained'};
+% nms = {'unconstrained', 'habitual', 'pruning', 'cloud'};
 
-hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16');
+hypopts = struct('nBoots', 0, 'obeyBounds', false, ...
+    'scoreGrpNm', 'thetaActualGrps16');
 
 lopts = struct('postLoadFcn', @io.makeImeDefault);
 % lopts = struct('postLoadFcn', nan);
@@ -14,37 +17,65 @@ popts = struct();
 dts = io.getAllowedDates();
 % Ss = cell(numel(dts),1);
 
-for ii = 1:numel(dts)
-    dtstr = dts{ii}
-%     lopts = struct('postLoadFcn', @io.makeImeDefault);
+% for ii = 1:numel(dts)
+%     dtstr = dts{ii}
+% %     lopts = struct('postLoadFcn', @io.makeImeDefault);
+% %     D = io.quickLoadByDate(dtstr, [], lopts);
+%     lopts = struct('postLoadFcn', nan);
 %     D = io.quickLoadByDate(dtstr, [], lopts);
-    lopts = struct('postLoadFcn', nan);
-    D = io.quickLoadByDate(dtstr, [], lopts);
-    B = D.blocks(2);
-    
-    [thsIme, errIme, actIme] = mvStats(B, B.posIme);
-    [thsObs, errObs, actObs] = mvStats(B, B.pos);
-    
-    
-    [nanmean(abs(errObs)) nanmean(abs(errIme))]
-    continue;
-    
-    [mean(D.blocks(2).thetaGrps == D.blocks(2).thetaActualGrps) mean(D.blocks(2).thetaImeGrps == D.blocks(2).thetaActualImeGrps)]
-    [nanmean(abs(D.blocks(2).angError)) nanmean(abs(D.blocks(2).angErrorIme))]
-%     plot.init;
-%     plot(D.blocks(2).angError, D.blocks(2).angErrorIme, '.');
-%     xs = D.blocks(2).thetasIme; ys = D.blocks(2).thetaActualsIme;
-%     subplot(1,2,1); hold on; plot(xs, ys, '.');
-%     xs = D.blocks(2).thetas; ys = D.blocks(2).thetaActuals;
-%     subplot(1,2,2); hold on; plot(xs, ys, '.');
-end
-
-%%
+%     B = D.blocks(2);
+%     
+%     [thsIme2, errIme2, actIme2] = mvStats(B, B.posIme);
+%     [thsIme, errIme, actIme] = mvStats(B, B.posIme, B.velIme);
+%     [thsObs, errObs, actObs] = mvStats(B, B.pos);
+%     
+%     
+%     [nanmean(abs(errObs)) nanmean(abs(errIme)) nanmean(abs(errIme2))]
+%     continue;
+%     
+%     [mean(D.blocks(2).thetaGrps == D.blocks(2).thetaActualGrps) mean(D.blocks(2).thetaImeGrps == D.blocks(2).thetaActualImeGrps)]
+%     [nanmean(abs(D.blocks(2).angError)) nanmean(abs(D.blocks(2).angErrorIme))]
+% %     plot.init;
+% %     plot(D.blocks(2).angError, D.blocks(2).angErrorIme, '.');
+% %     xs = D.blocks(2).thetasIme; ys = D.blocks(2).thetaActualsIme;
+% %     subplot(1,2,1); hold on; plot(xs, ys, '.');
+% %     xs = D.blocks(2).thetas; ys = D.blocks(2).thetaActuals;
+% %     subplot(1,2,2); hold on; plot(xs, ys, '.');
+% end
 
 for ii = 1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/allNewNoIme/' dtstr];
+%     hypopts.boundsType = 'none';
     D = fitByDate(dtstr, [], nms, popts, lopts, hypopts);
+    
+%     ps = [5 10 15 20 30 40 50];
+%     Zs = cell(numel(ps),1); nmsc = cell(size(Zs));
+%     for jj = 1:numel(ps)
+%         custopts = struct('obeyBounds', false, 'minDist', nan, ...
+%             'thetaTol', ps(jj), 'kNN', 1, 'thetaNm', 'thetaActuals');
+%         Zs{jj} = pred.habContFit(D, custopts);
+%         nmsc{jj} = ['habitual-' num2str(ps(jj))];
+%     end
+%     D = pred.addAndScoreHypothesis(D, Zs, nmsc);
+%     
+%     Z1 = pred.sameCloudFit(D, ...
+%         struct('minDist', nan, 'thetaTol', 5, 'kNN', 1, ...
+%         'thetaNm', 'targetAngle'));
+%     Z2 = pred.sameCloudFit(D, ...
+%         struct('minDist', nan, 'thetaTol', 5, 'kNN', 1, ...
+%         'thetaNm', 'thetaActualGrps'));
+%     Z3 = pred.sameCloudFit(D, ...
+%         struct('minDist', nan, 'thetaTol', 5, 'kNN', 1, ...
+%         'thetaNm', 'thetaGrps'));
+%     D = pred.addAndScoreHypothesis(D, {Z1, Z2, Z3}, {'pruning-ang', ...
+%         'pruning-actgrp', 'pruning-thgrp'});
+    
+    inds = 2:numel(D.hyps);
+%     [~, inds] = sort({D.hyps.name});
+%     figure; plot.errorByKin(D.score(inds), 'errOfMeansByKin');
+%     figure; plot.errorByKin(D.score(inds), 'covErrorByKin');
+    figure; plot.barByHypQuick(D.score(inds), 'errOfMeans'); title(dtstr);
     continue;
     
     plot.init;

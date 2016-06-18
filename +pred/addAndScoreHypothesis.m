@@ -12,7 +12,8 @@ function D = addAndScoreHypothesis(D, Z, nm, hypopts)
     for ii = 1:numel(Zs)
         E.hyps = pred.addPrediction(E, nms{ii}, Zs{ii});
     end
-    D.hyps = rmfield(D.hyps, {'grps', 'marginalHist', 'nullActivity'});
+    D.hyps = rmfield(D.hyps, {'grps', 'marginalHist', 'nullActivity', ...
+        'jointKde'});
     D.hyps = [D.hyps E.hyps(2:end)];
     D = score.scoreAll(rmfield(D, 'scores'), hypopts);
 

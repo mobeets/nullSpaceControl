@@ -1,9 +1,12 @@
-function [U, Y, T, trs] = prep(B, doLatents)
+function [U, Y, T, trs] = prep(B, doLatents, doWarn)
 % U = [1 ntrials] cell, U(1) = [ncells ntimes] double
 % Y = [1 ntrials] cell, Y(1) = [2 ntimes] double
 % T = [1 ntrials] cell, T(1) = [2 1] double
     if nargin < 2
         doLatents = false;
+    end
+    if nargin < 3
+        doWarn = true;
     end
     
     B.latents(2:end,:) = B.latents(1:end-1,:);
@@ -16,7 +19,7 @@ function [U, Y, T, trs] = prep(B, doLatents)
     U = cell(1, ntrs);
     Y = cell(size(U));
     T = cell(size(U));
-    didWarn = false;
+    didWarn = ~doWarn; % if doWarn is false, never warn
     for ii = 1:ntrs
         it = (ts == trs(ii)) & ib;
         

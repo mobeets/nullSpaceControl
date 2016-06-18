@@ -20,9 +20,11 @@ function D = addImeDecoders(D)
         [fdec.NulM2, fdec.RowM2] = tools.getNulRowBasis(fdec.M2);
         D.blocks(ii).fImeDecoder = fdec;
         
-        pos_ime = imefit.cursorIme(D.blocks(ii), D.ime(ii));
-        [ths_ime, angErr_ime, thsact_ime] = addImeStats(D.blocks(ii), pos_ime);
+        [pos_ime, vel_ime] = imefit.cursorIme(D.blocks(ii), D.ime(ii));
+        [ths_ime, angErr_ime, thsact_ime] = addImeStats(D.blocks(ii), ...
+            pos_ime, vel_ime);
         D.blocks(ii).posIme = pos_ime;
+        D.blocks(ii).velIme = vel_ime;
         D.blocks(ii).thetasIme = ths_ime;
         D.blocks(ii).thetaActualsIme = thsact_ime;
         D.blocks(ii).angErrorIme = angErr_ime;
@@ -37,9 +39,10 @@ function D = addImeDecoders(D)
     end
 end
 
-function [ths_ime, angErr_ime, thsact_ime] = addImeStats(B, pos_ime)
+function [ths_ime, angErr_ime, thsact_ime] = addImeStats(B, pos_ime, vel_ime)
     vec2trg = B.target - pos_ime;
-    movVec = diff(pos_ime); % or do we compare true pos to next pos_ime?
+%     movVec = diff(pos_ime); % or do we compare true pos to next pos_ime?
+    movVec = vel_ime; % must also comment out line 57
     
     ths_ime = arrayfun(@(t) tools.computeAngle(vec2trg(t,:), [1; 0]), ...
         1:size(vec2trg,1))';
@@ -51,7 +54,7 @@ function [ths_ime, angErr_ime, thsact_ime] = addImeStats(B, pos_ime)
     
     thsact_ime = arrayfun(@(t) tools.computeAngle(movVec(t,:), [1; 0]), ...
         1:size(movVec,1))';
-    thsact_ime = [thsact_ime; nan]; % for last time step
+%     thsact_ime = [thsact_ime; nan]; % for last time step
     thsact_ime = mod(thsact_ime, 360);
 
     % thsact_ime needs to change at the or of the below;
