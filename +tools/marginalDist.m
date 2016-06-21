@@ -12,8 +12,8 @@ function [Zs, Xs, grps] = marginalDist(Y, gs, opts, Xs0)
     ngrps = numel(grps);
     nfeats = size(Y,2);
 
-    mns = min(Y);
-    mxs = max(Y);
+    mns = min(Y);% - range(Y)*0.5;
+    mxs = max(Y);% + range(Y)*0.5;
     Xs = cell(ngrps,1);
     Zs = cell(ngrps,1);
 

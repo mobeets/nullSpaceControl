@@ -50,22 +50,31 @@ function D = scoreAll(D, opts, histopts)
     if opts.jointKdeDimNo == 2 && size(Z1,2) >= 2
         [u,s,v] = svd(Z1);
         v = v(:,1:opts.jointKdeDimNo); % 2d probably
-        Z1 = Z1*v;
-        Zs = arrayfun(@(ii) D.hyps(ii).nullActivity.zNull*v, ...
-            2:numel(D.hyps), 'uni', 0);
-        [P1, Ps, X, Y, bw] = compareKde(Z1, Zs, true);
+        ngrps = numel(H.nullActivity.zNullBin);
         for ii = 1:numel(D.hyps)
-            if ii == 1
-                Pc = P1;
-                xs = X; ys = Y;
-            else
-                Pc = Ps{ii-1};
-                xs = []; ys = [];
+            D.hyps(ii).jointKde.ps = cell(ngrps,1);
+            D.hyps(ii).jointKde.bw = cell(ngrps,1);
+            D.hyps(ii).jointKde.xs = cell(ngrps,1);
+            D.hyps(ii).jointKde.ys = cell(ngrps,1);
+        end
+        for jj = 1:ngrps
+            Z1 = H.nullActivity.zNullBin{jj}*v;
+            Zs = arrayfun(@(ii) D.hyps(ii).nullActivity.zNullBin{jj}*v, ...
+                2:numel(D.hyps), 'uni', 0);
+            [P1, Ps, X, Y, bw] = compareKde(Z1, Zs, true);
+            for ii = 1:numel(D.hyps)
+                if ii == 1
+                    Pc = P1;
+                    xs = X; ys = Y;
+                else
+                    Pc = Ps{ii-1};
+                    xs = []; ys = [];
+                end
+                D.hyps(ii).jointKde.ps{jj} = Pc;
+                D.hyps(ii).jointKde.bw{jj} = bw;
+                D.hyps(ii).jointKde.xs{jj} = xs;
+                D.hyps(ii).jointKde.ys{jj} = ys;
             end
-            D.hyps(ii).jointKde.ps = Pc;
-            D.hyps(ii).jointKde.bw = bw;
-            D.hyps(ii).jointKde.xs = xs;
-            D.hyps(ii).jointKde.ys = ys;
         end
     end
     

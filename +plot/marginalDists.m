@@ -20,11 +20,13 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
     figs = [];
     if ~opts.oneKinPerFig
         fig = figure; set(gcf, 'color', 'w'); figs = [figs fig];        
-        ncols = ngrps;
+        ncols = sum(~isnan(grps));
         nrows = nfeats;
     end
+    ymxs = max(max(cell2mat(cat(1, Zs{:}))));
     
     C = 0;
+    muc = nan;
     for jj = 1:ngrps
         if isnan(grps(jj))
             continue;
@@ -51,8 +53,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
             ymn = inf; ymx = -inf;
             
             for kk = 1:nitems
-                ys = Zs{kk}{jj}(:,ii);
-                
+                ys = Zs{kk}{jj}(:,ii);                
                 ixmn = find(ys~=0, 1, 'first');
                 ixmx = find(ys~=0, 1, 'last');
                 ixmna = min(ixmna, ixmn); ixmxa = max(ixmxa, ixmx);
@@ -66,7 +67,8 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
                 ymn = min(min(ys), ymn); ymx = max(max(ys), ymx);
                 ylm = [ymn ymx];
                 cps = cumsum(ys/sum(ys));
-                mu = sum(xs.*ys/sum(ys));
+                lastMu = muc;
+                muc = sum(xs.*ys/sum(ys));
                 mn = xs(find(cps >= 0.1, 1, 'first'));
                 mx = xs(find(cps >= 0.9, 1, 'first'));                
                 if opts.showSe
@@ -74,15 +76,16 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
 %                     plot([mx mx], ylm, 'Color', clr);
                     yv = ((kk-0.5)/nitems)*ylm(2);
                     plot([mn mx], [yv yv], 'Color', clr);
-                    plot(mu, yv, 'o', 'Color', clr);
+                    plot(muc, yv, 'o', 'Color', clr);
 %                     [mn mx xs(find(cps >= 0.5, 1, 'first')) mu sum(ys)]
                 else
-                    plot([mu mu], 0.2*ylm, 'Color', clr);
+                    plot([muc muc], 0.2*ylm, 'Color', clr);
                 end
+                ylim([0 ymxs])
             end
             
             if opts.tightXs
-                xlim([xs(ixmna) xs(ixmxa)]);
+                xlim([xs(max(ixmna-1, 1)) xs(min(ixmxa+1, numel(xs)))]);
             end
             
             set(gca, 'XTick', []);
@@ -91,12 +94,13 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
             if ii == 1 || opts.oneColPerFig
                 ylabel(['\theta = ' num2str(grps(jj))]);
             end
-            if ii == 1 && ~isempty(opts.ttl)
+            if ii == 1 && ~isempty(opts.ttl) && ~opts.oneKinPerFig
                 title(opts.ttl);
             end
         end
         % add legend to last panel, if empty
-        if ~opts.oneColPerFig && C < ncols*nrows && ~isempty(nms)
+        if opts.oneKinPerFig && ~opts.oneColPerFig && ...
+                C < ncols*nrows && ~isempty(nms)
             subplot(ncols, nrows, C + 1); hold on;
             set(gca, 'XTick', []);
             set(gca, 'YTick', []);

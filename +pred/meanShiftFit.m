@@ -69,6 +69,8 @@ function [Z, rotThetas] = meanShiftFit(D, opts)
         end
 
     end
+    disp(['meanShiftFit rotThetas = ' ...
+        strjoin(arrayfun(@num2str, rotThetas, 'uni', 0), ', ')]);
     if opts.obeyBounds && d > 0
         warning(['Corrected ' num2str(d) ' mean-shift samples to lie within bounds']);
     end

@@ -9,7 +9,7 @@ S = cell(ndts, 4);
 
 fitNm = 'nIme_thetaActuals';
 lopts = struct('postLoadFcn', nan);
-hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16');
+hypopts = struct('nBoots', 0,  'obeyBounds', false, 'scoreGrpNm', 'thetaActualGrps16');
 
 dts = io.getAllowedDates();
 for ii = 1:numel(dts)
@@ -24,7 +24,7 @@ end
 
 fitNm = 'nIme_thetas';
 lopts = struct('postLoadFcn', nan);
-hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaGrps16');
+hypopts = struct('nBoots', 0,  'obeyBounds', false,'scoreGrpNm', 'thetaGrps16');
 
 dts = io.getAllowedDates();
 for ii = 1:numel(dts)
@@ -39,7 +39,7 @@ end
 
 fitNm = 'yIme_thetaActuals';
 lopts = struct('postLoadFcn', @io.makeImeDefault);
-hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16');
+hypopts = struct('nBoots', 0,  'obeyBounds', false,'scoreGrpNm', 'thetaActualGrps16');
 
 dts = io.getAllowedDates();
 for ii = 1:numel(dts)
@@ -54,7 +54,7 @@ end
 
 fitNm = 'yIme_thetas';
 lopts = struct('postLoadFcn', @io.makeImeDefault);
-hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaGrps16');
+hypopts = struct('nBoots', 0,  'obeyBounds', false,'scoreGrpNm', 'thetaGrps16');
 
 dts = io.getAllowedDates();
 for ii = 1:numel(dts)
@@ -67,13 +67,31 @@ end
 
 %%
 
-S = load('plots/scores.mat'); S = S.S;
+fitNm = 'nIme_thetaActuals_angErr';
+lopts = struct('postLoadFcn', nan);
+hypopts = struct('nBoots', 0,  'obeyBounds', false, 'scoreGrpNm', 'thetaActualGrps16');
+pms = struct('MAX_ANGULAR_ERROR', 20);
+
+dts = io.getAllowedDates();
+for ii = 1:numel(dts)
+    dtstr = dts{ii}
+    popts.plotdir = ['plots/' fitNm '/' dtstr];
+    D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
+    close all;
+end
+
+%%
+
+% S = load('plots/scoresVsBoundsNotThetas.mat'); S = S.S;
+% S = load('plots/scores.mat'); S = S.S;
 close all;
 [ndts, nrnds] = size(S);
 clrs = [0.8 0.2 0.2; 0.8 0.6 0.6; 0.2 0.2 0.8; 0.6 0.6 0.8];
 nhyps = numel(S{1});
+plot.init;
 for ii = 1:ndts
-    plot.init;
+%     plot.init;
+    subplot(3,2,ii); hold on;
     s = S(ii,:);
     scs = nan(nhyps, nrnds);
     for jj = 2:nhyps
@@ -81,14 +99,14 @@ for ii = 1:ndts
     end
     for jj = 1:nrnds
         sc = scs(:,jj);
-        sc = sc - min(sc);
-        sc = sc./max(sc);
+%         sc = sc - min(sc);
+%         sc = sc./max(sc);
         scs(:,jj) = sc;
     end
 %     dts{ii}
 %     scs
     
-    for jj = 1:nrnds
+    for jj = [1 2]%1:nrnds
         plot(1:nhyps, scs(:,jj), 'Color', clrs(jj,:), 'LineWidth', 3);
     end
     ylabel('mean error, normalized');

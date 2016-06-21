@@ -70,7 +70,7 @@ function Z = sameCloudFit(D, opts)
         if isnan(opts.minDist)
             if ~isnan(opts.kNN)
                 [~,ix] = sort(ds);
-                kNNinds = ix(1:opts.kNN); % take nearest neighbors
+                kNNinds = ix(1:min(opts.kNN, sum(~isinf(ds)))); % take nearest neighbors
                 if opts.minNorm % pick neighbor with smallest norm
                     [~,ix] = min(Z1nrms(kNNinds));
                     kNNinds = kNNinds(ix);

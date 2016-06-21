@@ -4,6 +4,7 @@ function meanErrorByKinByCol(D, Hs)
     mx = 0;
     for ii = 1:numel(Hs)
         vs = Hs(ii).errOfMeansByKinByCol;
+%         vs = Hs(ii).histErrByKinByCol;
         if isempty(vs)
             continue;
         end
@@ -18,7 +19,8 @@ function meanErrorByKinByCol(D, Hs)
         subplot(ncols, nrows, ii); hold on;
         set(gca, 'FontSize', 18);
         vs = Hs(ii).errOfMeansByKinByCol';
-        imagesc(1:numel(ths), 1:size(vs,1), vs);
+%         vs = Hs(ii).histErrByKinByCol';
+        imagesc(1:size(vs,2), 1:size(vs,1), vs);
         axis image;
         ttl = Hs(ii).name;
         if numel(Hs) == 1
@@ -30,7 +32,7 @@ function meanErrorByKinByCol(D, Hs)
         axis square;
         
         if ii == 1
-            lbls = arrayfun(@num2str, ths, 'uni', 0);
+            lbls = arrayfun(@num2str, ths, 'uni', 0)
             set(gca, 'XTick', 1:numel(lbls));
             set(gca, 'XTickLabel', lbls');            
             set(gca, 'XTickLabelRotation', 45);

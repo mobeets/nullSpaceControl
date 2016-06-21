@@ -2,17 +2,23 @@
 % nms = {'habitual', 'pruning', 'cloud', 'unconstrained', 'mean shift prune'};
 % nms = {'unconstrained', 'habitual', 'pruning', 'cloud', ...
 %     'mean shift prune', 'mean shift'};
-nms = {'habitual', 'pruning', 'cloud', 'cloud-og', 'pruning-1', ...
+nms = {'habitual', 'pruning', 'pruning-1', 'cloud', 'cloud-og', ...
     'mean shift prune', 'mean shift', 'unconstrained'};
+nms = {'habitual', 'pruning', 'pruning-1', 'cloud'};
+nms = {};
+% nms = {'cloud', 'pruning', 'habitual', 'mean shift', 'mean shift prune'};
+% nms = {'habitual', 'pruning', 'pruning-1', 'cloud', 'unconstrained'};%, 'minimum'};
 % nms = {'unconstrained', 'habitual', 'pruning', 'cloud'};
 
-hypopts = struct('nBoots', 0, 'obeyBounds', false, ...
-    'scoreGrpNm', 'thetaActualGrps16');
+hypopts = struct('nBoots', 0, 'obeyBounds', true, ...
+    'scoreGrpNm', 'thetaActualGrps');
 
 lopts = struct('postLoadFcn', @io.makeImeDefault);
 % lopts = struct('postLoadFcn', nan);
 popts = struct();
 % popts = struct('plotdir', '', 'doSave', true, 'doTimestampFolder', false);
+% pms = struct('MAX_ANGULAR_ERROR', 20);
+pms = struct();
 
 dts = io.getAllowedDates();
 % Ss = cell(numel(dts),1);
@@ -43,11 +49,31 @@ dts = io.getAllowedDates();
 % %     subplot(1,2,2); hold on; plot(xs, ys, '.');
 % end
 
-for ii = 1:numel(dts)
+for ii = 1%1:numel(dts)
     dtstr = dts{ii}
-%     popts.plotdir = ['plots/allNewNoIme/' dtstr];
-%     hypopts.boundsType = 'none';
-    D = fitByDate(dtstr, [], nms, popts, lopts, hypopts);
+%     popts.plotdir = ['plots/yIme_thetaActuals1/' dtstr];
+    D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
+    continue;
+%     ps = [10 20 30 45];
+%     Zs = cell(numel(ps),1); nmsc = cell(size(Zs));
+%     for jj = 1:numel(ps)
+%         custopts = hypopts;
+%         custopts.thetaTol = ps(jj);
+%         Zs{jj} = pred.habContFit(D, custopts);
+%         nmsc{jj} = ['hab-' num2str(ps(jj))];
+%     end
+%     D = pred.addAndScoreHypothesis(D, Zs, nmsc);
+%     [~, inds] = sort({D.hyps.name});
+    figure; plot.barByHypQuick(D.score(2:end), 'errOfMeans'); title(D.datestr);
+    saveas(gcf, 'plots/tmp.png');
+    
+    continue;
+    
+    [~, inds] = sort({D.hyps.name});
+    figure;
+    subplot(2,1,1); plot.barByHypQuick(D.score(inds), 'errOfMeans');
+    subplot(2,1,2); plot.barByHypQuick(D.score(inds), 'kdeErr');
+    continue;
     
 %     ps = [5 10 15 20 30 40 50];
 %     Zs = cell(numel(ps),1); nmsc = cell(size(Zs));
@@ -72,6 +98,7 @@ for ii = 1:numel(dts)
 %         'pruning-actgrp', 'pruning-thgrp'});
     
     inds = 2:numel(D.hyps);
+%     inds = [2 3 4 5 6 8 9];
 %     [~, inds] = sort({D.hyps.name});
 %     figure; plot.errorByKin(D.score(inds), 'errOfMeansByKin');
 %     figure; plot.errorByKin(D.score(inds), 'covErrorByKin');
@@ -280,4 +307,36 @@ for jj = 1:5
     title(dts{jj});
     v = axis; lo = min(v(1:2:end)); up = max(v(2:2:end)); axis([lo up lo up]);
 end
-    
+
+%%
+
+disp('-------');
+opts = struct('nbins', nan, 'hypInds', [1 2 3 4 5], 'grpsToShow', [135], ...
+    'oneKinPerFig', true, 'ttl', '', 'doFit', false, ...
+    'getCounts', false, 'tightXs', true);
+[~, opts] = plot.fitAndPlotMarginals(D, opts);
+
+% set(gcf, 'PaperUnits', 'inches', 'Units', 'inches');
+% pos = get(gcf, 'pos');
+% set(findall(gcf,'-property','FontSize'),'FontSize', 6);
+% pos = [pos(1) pos(2) 2*9 2*9];
+% set(gcf,'pos', pos, 'PaperPosition', pos);
+% 
+% fignm = [D.datestr '-' strjoin({D.hyps(opts.hypInds).name}, '_')];
+% fignm = [fignm '(nbins=' num2str(opts.nbins) ')'];
+% saveas(gcf, ['plots/marginals/' fignm '.png'])
+
+% green is cloud
+
+%%
+
+figure; plot.meanErrorByKinByCol(D, D.score([2 3 4 5 8 9]));
+
+%%
+
+% 7th dim, theta=90
+% The data points that make up the histogram bars with largest discrepancies:
+% - what do they look like through each mapping?
+% - Where is the cursor target/location for each? 
+
+
