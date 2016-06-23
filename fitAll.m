@@ -5,12 +5,13 @@
 nms = {'habitual', 'pruning', 'pruning-1', 'cloud', 'cloud-og', ...
     'mean shift prune', 'mean shift', 'unconstrained'};
 nms = {'habitual', 'pruning', 'pruning-1', 'cloud'};
-nms = {};
+nms = {'habitual', 'pruning', 'cloud'};
+nms = {'cloud', 'cloud-new'};
 % nms = {'cloud', 'pruning', 'habitual', 'mean shift', 'mean shift prune'};
 % nms = {'habitual', 'pruning', 'pruning-1', 'cloud', 'unconstrained'};%, 'minimum'};
 % nms = {'unconstrained', 'habitual', 'pruning', 'cloud'};
 
-hypopts = struct('nBoots', 0, 'obeyBounds', true, ...
+hypopts = struct('nBoots', 0, 'obeyBounds', false, ...
     'scoreGrpNm', 'thetaActualGrps');
 
 lopts = struct('postLoadFcn', @io.makeImeDefault);
@@ -49,11 +50,11 @@ dts = io.getAllowedDates();
 % %     subplot(1,2,2); hold on; plot(xs, ys, '.');
 % end
 
-for ii = 1%1:numel(dts)
+for ii = 1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/yIme_thetaActuals1/' dtstr];
     D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
-    continue;
+%     continue;
 %     ps = [10 20 30 45];
 %     Zs = cell(numel(ps),1); nmsc = cell(size(Zs));
 %     for jj = 1:numel(ps)
@@ -102,7 +103,11 @@ for ii = 1%1:numel(dts)
 %     [~, inds] = sort({D.hyps.name});
 %     figure; plot.errorByKin(D.score(inds), 'errOfMeansByKin');
 %     figure; plot.errorByKin(D.score(inds), 'covErrorByKin');
-    figure; plot.barByHypQuick(D.score(inds), 'errOfMeans'); title(dtstr);
+    
+    figure;
+%     plot.barByHypQuick(D.score(inds), 'errOfMeans');
+    plot.errorByKin(D.score(inds), 'errOfMeansByKin');
+    title(dtstr);
     continue;
     
     plot.init;

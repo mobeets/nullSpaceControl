@@ -55,7 +55,7 @@ function Z = sameCloudFit(D, opts)
     for t = 1:nt
         % calculate distance in current row space
         %   of all intuitive activity from current activity
-        ds0 = getDistances(R1, R2(t,:));        
+        ds0 = getDistances(R1, R2(t,:));
         ds = ds0;
         opts.isOutOfBndsNul = pred.boundsFcnCond(R2(t,:), R1, N1, ...
             opts.boundsThresh);

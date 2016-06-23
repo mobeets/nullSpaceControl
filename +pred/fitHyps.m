@@ -23,6 +23,10 @@ function D = fitHyps(D, nms, opts)
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'pruning-1', pred.sameCloudFit(D, custopts));
     end
+    if ismember('cloud-1', nms)
+        % this is the same as "cloud", but more simply implemented
+        D.hyps = pred.addPrediction(D, 'pruning-inv', pred.closestRowSpaceFit(D, opts));
+    end
     if ismember('cloud', nms) || ismember('cloud-raw', nms)
         custopts = struct('thetaTol', nan, 'minDist', nan, 'kNN', 1);
         custopts = io.updateParams(opts, custopts, true);

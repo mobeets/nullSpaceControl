@@ -32,7 +32,7 @@ function meanErrorByKinByCol(D, Hs)
         axis square;
         
         if ii == 1
-            lbls = arrayfun(@num2str, ths, 'uni', 0)
+            lbls = arrayfun(@num2str, ths, 'uni', 0);
             set(gca, 'XTick', 1:numel(lbls));
             set(gca, 'XTickLabel', lbls');            
             set(gca, 'XTickLabelRotation', 45);
