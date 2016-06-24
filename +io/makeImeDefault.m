@@ -15,7 +15,7 @@ function D = makeImeDefault(D)
     
     D.blocks(1) = rmThNans(D.blocks(1));
     D.blocks(2) = rmThNans(D.blocks(2));
-    
+        
 end
 
 function B = rmThNans(B)

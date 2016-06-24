@@ -8,7 +8,43 @@ function D = fitHyps(D, nms, opts)
     D.hyps = pred.addPrediction(D, 'observed', D.blocks(2).latents);
     if ismember('true', nms)
         D.hyps = pred.addPrediction(D, 'true', pred.cvMeanFit(D, opts));
-    end    
+    end
+    if ismember('best-sample', nms)
+        % best sampling method
+        D.hyps = pred.addPrediction(D, 'best-sample', ...
+            pred.closestNulValFit_cheat(D, opts));
+    end
+    if ismember('best-habitual-inv', nms)
+        % best inv-habitual method
+        D.hyps = pred.addPrediction(D, 'best-habitual-inv', ...
+            pred.closestNulValNotInGrpFit_cheat(D, opts));
+    end
+    if ismember('best-habitual', nms)
+        % best habitual method
+        D.hyps = pred.addPrediction(D, 'best-habitual', ...
+            pred.closestNulValInGrpFit_cheat(D, opts));
+    end
+    if ismember('best-cloud-20', nms)
+        % best habitual method
+        D.hyps = pred.addPrediction(D, 'best-cloud-20', ...
+            pred.closestNulValWithCloseRowValFit_cheat(D, opts));
+    end
+    
+    if ismember('cloud-1s', nms)
+        % this is the same as "cloud-1", but more simply implemented
+        D.hyps = pred.addPrediction(D, 'cloud-1s', ...
+            pred.closestRowValFit(D, opts));
+    end
+    if ismember('pruning-1s', nms)
+        % this is the same as "pruning-1", but more simply implemented
+        D.hyps = pred.addPrediction(D, 'pruning-1s', ...
+            pred.closestRowValInGrpFit(D, opts));
+    end
+    if ismember('pruning-reverse', nms)
+        D.hyps = pred.addPrediction(D, 'pruning-reverse', ...
+            pred.closestThetaWithCloseRowValFit(D, opts));
+    end
+
     if ismember('habitual', nms)        
         D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D, opts));
     end
@@ -22,12 +58,8 @@ function D = fitHyps(D, nms, opts)
         custopts = struct('minDist', nan, 'kNN', 1);
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'pruning-1', pred.sameCloudFit(D, custopts));
-    end
-    if ismember('cloud-1', nms)
-        % this is the same as "cloud", but more simply implemented
-        D.hyps = pred.addPrediction(D, 'pruning-inv', pred.closestRowSpaceFit(D, opts));
-    end
-    if ismember('cloud', nms) || ismember('cloud-raw', nms)
+    end    
+    if ismember('cloud', nms) || ismember('cloud-1', nms)
         custopts = struct('thetaTol', nan, 'minDist', nan, 'kNN', 1);
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'cloud', pred.sameCloudFit(D, custopts));

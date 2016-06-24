@@ -19,8 +19,11 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
         clr = nan;
     end
     npanels = size(ys,2);
-    nps_c = ceil(sqrt(npanels));
-    nps_r = round(npanels/nps_c);
+    nrows = ceil(sqrt(npanels));
+    ncols = round(npanels/nrows);
+    
+    nrows = 1;
+    ncols = npanels;
     
     grps = sort(unique(zs));
     [Gms, Gses, ~, Gs] = score.avgByThetaGroup(xs, ys, grps);
@@ -34,7 +37,7 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
     ymx = max(ymx, 2);
     ymx = 3;
     for jj = 1:npanels
-        subplot(nps_c, nps_r, jj);
+        subplot(nrows, ncols, jj);
         set(gca, 'FontSize', 14);
         
 %         polarPlotMean(Gs, Gms(:,jj), ymn);
@@ -43,7 +46,7 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
 
         hold on;
         if doScatter
-            scatterByColorGroup(xs, ys(:,jj), zs, true);
+            scatterByColorGroup(xs, ys(:,jj), zs, false);
         end
         if doMean
             plotGroupMeanAndSE(Gs, Gms(:,jj), Gses(:,jj), clr);
@@ -55,10 +58,13 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
         set(gca, 'XTick', grps(1:2:end));
         set(gca, 'XTickLabel', grps(1:2:end));
         set(gca, 'XTickLabelRotation', 45);
-    end    
-    xlabel('\theta between cursor and target');
-    ylabel('activity in column');
-    set(gcf, 'color', 'w');
+        
+        if jj == 1
+            xlabel('\theta');
+            ylabel('activity in column');
+            set(gcf, 'color', 'w');
+        end
+    end        
 end
 
 function polarPlotMean(xs, ys, ymn)
@@ -76,7 +82,7 @@ function scatterByColorGroup(xs, ys, grps, doWrap)
     sz = 10;
     allgrps = sort(unique(grps));
     cmap = cbrewer('div', 'RdYlGn', numel(allgrps));
-    cmap = circshift(cmap, floor(numel(allgrps)/2));
+%     cmap = circshift(cmap, floor(numel(allgrps)/2));
     
     % plot scatter of each point
     for ii = 1:numel(allgrps)

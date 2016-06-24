@@ -24,9 +24,9 @@ function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr, NB, ix0, doTrans)
         doTrans = false;
     end
 
-    xs = Blk.thetas;
+    xs = Blk.thetaActualGrps;
     ys = Y.latents*NB;
-    grps = Blk.targetAngle;
+    grps = Blk.thetaActualGrps;
     
     % ignore nans
     ix = ix0 & ~isnan(sum(ys,2));

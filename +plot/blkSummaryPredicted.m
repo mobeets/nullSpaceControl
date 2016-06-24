@@ -20,6 +20,7 @@ function blkSummaryPredicted(D, H, doRotate, doSolo, doTrans, NB)
     if isempty(NB)
         NB = D.blocks(2).fDecoder.NulM2;
         if doRotate
+            error('rotated...');
             [~,~,v] = svd(D.blocks(2).latents*NB);
             NB = NB*v;
         end
@@ -30,10 +31,10 @@ function blkSummaryPredicted(D, H, doRotate, doSolo, doTrans, NB)
             [], doTrans);
         plot.subtitle([H.name ' in null(B2)'], 'FontSize', 14);
     else
-        plot.blkSummary(D.blocks(2), [], H, false, true, clr2, NB, ...
-            [], doTrans);
         plot.blkSummary(D.blocks(2), [], [], false, true, clr1, NB, ...
             [], doTrans);
+        plot.blkSummary(D.blocks(2), [], H, false, true, clr2, NB, ...
+            [], doTrans);        
         plot.subtitle(['observed [blue] vs ' H.name ...
             ' [red] in null(B2)'], 'FontSize', 14);
     end

@@ -13,7 +13,9 @@ function barByHyp(ys, nms, ylbl, errL, errR)
     FontSize = 18;
     
     hold on;
-    bar(ys, 'FaceColor', [1 1 1], 'EdgeColor', [0 0 0], 'LineWidth', lw);
+    for ii = 1:numel(ys)
+        bar(ii, ys(ii), 'FaceColor', [1 1 1], 'EdgeColor', [0 0 0], 'LineWidth', lw);
+    end
     if ~isempty(errL)
 %         eb = errorbar(1:numel(nms), ys, ys-errL, errR-ys, 'k.', 'Linewidth', lw);
         line([1:numel(nms); 1:numel(nms)], [ys-errL; ys+errR], ...

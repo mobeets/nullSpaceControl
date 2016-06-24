@@ -2,14 +2,25 @@ function [D, opts] = fitAndPlotMarginals(D, opts)
     if nargin < 2
         opts = struct();
     end
-    gs = D.blocks(1).thetaActualGrps;
-    if ~isfield(opts, 'nbins') || isnan(opts.nbins)
+    defopts = struct('nbins', nan, 'doFit', false, 'hypInds', [], ...
+        'grpsToShow', [], 'ttl', D.datestr, 'showSe', false, ...
+        'grpNm', 'thetaActualGrps');
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
+    if isempty(opts.hypInds)
+        error('Must set opts.hypInds');
+    end
+    if ~isnan(opts.nbins) && ~opts.doFit
+        warning('nbins is set but not doFit.');
+    end
+    
+    gs = D.blocks(2).(opts.grpNm);
+    if isnan(opts.nbins)
         Y = D.hyps(1).nullActivity.zNull;
         opts.nbins = score.optimalBinCount(Y, gs, false);
     end
-
+    
     % make and score marginal histograms
-    if ~isfield(opts, 'doFit') || opts.doFit
+    if opts.doFit
         Xs = [];
         for ii = 1:numel(D.hyps)
             YN = D.hyps(ii).nullActivity.zNull;
@@ -24,25 +35,18 @@ function [D, opts] = fitAndPlotMarginals(D, opts)
         end
     end
 
-    % plot marginal hists
-    if ~isfield(opts, 'hypInds')
-        return;
-    end
+    % plot marginal hists    
     Hs = D.hyps(opts.hypInds);
-    Hs(1).marginalHist = rmfield(Hs(1).marginalHist, 'baseErr');
+    if isfield(Hs(1).marginalHist, 'baseErr')
+        Hs(1).marginalHist = rmfield(Hs(1).marginalHist, 'baseErr');
+    end
     hists = [Hs.marginalHist];
     grps = hists(1).grps;
     Xs = hists(1).Xs;
     Zs = {hists.Zs};
 
-    if isfield(opts, 'grpsToShow') && ~isempty(opts.grpsToShow)
+    if ~isempty(opts.grpsToShow)
         grps(~ismember(grps, opts.grpsToShow)) = nan;
-    end
-    if ~isfield(opts, 'ttl')
-        opts.ttl = D.datestr;
-    end
-    if ~isfield(opts, 'showSe')
-        opts.showSe = false;
     end
     plot.marginalDists(Zs, Xs, grps, opts, {Hs.name});
 

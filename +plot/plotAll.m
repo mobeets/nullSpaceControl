@@ -1,8 +1,8 @@
 function plotAll(D, opts, hopts)
-    if nargin < 3
+    if nargin < 2
         opts = struct();
     end
-    if nargin < 4
+    if nargin < 3
         hopts = struct();
     end
     assert(isa(opts, 'struct'));
@@ -72,7 +72,7 @@ function plotAll(D, opts, hopts)
     % Plot hypotheses
     if opts.doSolos
         for ii = 1:numel(Hs0)
-            plot.plotHyp(D, Hs(ii), opts, fldr, hopts);
+            plot.plotHyp(D, Hs0(ii), opts, fldr, hopts);
         end
     end
 

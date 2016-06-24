@@ -1,4 +1,7 @@
-function meanErrorByKinByCol(D, Hs)
+function meanErrorByKinByCol(D, Hs, doStack)
+    if nargin < 3
+        doStack = true;
+    end
     
     % find max score, to scale others by
     mx = 0;
@@ -12,11 +15,16 @@ function meanErrorByKinByCol(D, Hs)
     end
     
     set(gcf, 'color', 'w');
-    ncols = round(sqrt(numel(Hs)));
-    nrows = ceil(numel(Hs)/ncols);
+    if doStack
+        nrows = round(sqrt(numel(Hs)));
+        ncols = ceil(numel(Hs)/ncols);
+    else
+        nrows = 1;
+        ncols = numel(Hs);
+    end
     ths = Hs(1).grps;
     for ii = 1:numel(Hs)
-        subplot(ncols, nrows, ii); hold on;
+        subplot(nrows, ncols, ii); hold on;
         set(gca, 'FontSize', 18);
         vs = Hs(ii).errOfMeansByKinByCol';
 %         vs = Hs(ii).histErrByKinByCol';

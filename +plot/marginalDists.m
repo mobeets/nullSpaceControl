@@ -13,6 +13,8 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
     assert(isa(Xs, 'cell'));
     if all(isempty(opts.clrs))
         clrs = cbrewer('qual', 'Set1', nitems);
+    else
+        clrs = opts.clrs;
     end
     [nbins, nfeats] = size(Zs{1}{1});
     ngrps = numel(grps);
@@ -79,7 +81,8 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
                     plot(muc, yv, 'o', 'Color', clr);
 %                     [mn mx xs(find(cps >= 0.5, 1, 'first')) mu sum(ys)]
                 else
-                    plot([muc muc], 0.2*ylm, 'Color', clr);
+                    plot([muc muc], 0.2*ylm, 'Color', clr, 'LineWidth', 2);
+%                     plot([muc muc], [0 1], 'Color', clr, 'LineWidth', 2);
                 end
                 ylim([0 ymxs])
             end
@@ -88,6 +91,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
                 xlim([xs(max(ixmna-1, 1)) xs(min(ixmxa+1, numel(xs)))]);
             end
             
+%             xlim([-5 5]);
             set(gca, 'XTick', []);
             set(gca, 'YTick', []);
             xlabel(['YN_' num2str(ii)]);
