@@ -17,7 +17,7 @@ function meanErrorByKinByCol(D, Hs, doStack)
     set(gcf, 'color', 'w');
     if doStack
         nrows = round(sqrt(numel(Hs)));
-        ncols = ceil(numel(Hs)/ncols);
+        ncols = ceil(numel(Hs)/nrows);
     else
         nrows = 1;
         ncols = numel(Hs);

@@ -31,7 +31,12 @@ function Zsamp = randZIfNearbyTheta(theta, B, theta_tol, takeTheMean, ...
     end
     inds = 1:numel(nearbyIdxs);
     inds = inds(nearbyIdxs);
-    ix = randi(numel(inds));
-    Zsamp = B.latents(inds(ix),:);    
-
+    if numel(inds) == 0
+        disp('increasing theta_tol');
+        Zsamp = pred.randZIfNearbyTheta(theta, B, 1.1*theta_tol, ...
+            takeTheMean, useActuals, offset);
+    else
+        ix = randi(numel(inds));
+        Zsamp = B.latents(inds(ix),:);
+    end
 end

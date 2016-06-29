@@ -32,7 +32,7 @@ function [D, Stats, LLs] = fitSession(dtstr, opts)
         savePlot(fig, opts.plotdir, [D.datestr '-bytrial']);
     end
     if opts.doSave
-        error('You sure?');
+%         error('You sure?');
         saveIme(D.ime, fnm);
     end
 end

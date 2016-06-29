@@ -50,6 +50,7 @@ function Z = sameCloudFit(D, opts)
         opts.rotThetas = opts.rotThetas*ones(ngs,1);
     end
     assert(numel(opts.rotThetas) == ngs);
+    didWarn = false;
     
     Zsamp = nan(nt,nn);
     for t = 1:nt
@@ -65,7 +66,16 @@ function Z = sameCloudFit(D, opts)
             rotTheta = opts.rotThetas(ind);
             th = mod(ths(t) + rotTheta, 360);
             dsThetas = getAngleDistance(ths1, th);
-            ds(dsThetas > opts.thetaTol) = inf;
+            if sum(dsThetas <= opts.thetaTol) == 0
+                assert(sum(dsThetas <= 2*opts.thetaTol) > 0);
+                ds(dsThetas > 2*opts.thetaTol) = inf;
+                if ~didWarn
+                    disp('Increasing theta_tol');
+                    didWarn = true;
+                end
+            else
+                ds(dsThetas > opts.thetaTol) = inf;
+            end            
         end
         if isnan(opts.minDist)
             if ~isnan(opts.kNN)

@@ -3,58 +3,30 @@
 % nms = {'unconstrained', 'habitual', 'pruning', 'cloud', ...
 %     'mean shift prune', 'mean shift'};
 nms = {'habitual', 'pruning', 'pruning-1', 'cloud', 'cloud-og', ...
-    'mean shift prune', 'mean shift', 'unconstrained'};
-nms = {'habitual', 'pruning', 'pruning-1', 'cloud'};
-nms = {'habitual', 'pruning', 'cloud'};
-nms = {'cloud', 'cloud-new'};
-% nms = {'cloud', 'pruning', 'habitual', 'mean shift', 'mean shift prune'};
-% nms = {'habitual', 'pruning', 'pruning-1', 'cloud', 'unconstrained'};%, 'minimum'};
-% nms = {'unconstrained', 'habitual', 'pruning', 'cloud'};
+    'mean shift prune', 'mean shift', 'unconstrained'};%, 'baseline', 'minimum'};
 
 hypopts = struct('nBoots', 0, 'obeyBounds', false, ...
-    'scoreGrpNm', 'thetaActualGrps');
+    'scoreGrpNm', 'thetaActualGrps16');
 
 lopts = struct('postLoadFcn', @io.makeImeDefault);
 % lopts = struct('postLoadFcn', nan);
-popts = struct();
-% popts = struct('plotdir', '', 'doSave', true, 'doTimestampFolder', false);
+% popts = struct();
+popts = struct('plotdir', '', 'doSave', true, 'doTimestampFolder', false);
 % pms = struct('MAX_ANGULAR_ERROR', 20);
 pms = struct();
 
 dts = io.getAllowedDates();
+dts = {'20120327', '20120331', '20131211', '20131212'};
+% dts = io.getDates();
 % Ss = cell(numel(dts),1);
-
-% for ii = 1:numel(dts)
-%     dtstr = dts{ii}
-% %     lopts = struct('postLoadFcn', @io.makeImeDefault);
-% %     D = io.quickLoadByDate(dtstr, [], lopts);
-%     lopts = struct('postLoadFcn', nan);
-%     D = io.quickLoadByDate(dtstr, [], lopts);
-%     B = D.blocks(2);
-%     
-%     [thsIme2, errIme2, actIme2] = mvStats(B, B.posIme);
-%     [thsIme, errIme, actIme] = mvStats(B, B.posIme, B.velIme);
-%     [thsObs, errObs, actObs] = mvStats(B, B.pos);
-%     
-%     
-%     [nanmean(abs(errObs)) nanmean(abs(errIme)) nanmean(abs(errIme2))]
-%     continue;
-%     
-%     [mean(D.blocks(2).thetaGrps == D.blocks(2).thetaActualGrps) mean(D.blocks(2).thetaImeGrps == D.blocks(2).thetaActualImeGrps)]
-%     [nanmean(abs(D.blocks(2).angError)) nanmean(abs(D.blocks(2).angErrorIme))]
-% %     plot.init;
-% %     plot(D.blocks(2).angError, D.blocks(2).angErrorIme, '.');
-% %     xs = D.blocks(2).thetasIme; ys = D.blocks(2).thetaActualsIme;
-% %     subplot(1,2,1); hold on; plot(xs, ys, '.');
-% %     xs = D.blocks(2).thetas; ys = D.blocks(2).thetaActuals;
-% %     subplot(1,2,2); hold on; plot(xs, ys, '.');
-% end
 
 for ii = 1:numel(dts)
     dtstr = dts{ii}
-%     popts.plotdir = ['plots/yIme_thetaActuals1/' dtstr];
+    popts.plotdir = ['plots/moreDts/' dtstr];
     D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
-%     continue;
+    save(['data/fits/moreDts/' dtstr], 'D');
+    continue;
+    
 %     ps = [10 20 30 45];
 %     Zs = cell(numel(ps),1); nmsc = cell(size(Zs));
 %     for jj = 1:numel(ps)
@@ -344,4 +316,44 @@ figure; plot.meanErrorByKinByCol(D, D.score([2 3 4 5 8 9]));
 % - what do they look like through each mapping?
 % - Where is the cursor target/location for each? 
 
+%%
 
+dtscur = dir('plots/moreDts');
+dtscur = {dtscur(cellfun(@numel, {dtscur.name}) > 2).name};
+
+scs = cell(numel(dtscur),1);
+scsCov = scs;
+for ii = 1:numel(dtscur)
+    dtstr = dtscur{ii}
+    X = load(['data/fits/moreDts/' dtstr '.mat']); D = X.D;
+    scs{ii} = [D.score.errOfMeans];
+    scsCov{ii} = [D.score.covError];
+end
+nms = {D.score.name};
+scs = cell2mat(scs);
+scsCov = cell2mat(scsCov);
+
+%%
+
+inds = 1:numel(nms);
+inds = ~ismember(nms, {'observed', 'pruning-1', 'cloud-og'});
+S = scsCov(:,inds);
+dtnms = dtscur;
+% [~,ix] = sort(min(S, [], 2));
+% S = S(ix,:);
+% dtnms = dtnms(ix);
+
+nrm = 1;
+nrm = median(S,2);
+% nrm = max(S,[],2);
+% nrm = scs(:,strcmp(nms, 'unconstrained'));
+
+plot.init;
+for ii = 1:size(S,2)
+    plot(1:numel(dtnms), S(:,ii)./nrm, 'o-', 'LineWidth', 3);
+end
+set(gca, 'XTick', 1:numel(dtnms));
+set(gca, 'XTickLabel', dtnms);
+set(gca, 'XTickLabelRotation', 45);
+ylabel('cov error');
+legend(nms(inds), 'Location', 'NorthEast');

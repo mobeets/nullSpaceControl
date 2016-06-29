@@ -272,19 +272,21 @@ close all;
 dts = io.getAllowedDates();
 for ii = 2%1:numel(dts)
     dtstr = dts{ii}
-    X = load(['data/fits/' dtstr '.mat']); D = X.D;    
+    X = load(['data/fits/savedFull/' dtstr '.mat']); D = X.D;
+%     continue;
 %     inds = 2:numel(D.score);
-    inds = [2 9 3 5 7];
+    inds = [2 11 3 5 7 8 9];
+    inds = [8 2 11 3 5 7];
     hypInd = 5;
-    baseClr = [0 0 0];
-    hypClr = clrs(2,:);    
+    hypClr = clrs(2,:);
+    baseClr = [0 0 0];        
     
-%     popts.plotdir = ['plots/saved/' dtstr]
+%     popts.plotdir = ['plots/savedFull/' dtstr]
 %     plot.plotAll(D, popts);
 %     close all;
-
+% 
 %     figure(1);% clf;
-%     subplot(1,numel(dts),ii); hold on;
+% %     subplot(1,numel(dts),ii); hold on;
 %     plot.barByHypQuick(D.score(inds), 'errOfMeans');
 %     title(dtstr);
 %     brs = findobj(gca, 'Type', 'Bar');
@@ -292,7 +294,7 @@ for ii = 2%1:numel(dts)
 %     for jj = 1:numel(brs)
 %         brs(jj).FaceColor = clrs(jj,:);
 %     end
-%     if ii == 1
+%     if ii == 2
 %         ylabel('error in mean');
 %     else
 %         ylabel('');
@@ -302,7 +304,7 @@ for ii = 2%1:numel(dts)
 %     title(dtstr);
 %     
 %     figure(2);% clf;
-%     subplot(1,numel(dts),ii); hold on;
+% %     subplot(1,numel(dts),ii); hold on;
 %     plot.barByHypQuick(D.score(inds), 'covError');
 %     title(dtstr);
 %     brs = findobj(gca, 'Type', 'Bar');
@@ -310,7 +312,7 @@ for ii = 2%1:numel(dts)
 %     for jj = 1:numel(brs)
 %         brs(jj).FaceColor = clrs(jj,:);
 %     end
-%     if ii == 1
+%     if ii == 2
 %         ylabel('error in covariance');        
 %     else
 %         ylabel('');
@@ -321,43 +323,54 @@ for ii = 2%1:numel(dts)
 %     
 %     continue;
     
-%     figure(3); clf;
-%     plot.meanErrorByKinByCol(D, D.score(inds), false);
-    
-    fig = figure(4); clf;    
-    plot.blkSummaryPredicted(D, D.score(hypInd), false, false, false);
-%     axs = findobj(fig, 'Type', 'Axes');
-%     for jj = 1:numel(axs)
-%         set(axs(jj), 'YLim', [-6 15]);
+    figure(3); clf;
+    plot.meanErrorByKinByCol(D, D.score(inds), false);
+%     
+%     fig = figure(4); clf;    
+%     plot.blkSummaryPredicted(D, D.score(hypInd), false, false, false);
+% %     axs = findobj(fig, 'Type', 'Axes');
+% %     for jj = 1:numel(axs)
+% %         set(axs(jj), 'YLim', [-6 15]);
+% %     end
+%     lns = findobj(fig, 'LineStyle', '-', 'Color', [0.2 0.2 0.8]);
+%     for jj = 1:numel(lns)
+%         lns(jj).Color = baseClr;
 %     end
-    lns = findobj(fig, 'LineStyle', '-', 'Color', [0.2 0.2 0.8]);
-    for jj = 1:numel(lns)
-        lns(jj).Color = baseClr;
-    end
-    lns = findobj(fig, 'LineStyle', '-', 'Color', [0.8 0.2 0.2]);
-    for jj = 1:numel(lns)
-        lns(jj).Color = hypClr;
-    end
-    lns = findobj(fig, 'Marker', 'o', 'MarkerFaceColor', [0.2 0.2 0.8]);
-    for jj = 1:numel(lns)
-        lns(jj).MarkerFaceColor = baseClr;
-        lns(jj).MarkerEdgeColor = lns(jj).MarkerFaceColor;
-    end
-    lns = findobj(fig, 'Marker', 'o', 'MarkerFaceColor', [0.8 0.2 0.2]);
-    for jj = 1:numel(lns)
-        lns(jj).MarkerFaceColor = hypClr;
-        lns(jj).MarkerEdgeColor = lns(jj).MarkerFaceColor;
-    end
-    title('');
+%     lns = findobj(fig, 'LineStyle', '-', 'Color', [0.8 0.2 0.2]);
+%     for jj = 1:numel(lns)
+%         lns(jj).Color = hypClr;
+%     end
+%     lns = findobj(fig, 'Marker', 'o', 'MarkerFaceColor', [0.2 0.2 0.8]);
+%     for jj = 1:numel(lns)
+%         lns(jj).MarkerFaceColor = baseClr;
+%         lns(jj).MarkerEdgeColor = lns(jj).MarkerFaceColor;
+%     end
+%     lns = findobj(fig, 'Marker', 'o', 'MarkerFaceColor', [0.8 0.2 0.2]);
+%     for jj = 1:numel(lns)
+%         lns(jj).MarkerFaceColor = hypClr;
+%         lns(jj).MarkerEdgeColor = lns(jj).MarkerFaceColor;
+%     end
+%     title('');
 
-    grpVals = [0 180];
-    plot.fitAndPlotMarginals(D, struct('hypInds', [1 hypInd], ...
+    grpVals = [90 180];
+    plot.fitAndPlotMarginals(D, struct('hypInds', [1 hypInd 2], ...
         'oneKinPerFig', false, 'tightXs', true, 'grpsToShow', grpVals, ...
-        'nbins', 200, 'clrs', [baseClr; hypClr], 'ttl', '', 'doFit', true));
+        'nbins', 50, 'clrs', [baseClr; hypClr; clrs(1,:)], 'ttl', '', ...
+        'sameLimsPerPanel', true, 'doFit', true));
     txs = findobj(gcf, 'Type', 'Axes');
     for jj = 1:numel(txs)
     	txs(jj).FontSize = 14;
-%         set(txs(jj), 'XLim', [-6 15]);
-%         txs(jj).XTickLabel = arrayfun(@num2str, txs(jj).XTick, 'uni', 0);
+        txs(jj).YLim = [0 1];
     end
 end
+
+%%
+
+X = load(['data/fits/' '20131125' '.mat']); D = X.D;
+inds = [2 3 5 7];
+
+E = D;
+E.score(5).errOfMeansByKinByCol(5:7,4) = nan;
+E.score(5).errOfMeansByKinByCol(6:7,3) = nan;
+figure;
+plot.meanErrorByKinByCol(E, E.score(inds), false);

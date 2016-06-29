@@ -85,6 +85,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
 %                     plot([muc muc], [0 1], 'Color', clr, 'LineWidth', 2);
                 end
                 ylim([0 ymxs])
+%                 ylim([0 1]);
             end
             
             if opts.tightXs
