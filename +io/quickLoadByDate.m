@@ -37,7 +37,7 @@ function D = quickLoadByDate(dtstr, params, opts)
         D.blocks(1) = B2;
         D.blocks(2) = B1;
     end
-    if isa(opts.postLoadFcn, 'function_handle')
-        D = opts.postLoadFcn(D);
-    end
+%     if isa(opts.postLoadFcn, 'function_handle')
+%         D = opts.postLoadFcn(D);
+%     end
 end

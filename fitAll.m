@@ -3,28 +3,74 @@
 % nms = {'unconstrained', 'habitual', 'pruning', 'cloud', ...
 %     'mean shift prune', 'mean shift'};
 nms = {'habitual', 'pruning', 'pruning-1', 'cloud', 'cloud-og', ...
-    'mean shift prune', 'mean shift', 'unconstrained'};%, 'baseline', 'minimum'};
+    'mean shift prune', 'mean shift', 'unconstrained', 'baseline', 'minimum'};
+% nms = {'habitual', 'pruning', 'cloud', 'unconstrained'};
+
+nms = {'cheat', 'habitual', 'cloud', 'unconstrained', 'best-sample', ...
+    'gauss', 'condnrm', 'condnrmkin', 'condnrmrow'};
 
 hypopts = struct('nBoots', 0, 'obeyBounds', false, ...
-    'scoreGrpNm', 'thetaActualGrps16');
+    'scoreGrpNm', 'thetaActualGrps');
 
-lopts = struct('postLoadFcn', @io.makeImeDefault);
 % lopts = struct('postLoadFcn', nan);
-% popts = struct();
-popts = struct('plotdir', '', 'doSave', true, 'doTimestampFolder', false);
+% lopts = struct('postLoadFcn', @io.makeImeDefault);
+% lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);
+lopts = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, true));
+lopts2 = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, false));
+
+
+popts = struct();
+% popts = struct('plotdir', '', 'doSave', true, 'doTimestampFolder', false);
 % pms = struct('MAX_ANGULAR_ERROR', 20);
 pms = struct();
 
 dts = io.getAllowedDates();
-dts = {'20120327', '20120331', '20131211', '20131212'};
+% dts = {'20120327', '20120331', '20131211', '20131212'};
 % dts = io.getDates();
 % Ss = cell(numel(dts),1);
 
-for ii = 1:numel(dts)
+scs1 = cell(numel(dts),1);
+scs0 = scs1;
+for ii = [5 4 3 2 1] %1:numel(dts)
     dtstr = dts{ii}
-    popts.plotdir = ['plots/moreDts/' dtstr];
+%     popts.plotdir = ['plots/moreDts/' dtstr];
     D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
-    save(['data/fits/moreDts/' dtstr], 'D');
+    D2 = fitByDate(dtstr, pms, nms, popts, lopts2, hypopts);
+%     save(['data/fits/savedFull/' dtstr], 'D');
+
+    figure;
+    subplot(1,2,1); hold on;
+    plot.barByHypQuick(D.score(2:end), 'errOfMeans'); title(D.datestr);
+    subplot(1,2,2); hold on;
+    plot.barByHypQuick(D2.score(2:end), 'errOfMeans'); title(D.datestr);
+    saveas(gcf, 'plots/tmp.png');
+    continue;
+    
+    inds = ismember({D.score.name}, {'habitual', 'pruning', 'cloud', 'unconstrained'});
+    scs1{ii} = {D.score(inds).errOfMeansByKin};
+    X = load(['data/fits/savedFull/' dtstr '.mat']); E = X.D;
+    inds = ismember({E.score.name}, {'habitual', 'pruning', 'cloud', 'unconstrained'});
+    scs0{ii} = {E.score(inds).errOfMeansByKin};
+    
+    continue;
+    
+    figure;
+    subplot(2,2,1); hold on;
+    plot.barByHypQuick(D.score(inds), 'errOfMeans'); title(D.datestr);
+    ylim([0 3]);
+    subplot(2,2,2); hold on;
+    plot.errorByKin(D.score(inds), 'errOfMeansByKin'); title(D.datestr);
+    ylim([0 5]);
+    subplot(2,2,3); hold on;
+    X = load(['data/fits/savedFull/' dtstr '.mat']); E = X.D;
+    inds = ismember({E.score.name}, {'habitual', 'pruning', 'cloud', 'unconstrained'});
+    plot.barByHypQuick(E.score(inds), 'errOfMeans'); title(D.datestr);
+    ylim([0 3]);
+    subplot(2,2,4); hold on;
+    plot.errorByKin(E.score(inds), 'errOfMeansByKin'); title(D.datestr);
+    ylim([0 5]);
+    
+    saveas(gcf, 'plots/tmp.png');
     continue;
     
 %     ps = [10 20 30 45];

@@ -19,8 +19,12 @@ function D = fitByDate(dtstr, params, nms, plotopts, opts, hypopts)
         hypopts.nBoots = 0;
     end
     
-    D = io.quickLoadByDate(dtstr, params, opts);    
+    D = io.quickLoadByDate(dtstr, params, opts); B0 = D.blocks;
     for ii = 1:hypopts.nBoots+1
+        if isa(opts.postLoadFcn, 'function_handle')
+            D.blocks = B0;
+            D = opts.postLoadFcn(D);
+        end
         disp('Loaded data. Fitting hyps...');
         D = pred.fitHyps(D, nms, hypopts);
         disp('Scoring...');

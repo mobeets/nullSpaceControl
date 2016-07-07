@@ -1,19 +1,20 @@
-function meanErrorByKinByCol(D, Hs, doStack)
+function meanErrorByKinByCol(D, Hs, doStack, mx)
     if nargin < 3
         doStack = true;
     end
-    
-    % find max score, to scale others by
-    mx = 0;
-    for ii = 1:numel(Hs)
-        vs = Hs(ii).errOfMeansByKinByCol;
-%         vs = Hs(ii).histErrByKinByCol;
-        if isempty(vs)
-            continue;
+    if nargin < 4
+        % find max score, to scale others by
+        mx = 0;
+        for ii = 1:numel(Hs)
+            vs = Hs(ii).errOfMeansByKinByCol;
+    %         vs = Hs(ii).histErrByKinByCol;
+            if isempty(vs)
+                continue;
+            end
+            mx = max(max(vs(:)), mx);
         end
-        mx = max(max(vs(:)), mx);
     end
-    
+
     set(gcf, 'color', 'w');
     if doStack
         nrows = round(sqrt(numel(Hs)));
@@ -40,8 +41,13 @@ function meanErrorByKinByCol(D, Hs, doStack)
         axis square;
         
         if ii == 1
-            lbls = arrayfun(@num2str, ths, 'uni', 0);
-            set(gca, 'XTick', 1:numel(lbls));
+            if numel(ths) > 8
+                lblxs = 1:2:numel(ths);
+            else
+                lblxs = 1:numel(ths);
+            end
+            lbls = arrayfun(@num2str, ths(lblxs), 'uni', 0);
+            set(gca, 'XTick', lblxs);
             set(gca, 'XTickLabel', lbls');            
             set(gca, 'XTickLabelRotation', 45);
             set(gca, 'YTick', 1:size(vs,1));

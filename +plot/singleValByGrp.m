@@ -8,13 +8,19 @@ function singleValByGrp(vs, grps, D, fcn, opts)
     if ~isfield(opts, 'LineMarkerStyle')
         opts.LineMarkerStyle = 'k-';
     end
+    if isfield(opts, 'noColors') && opts.noColors
+        clrs = ones(numel(grps),3);
+        mrkSz = 1;
+    else
+        clrs = cbrewer('div', 'RdYlGn', numel(grps));
+        mrkSz = 50;
+    end
     set(gcf, 'color', 'w');
     hold on; set(gca, 'FontSize', 18);
-    clrs = cbrewer('div', 'RdYlGn', numel(grps));
     plot(grps, vs, opts.LineMarkerStyle, 'LineWidth', 4);
     for jj = 1:numel(grps)
         plot(grps(jj), vs(jj), '.', 'Color', clrs(jj,:), ...
-            'MarkerSize', 50);
+            'MarkerSize', mrkSz, 'HandleVisibility', 'off');
     end
     xlabel('\theta');
     ylabel('value');

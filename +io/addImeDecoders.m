@@ -21,12 +21,13 @@ function D = addImeDecoders(D)
         D.blocks(ii).fImeDecoder = fdec;
         
         [pos_ime, vel_ime] = imefit.cursorIme(D.blocks(ii), D.ime(ii));
-        [ths_ime, angErr_ime, thsact_ime] = addImeStats(D.blocks(ii), ...
-            pos_ime, vel_ime);
+        [ths_ime, angErr_ime, thsact_ime, prog_ime] = addImeStats(...
+            D.blocks(ii), pos_ime, vel_ime);
         D.blocks(ii).posIme = pos_ime;
-        D.blocks(ii).velIme = vel_ime;
+        D.blocks(ii).velIme = vel_ime;        
         D.blocks(ii).thetasIme = ths_ime;
         D.blocks(ii).thetaActualsIme = thsact_ime;
+        D.blocks(ii).progressIme = prog_ime;
         D.blocks(ii).angErrorIme = angErr_ime;
         D.blocks(ii).thetaImeGrps = score.thetaGroup(ths_ime, ...
             score.thetaCenters(8));
@@ -39,7 +40,9 @@ function D = addImeDecoders(D)
     end
 end
 
-function [ths_ime, angErr_ime, thsact_ime] = addImeStats(B, pos_ime, vel_ime)
+function [ths_ime, angErr_ime, thsact_ime, prog_ime] = addImeStats(...
+    B, pos_ime, vel_ime)
+
     vec2trg = B.target - pos_ime;
 %     movVec = diff(pos_ime); % or do we compare true pos to next pos_ime?
     movVec = vel_ime; % must also comment out line 57
@@ -56,6 +59,8 @@ function [ths_ime, angErr_ime, thsact_ime] = addImeStats(B, pos_ime, vel_ime)
         1:size(movVec,1))';
 %     thsact_ime = [thsact_ime; nan]; % for last time step
     thsact_ime = mod(thsact_ime, 360);
+    
+    prog_ime = diag(movVec*vec2trg')./sqrt(sum(vec2trg.^2,2));
 
     % thsact_ime needs to change at the or of the below;
     % (because time and trial changes have already been filtered out,
@@ -63,4 +68,5 @@ function [ths_ime, angErr_ime, thsact_ime] = addImeStats(B, pos_ime, vel_ime)
     ix = diff(B.trial_index) ~= 0 | diff(B.time) ~= 1;
     thsact_ime(ix) = nan;
     angErr_ime(ix) = nan;
+    prog_ime(ix) = nan;
 end

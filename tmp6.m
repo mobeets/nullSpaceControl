@@ -374,3 +374,142 @@ E.score(5).errOfMeansByKinByCol(5:7,4) = nan;
 E.score(5).errOfMeansByKinByCol(6:7,3) = nan;
 figure;
 plot.meanErrorByKinByCol(E, E.score(inds), false);
+
+%%
+
+dts = io.getAllowedDates();
+for ii = 1:numel(dts)
+    dtstr = dts{ii}
+    X = load(['data/fits/savedFull/' dtstr '.mat']); D = X.D;
+    
+    inds = [2 3 5 7];
+    nrows = 2;
+    ncols = 2;
+    
+    figure;
+    subplot(nrows,ncols,1); hold on;
+    plot.errorByKin(D.score(inds), 'errOfMeansByKin');
+    subplot(nrows,ncols,2); hold on;
+    vs = behav.simpleBehavior(dtstr, 'progressIme', 'thetaActualImeGrps16');
+    v3 = (vs(:,1) - vs(:,2))./vs(:,1); % pctHit
+    v4 = (vs(:,3) - vs(:,2))./vs(:,2); % pctLrn
+    v1 = vs(:,1);
+    v2 = vs(:,3);
+    
+    
+    v3 = (vs(:,1) - vs(:,3));
+    
+%     subplot(nrows,ncols,3); hold on;
+%     [~,ix] = sort(v1);
+%     for jj = 1:numel(inds)
+%         scs = D.score(inds(jj)).errOfMeansByKin;
+%         plot(v1(ix), scs(ix), 'o-');
+%     end
+%     set(gca, 'FontSize', 16);
+%     xlabel('B1 progress');
+%     ylabel('errOfMeansByKin');
+%     subplot(nrows,ncols,4); hold on;
+%     [~,ix] = sort(v2);
+%     for jj = 1:numel(inds)
+%         scs = D.score(inds(jj)).errOfMeansByKin;
+%         plot(v2(ix), scs(ix), 'o-');
+%     end
+%     set(gca, 'FontSize', 16);
+%     xlabel('B2Post progress');
+%     ylabel('errOfMeansByKin');
+    
+    subplot(nrows,ncols,3); hold on;
+    [~,ix] = sort(v3);
+    for jj = 1:numel(inds)
+        scs = D.score(inds(jj)).errOfMeansByKin;
+        plot(v3(ix), scs(ix), 'o-');
+    end
+    set(gca, 'FontSize', 16);
+    xlabel('B2Pre - B1 progress');
+    ylabel('errOfMeansByKin');
+    
+%     subplot(nrows,ncols,4); hold on;
+%     [~,ix] = sort(v4);
+%     for jj = 1:numel(inds)
+%         scs = D.score(inds(jj)).errOfMeansByKin;
+%         plot(v4(ix), scs(ix), 'o-');
+%     end
+%     set(gca, 'FontSize', 16);
+%     xlabel('B2Post - B2Pre progress');
+%     ylabel('errOfMeansByKin');
+end
+
+%%
+
+dts = io.getAllowedDates();
+plot.init;
+
+for ii = 1:numel(dts)
+    dtstr = dts{ii}
+    X = load(['data/fits/savedFull/' dtstr '.mat']); D = X.D;
+    
+%     subplot(2,3,ii); hold on;
+%     plot.errorByKin(D.score([2 5]), 'errOfMeansByKin');
+%     continue;
+        
+    RB = D.blocks(2).fDecoder.RowM2;
+    nrmfcn = @(Y) sqrt(sum(Y.^2,2));
+    getAng = @(Y) mod(arrayfun(@(t) tools.computeAngle(Y(t,:), [1; 0]), 1:size(Y,1))', 360);
+    
+    NB = D.blocks(2).fDecoder.RowM2;
+    YNf = @(bind) nrmfcn(D.blocks(bind).latents*NB);
+    gsf = @(bind) score.thetaGroup(getAng(D.blocks(bind).latents*RB), score.thetaCenters(16));
+%     gsf = @(bind) round(nrmfcn(D.blocks(bind).latents*RB));
+    
+    musf = @(bind) grpstats(YNf(bind), gsf(bind), @median);
+    
+    subplot(2,3,ii); hold on;
+    plot(sort(unique(gsf(2))), musf(2), 'LineWidth', 3);
+    plot(sort(unique(gsf(1))), musf(1), 'LineWidth', 3);
+
+    xlabel('\theta');
+    ylabel('mean of norm of null space activity');
+    if ii == 1
+        legend({'B2', 'B1'});
+    end
+    set(gca, 'XTick', score.thetaCenters);
+    set(gca, 'XTickLabel', arrayfun(@num2str, score.thetaCenters, 'uni', 0));
+    title(dtstr);
+    saveas(gcf, 'plots/tmp.png');
+end
+
+%%
+
+nms = {'habitual', 'pruning', 'cloud', 'unconstrained'};
+% S0 = cell2mat(scs0);
+% S1 = cell2mat(scs1);
+
+plot.init;
+for ii = 1:numel(nms)
+    subplot(2,2,ii); hold on;
+    vs1 = [];
+    vs0 = [];
+    for jj = 1:numel(dts)
+        vs1 = [vs1 mean(scs1{jj}{ii})];
+        vs0 = [vs0 mean(scs0{jj}{ii})];
+    end    
+    ys = vs0;
+    xs = vs1;
+    ylbl = 'perturbation score';
+    xlbl = '2nd half of intuitive score';
+    
+%     xs = vs1;
+%     ys = vs0-vs1;
+%     xlbl = '2nd half of intuitive score';
+%     ylbl = 'pert - int score';
+    
+    plot(xs, ys, 'o');
+    xlim([floor(min([xs ys])) ceil(max([xs ys]))]);
+    ylim(xlim);
+    plot(xlim, ylim, 'k--');
+    axis equal;    
+    xlabel(xlbl);
+    ylabel(ylbl);
+%     hist(vs0 - vs1, -2:0.25:3);
+    title(nms{ii});
+end

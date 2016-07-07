@@ -5,7 +5,7 @@ function Z = condGaussFit(D, opts)
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', 'byGrps', false, ...
         'doSample', true, 'obeyBounds', true, 'boundsType', 'marginal', ...
-        'grpName', 'thetaGrps');
+        'grpNm', 'thetaGrps');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
@@ -51,8 +51,8 @@ function Z = condGaussFit(D, opts)
             end
         end
     else
-        gs1 = B1.(opts.grpName);
-        gs2 = B2.(opts.grpName);
+        gs1 = B1.(opts.grpNm);
+        gs2 = B2.(opts.grpNm);
         grps = sort(unique(gs2));
         for ii = 1:numel(grps)
             

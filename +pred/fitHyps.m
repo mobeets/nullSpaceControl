@@ -9,6 +9,10 @@ function D = fitHyps(D, nms, opts)
     if ismember('true', nms)
         D.hyps = pred.addPrediction(D, 'true', pred.cvMeanFit(D, opts));
     end
+    if ismember('cheat', nms)
+        % splits Blk2 into train/test and fits conditional gauss on train
+        D.hyps = pred.addPrediction(D, 'cheat', pred.cvMeanFit(D, opts));
+    end    
     if ismember('best-sample', nms)
         % best sampling method
         D.hyps = pred.addPrediction(D, 'best-sample', ...
@@ -98,13 +102,24 @@ function D = fitHyps(D, nms, opts)
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'conditional-thetas', pred.condFit(D, custopts));
     end
+    if ismember('gauss', nms)
+        % fits gauss on Blk2, conditioned on thetaGrp, using Blk1
+        custopts = struct('doCheat', false);
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'gauss', pred.cvMeanFit(D, custopts));
+    end
     if ismember('condnrm', nms)
         D.hyps = pred.addPrediction(D, 'condnrm', pred.condGaussFit(D, opts));
     end
     if ismember('condnrmkin', nms)
-        custopts = struct('byThetaGrps', true);
+        custopts = struct('byGrps', true);
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'condnrmkin', pred.condGaussFit(D, custopts));
+    end
+    if ismember('condnrmrow', nms)
+        custopts = struct('byGrps', true, 'grpNm', 'thetaActualGrps');
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'condnrmrow', pred.condGaussFit(D, custopts));
     end
     if ismember('mean shift prune', nms)
         rotThetas = pred.rotThetasFromMeanShift(D, struct('thetaTol', inf));

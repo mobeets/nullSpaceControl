@@ -21,7 +21,7 @@ function [pos_ime, vel_ime] = cursorIme(B, ime)
     
     vel2 = nan(size(B.pos));
     vel2(ix,:) = vel_ime;
-    vel_ime = vel2*dt;
+    vel_ime = vel2; % /dt or *dt ?? -- only affects progressIme
 
 end
 

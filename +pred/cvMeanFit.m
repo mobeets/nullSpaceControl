@@ -11,20 +11,25 @@ function Z = cvMeanFit(D, opts)
         'grpNm', 'thetaActualGrps');
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
-    if ~opts.doCheat
-        Z = repmat(bestMeanObj(D), size(D.blocks(2).latents, 1), 1);
-        return;
-    end
-    
     Blk = D.blocks(2);
     ix0 = Blk.idxTrain;
     ix1 = Blk.idxTest;
     NB = Blk.(opts.decoderNm).NulM2;
-    
-    % mean for each kinematics condition
-    ths = Blk.(opts.thetaNm); ths = ths(ix0,:);
     cnts = sort(unique(Blk.(opts.grpNm)));
-    ys = Blk.latents(ix0,:);
+    
+    if opts.doCheat % use Blk2 to fit cond Gauss
+        % mean for each kinematics condition
+        ths = Blk.(opts.thetaNm); ths = ths(ix0,:);
+        ys = Blk.latents(ix0,:);
+    else % use Blk1 to fit cond Gauss
+        Blk0 = D.blocks(1);
+        ths = Blk0.(opts.thetaNm);
+        ys = Blk0.latents;
+        ix1 = true(size(ix1));
+%         Z = repmat(bestMeanObj(D), size(D.blocks(2).latents, 1), 1);
+%         return;
+    end
+    
     if opts.doNull
         ys = ys*NB;
     end
