@@ -3,20 +3,21 @@
 % nms = {'unconstrained', 'habitual', 'pruning', 'cloud', ...
 %     'mean shift prune', 'mean shift'};
 nms = {'habitual', 'pruning', 'pruning-1', 'cloud', 'cloud-og', ...
-    'mean shift prune', 'mean shift', 'unconstrained', 'baseline', 'minimum'};
+    'voltional', 'mean shift prune', 'mean shift', 'unconstrained', ...
+    'baseline', 'minimum'};
 % nms = {'habitual', 'pruning', 'cloud', 'unconstrained'};
 
-nms = {'cheat', 'habitual', 'cloud', 'unconstrained', 'best-sample', ...
-    'gauss', 'condnrm', 'condnrmkin', 'condnrmrow'};
+% nms = {'cheat', 'habitual', 'cloud', 'unconstrained', 'best-sample', ...
+%     'gauss', 'condnrm', 'condnrmkin', 'condnrmrow'};
 
 hypopts = struct('nBoots', 0, 'obeyBounds', false, ...
     'scoreGrpNm', 'thetaActualGrps');
 
 % lopts = struct('postLoadFcn', nan);
 % lopts = struct('postLoadFcn', @io.makeImeDefault);
-% lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);
-lopts = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, true));
-lopts2 = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, false));
+lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);
+% lopts = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, true));
+% lopts2 = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, false));
 
 
 popts = struct();
@@ -25,23 +26,40 @@ popts = struct();
 pms = struct();
 
 dts = io.getAllowedDates();
-% dts = {'20120327', '20120331', '20131211', '20131212'};
+dts2 = {'20120327', '20120331', '20131211', '20131212'};
+dts = [dts dts2];
+dts = sort(dts);
 % dts = io.getDates();
 % Ss = cell(numel(dts),1);
 
+% figure(1); hold on;
+% figure(2); hold on;
+% figure(3); hold on;
+% figure(4); hold on;
+
 scs1 = cell(numel(dts),1);
 scs0 = scs1;
-for ii = [5 4 3 2 1] %1:numel(dts)
+for ii = 1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/moreDts/' dtstr];
     D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
+    save(['data/fits/splitIntuitive/' dtstr], 'D');
+    continue;
+    
+    D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
     D2 = fitByDate(dtstr, pms, nms, popts, lopts2, hypopts);
-%     save(['data/fits/savedFull/' dtstr], 'D');
-
-    figure;
-    subplot(1,2,1); hold on;
+    save(['data/fits/randHalfPert/allInt_' dtstr], 'D');
+    save(['data/fits/randHalfPert/randHalfPert_' dtstr], 'D2');
+    
+    if ii < 6
+        figA = 1; figB = 2; jj = ii;
+    else
+        figA = 3; figB = 4; jj = ii-5;
+    end
+    figure(figA); subplot(1,5,jj); hold on;
     plot.barByHypQuick(D.score(2:end), 'errOfMeans'); title(D.datestr);
-    subplot(1,2,2); hold on;
+    saveas(gcf, 'plots/tmp.png');
+    figure(figB); subplot(1,5,jj); hold on;
     plot.barByHypQuick(D2.score(2:end), 'errOfMeans'); title(D.datestr);
     saveas(gcf, 'plots/tmp.png');
     continue;

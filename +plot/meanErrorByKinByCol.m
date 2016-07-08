@@ -2,7 +2,7 @@ function meanErrorByKinByCol(D, Hs, doStack, mx)
     if nargin < 3
         doStack = true;
     end
-    if nargin < 4
+    if nargin < 4 || isnan(mx)
         % find max score, to scale others by
         mx = 0;
         for ii = 1:numel(Hs)
@@ -51,6 +51,7 @@ function meanErrorByKinByCol(D, Hs, doStack, mx)
             set(gca, 'XTickLabel', lbls');            
             set(gca, 'XTickLabelRotation', 45);
             set(gca, 'YTick', 1:size(vs,1));
+            set(gca, 'YTickLabel', arrayfun(@(y) ['YN_' num2str(y)], 1:size(vs,1), 'uni', 0));
             xlabel('\theta');
         else
             set(gca, 'XTick', []);

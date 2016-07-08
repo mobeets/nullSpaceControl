@@ -13,12 +13,12 @@ function D = splitIntuitiveBlock(D, bind, trainPct, ignoreTrain)
     ts = B.trial_index;
     Ts = unique(ts);
     
-    trSplit = prctile(Ts, trainPct*100);
-    ixTrain = ts <= trSplit;
+%     trSplit = prctile(Ts, trainPct*100);
+%     ixTrain = ts <= trSplit;
     
-%     cvobj = cvpartition(numel(Ts), 'HoldOut', trainPct);
-%     ixTrTrain = cvobj.training(1);
-%     ixTrain = ismember(ts, Ts(ixTrTrain));
+    cvobj = cvpartition(numel(Ts), 'HoldOut', trainPct);
+    ixTrTrain = cvobj.training(1);
+    ixTrain = ismember(ts, Ts(ixTrTrain));
     
     if ~ignoreTrain
         D.blocks(1) = io.filterTrialsByIdx(B, ixTrain);
