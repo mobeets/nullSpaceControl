@@ -1,4 +1,4 @@
-function [ths, grps] = asymptotesByDt(dtstr, nms, grpNm, opts)
+function [ths, grps, D] = asymptotesByDt(dtstr, nms, grpNm, opts)
     if nargin < 3
         grpNm = '';
     end
