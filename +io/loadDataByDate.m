@@ -22,4 +22,17 @@ function trials = addExtraFields(trials)
         score.thetaCenters(16));
     trials.thetaGrps16 = score.thetaGroup(trials.thetas, ...
         score.thetaCenters(16));
+    trials.progressOrth = addProgressOrth(trials);
+end
+
+function progOrth = addProgressOrth(trials)
+
+    progOrth = nan(size(trials.progress));
+    for t = 1:numel(trials.progress)
+        vec2trg = trials.vec2target(t,:);
+        vec2trgOrth(1) = vec2trg(2);
+        vec2trgOrth(2) = -vec2trg(1);
+        movVec = trials.movementVector(t,:);
+        progOrth(t) = -(movVec*vec2trgOrth'/norm(vec2trg));
+    end
 end

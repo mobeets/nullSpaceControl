@@ -29,7 +29,7 @@ function [prms, xths, ysa, xsa] = satExpActivity(B, yNm, grpName, yThresh, xStar
         
         Y = ysa(:,ii);
         th = prms(ii,:);
-        xth = xths(ii) + min(X);
+        xth = xths(ii);% + min(X);
         plot(X, Y, 'k.');
         plot(X, tools.satExp(X - min(X), th), '-', ...
             'Color', clrs(ii,:), 'LineWidth', 3);

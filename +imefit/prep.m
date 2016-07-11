@@ -1,4 +1,4 @@
-function [U, Y, T, trs] = prep(B, doLatents, doWarn)
+function [U, Y, T, trs] = prep(B, doLatents, doWarn, keepIncorrects)
 % U = [1 ntrials] cell, U(1) = [ncells ntimes] double
 % Y = [1 ntrials] cell, Y(1) = [2 ntimes] double
 % T = [1 ntrials] cell, T(1) = [2 1] double
@@ -8,10 +8,16 @@ function [U, Y, T, trs] = prep(B, doLatents, doWarn)
     if nargin < 3
         doWarn = true;
     end
+    if nargin < 4
+        keepIncorrects = false;
+    end
     
     B.latents(2:end,:) = B.latents(1:end-1,:);
     B.spikes(2:end,:) = B.spikes(1:end-1,:);
     ib = logical(B.isCorrect);
+    if keepIncorrects
+        ib = true(size(ib));
+    end
 
     ts = B.trial_index;
     trs = sort(unique(ts(ib)));

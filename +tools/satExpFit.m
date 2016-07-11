@@ -33,7 +33,9 @@ function [prms, xths] = satExpFit(xsa, ysa, yThresh, subtractMin)
         prms(ii,:) = th;
         xths(ii) = xth;
     end
-
+    if subtractMin
+        xths = xths + min(xsa);
+    end
 end
 
 function x = satExpInv(y, th)

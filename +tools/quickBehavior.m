@@ -32,6 +32,7 @@ function [prms, grps, nms] = quickBehavior(D, behavNm, grpName, ...
         xc = X{ii,2};
         yc = Y{ii,2};        
         [ps, xth] = tools.satExpFit(xc, yc);
+        % n.b. xth will be shifted by min(xc)
         yDiff = ps(1) - ps(2);
         yDiffPct = yDiff/ps(2);
         
