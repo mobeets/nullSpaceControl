@@ -1,6 +1,9 @@
 function [Y,X,N,fits,popts] = createBehaviorPlots(D, blockInd, ...
     grpName, nms, binSz, ptsPerBin, collapseTrials, fcns, fcnNms, ...
     popts, hopts)
+    if nargin < 9
+        fcnNms = {};
+    end
     if nargin < 10 || isempty(popts)
         popts = struct();
     end
