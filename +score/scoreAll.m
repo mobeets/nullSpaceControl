@@ -61,7 +61,7 @@ function D = scoreAll(D, opts, histopts)
             Z1 = H.nullActivity.zNullBin{jj}*v;
             Zs = arrayfun(@(ii) D.hyps(ii).nullActivity.zNullBin{jj}*v, ...
                 2:numel(D.hyps), 'uni', 0);
-            [P1, Ps, X, Y, bw] = compareKde(Z1, Zs, true);
+            [P1, Ps, X, Y, bw] = score.compareKde(Z1, Zs, true);
             for ii = 1:numel(D.hyps)
                 if ii == 1
                     Pc = P1;
@@ -88,6 +88,9 @@ end
 function [sc, gs] = nullActivityAll(latents, B, NB, opts)
     idxFld = opts.idxFldNm;
     gs = B.(opts.scoreGrpNm);
+    
+    warning('setting latents below 0 to 0');
+    latents(latents < 0) = 0;
     
     if ~isempty(idxFld) && isfield(B, idxFld) && ~isempty(B.(idxFld))
         ix = B.(idxFld);

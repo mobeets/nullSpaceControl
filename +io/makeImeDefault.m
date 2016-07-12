@@ -1,4 +1,7 @@
-function D = makeImeDefault(D)
+function D = makeImeDefault(D, useSpikes)
+    if nargin < 2
+        useSpikes = false;
+    end
 
     D.blocks(1).thetas = D.blocks(1).thetasIme;
     D.blocks(2).thetas = D.blocks(2).thetasIme;
@@ -15,7 +18,13 @@ function D = makeImeDefault(D)
     
     D.blocks(1) = rmThNans(D.blocks(1));
     D.blocks(2) = rmThNans(D.blocks(2));
-        
+    
+    if useSpikes
+        D.blocks(1).fDecoder = D.blocks(1).nImeDecoder;
+        D.blocks(2).fDecoder = D.blocks(2).nImeDecoder;
+        D.blocks(1).latents = D.blocks(1).spikes;
+        D.blocks(2).latents = D.blocks(2).spikes;
+    end
 end
 
 function B = rmThNans(B)

@@ -16,7 +16,7 @@ function scores = kdeError(Y, Yhs, kind)
 %     v = v(:,1:2);
 %     Y = Y*v;
 %     Yhs = cellfun(@(Yh) Yh*v, Yhs, 'uni', 0);
-%     [~, ~, ~, ~, ~, ~, scores] = compareKde(Y, Yhs, true);
+%     [~, ~, ~, ~, ~, ~, scores] = score.compareKde(Y, Yhs, true);
 %     return;
 
     % save activity to .mat
