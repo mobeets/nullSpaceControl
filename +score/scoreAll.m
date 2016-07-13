@@ -89,8 +89,8 @@ function [sc, gs] = nullActivityAll(latents, B, NB, opts)
     idxFld = opts.idxFldNm;
     gs = B.(opts.scoreGrpNm);
     
-    warning('setting latents below 0 to 0');
-    latents(latents < 0) = 0;
+%     warning('setting latents below 0 to 0');
+%     latents(latents < 0) = 0;
     
     if ~isempty(idxFld) && isfield(B, idxFld) && ~isempty(B.(idxFld))
         ix = B.(idxFld);

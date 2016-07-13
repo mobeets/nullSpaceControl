@@ -38,9 +38,9 @@ maxVal = 5;
 curClrs = clrs;
 
 % 5
-% hypNms = {'habitual', 'cloud'};
-% maxVal = nan;
-% curClrs = clrs([4 5],:);
+hypNms = {'habitual', 'cloud'};
+maxVal = nan;
+curClrs = clrs([4 5],:);
 
 % 7
 % hypNms = {'habitual', 'cloud', 'pruning', 'prune + mean shift', 'mean shift'};
@@ -70,15 +70,15 @@ title('');
 
 %% 4/6 a
 
-% hypNm = 'habitual';
-hypNm = 'cloud';
+hypNm = 'habitual';
+% hypNm = 'cloud';
 % hypNm = 'baseline';
 curHypInd = find(strcmp(nms, hypNm));
 hypClr = clrs(curInds == curHypInd,:);
 baseClr = [0 0 0];
 clr0 = [baseClr; hypClr];
 
-% fig = plot.init;
+fig = plot.init;
 plot.blkSummaryPredicted(D, D.score(curHypInd), false, false, false, [], clr0);
 title('');
 figxs = arrayfun(@(ii) fig.Children(ii).Position(1), 1:numel(fig.Children));
@@ -89,18 +89,20 @@ arrayfun(@(ii) title(fig.Children(ii), ['mean(YN_' num2str(ix(ii)-1) ')']), ...
 %% 4/5 b
 
 hypNms = {'observed', 'habitual', 'cloud'};
-grpVals = [90 180];
+% grpVals = [90 180];
+grpVals = [90 225];
 
 hypInds = find(ismember(nms, hypNms));
-hypClrs = [baseClr; clrs(curInds == hypInds(2),:); clrs(curInds == hypInds(3),:)];
+% hypClrs = [baseClr; clrs(curInds == hypInds(2),:); clrs(curInds == hypInds(3),:)];
+hypClrs = [baseClr; clrs(1,:); clrs(2,:)];
 plot.fitAndPlotMarginals(D, struct('hypInds', hypInds, ...
     'oneKinPerFig', false, 'tightXs', true, 'grpsToShow', grpVals, ...
-    'nbins', 50, 'clrs', hypClrs, 'ttl', '', ...
+    'nbins', 100, 'clrs', hypClrs, 'ttl', '', ...
     'sameLimsPerPanel', true, 'doFit', true));
 txs = findobj(gcf, 'Type', 'Axes');
 for jj = 1:numel(txs)
     txs(jj).FontSize = 14;
-    txs(jj).YLim = [0 1];
+%     txs(jj).YLim = [0 1];
 end
 
 %% load

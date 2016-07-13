@@ -34,6 +34,9 @@ function D = fitHyps(D, nms, opts)
             pred.closestNulValWithCloseRowValFit_cheat(D, opts));
     end
     
+    if ismember('cloud-sub', nms)
+        D.hyps = pred.addPrediction(D, 'cloud-sub', pred.subCloudFit(D, opts));
+    end
     if ismember('cloud-1s', nms)
         % this is the same as "cloud-1", but more simply implemented
         D.hyps = pred.addPrediction(D, 'cloud-1s', ...

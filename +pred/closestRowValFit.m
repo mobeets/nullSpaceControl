@@ -5,7 +5,7 @@ function Z = closestRowValFit(D, opts)
         opts = struct();
     end
     defopts = struct('decoderNm', 'fDecoder');
-    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);    
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
     B2 = D.blocks(2);

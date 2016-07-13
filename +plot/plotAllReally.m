@@ -24,7 +24,7 @@ D = fitByDate(dtstr, [], nms, popts, [], hypopts);
 %% marginal histograms
 
 % Hs = D.hyps(1:end);
-Hs = D.hyps([1 3]);
+Hs = D.hyps([1 3 5]);
 Hs(1).marginalHist = rmfield(Hs(1).marginalHist, 'baseErr');
 hists = [Hs.marginalHist];
 
@@ -34,7 +34,8 @@ Zs = {hists.Zs};
 
 grps(~(grps == 90)) = nan; % only show grps == 0
 plot.marginalDists(Zs, Xs, grps, ...
-    struct('tightXs', false, 'ttl', D.datestr, 'showSe', false), {Hs.name});
+    struct('tightXs', true, 'ttl', D.datestr, ...
+    'oneKinPerFig', false, 'showSe', false), {Hs.name});
 
 %% hyp fits over time
 

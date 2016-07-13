@@ -1,26 +1,28 @@
 
 dts = io.getDates();
-% grpNm = 'targetAngle';
-grpNm = 'thetaActualGrps';
+grpNm = 'targetAngle';
+% grpNm = 'thetaActualGrps';
 opts = struct('binSz', 100, 'ptsPerBin', 10);
 % nms = {'progress', 'progressOrth', 'angErrorAbs', 'angError', ...
 %     'trial_length', 'isCorrect'};
 nms = {'progress', 'trial_length'};
 
 inds = ismember(nms, {'progress', 'trial_length'});
+bind = 1;
 
 thsByGrp = cell(numel(dts),1);
 ths = cell(numel(dts),1);
 for ii = 1:numel(dts)
     dts{ii}
-    [thsByGrp{ii}, grps, D] = behav.asymptotesByDt(dts{ii}, nms, grpNm, opts);
-    ths{ii} = behav.asymptotesByDt(dts{ii}, nms, '', opts);
+%     [thsByGrp{ii}, grps, D] = behav.asymptotesByDt(dts{ii}, nms, grpNm, opts, bind);
+    ths{ii} = behav.asymptotesByDt(dts{ii}, nms, '', opts, bind);
+    continue;
     
     plot.init;
     behav.asymptotesShow(thsByGrp{ii}(:,inds), ths{ii}(inds), nms(inds), grps);
     
     vals = [nanmedian(thsByGrp{ii}(:,2)) ...
-        min(D.blocks(2).trial_index) max(D.blocks(2).trial_index)];
+        min(D.blocks(bind).trial_index) max(D.blocks(bind).trial_index)];
     stls = {'--', 'k-', 'k-'};
     for jj = 1:numel(vals)
         plot(xlim, [vals(jj) vals(jj)], stls{jj});
@@ -32,8 +34,8 @@ for ii = 1:numel(dts)
     disp('-----');
 end
 
-save('data/asymptotes/byThetaActualGrps.mat', ...
-    'ths', 'thsByGrp', 'nms', 'dts', 'opts', 'grps');
+% save('data/asymptotes/byThetaActualGrps.mat', ...
+%     'ths', 'thsByGrp', 'nms', 'dts', 'opts', 'grps');
 
 %%
 
