@@ -6,7 +6,8 @@ function [Zs, Xs, grps] = marginalDist(Y, gs, opts, Xs0)
         Xs0 = [];
     end    
     defopts = struct('doHist', true, 'nbins', 20, 'h', 0.2, ...
-        'sameLimsPerPanel', true, 'smoothing', 0, 'getCounts', false);
+        'sameLimsPerPanel', true, 'smoothing', 0, 'getCounts', false, ...
+        'makeMax1', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     grps = sort(unique(gs));
     ngrps = numel(grps);
@@ -34,6 +35,9 @@ function [Zs, Xs, grps] = marginalDist(Y, gs, opts, Xs0)
             end
             Xs{jj}(:,ii) = xs;
             Zs{jj}(:,ii) = singleMarginal(Y(grps(jj) == gs,ii), xs, opts);
+            if opts.makeMax1
+                Zs{jj}(:,ii) = Zs{jj}(:,ii)/nanmax(Zs{jj}(:,ii));
+            end
         end
     end
 end

@@ -12,9 +12,9 @@ function [D, Stats, LLs] = fitSession(dtstr, opts)
     D = io.quickLoadByDate(dtstr, params, popts);
     fnm = io.pathToIme(dtstr);
 
-    LLs = cell(2,1);
-    Stats = cell(2,1);
-    for ii = 1:2
+    LLs = cell(3,1);
+    Stats = cell(3,1);
+    for ii = 1:3
         [estParams, LL, stats] = imefit.fitBlock(D.blocks(ii), opts);        
         D.ime(ii) = estParams;
         

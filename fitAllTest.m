@@ -7,6 +7,8 @@
 %     'baseline', 'minimum'};
 nms = {'best-sample', 'habitual', 'pruning', 'cloud', 'unconstrained'};
 nms = {'best-sample', 'habitual', 'cloud', 'cloud-sub'};
+nms = {'best-sample', 'cloud', 'habitual'};%, 'unconstrained'};
+% nms = {'best-sample'};
 % nms = {'best-sample', 'habitual', 'cloud'};
 % nms = {'best-sample', 'cloud'};
 
@@ -16,15 +18,21 @@ nms = {'best-sample', 'habitual', 'cloud', 'cloud-sub'};
 hypopts = struct('nBoots', 0, 'obeyBounds', false, ...
     'scoreGrpNm', 'thetaActualGrps');
 
-loptsA = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 1:2));
-loptsB = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 3:4));
-loptsC = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 5:6));
-loptsD = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 7:8));
-loptsE = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 1:4));
-loptsF = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 5:8));
-lopts2 = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, true));
+% loptsA = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 1:2));
+% loptsB = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 3:4));
+% loptsC = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 5:6));
+% loptsD = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 7:8));
+% loptsE = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 1:4));
+% loptsF = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 5:8));
+% lopts2 = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, true));
+% lopts3 = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 1:2, true));
+% lopts4 = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, true, [], true));
 
 % lopts = struct('postLoadFcn', nan);
+% lopts = struct('postLoadFcn', @(D) io.makeImeDefault(io.setTrainTestBlocks(D, 1, 2)));
+% lopts2 = struct('postLoadFcn', @(D) io.makeImeDefault(io.setTrainTestBlocks(D, 3, 2)));
+% lopts = struct('postLoadFcn', @(D) io.makeImeDefault(io.setTrainTestBlocks(D, 1, 3)));
+% lopts2 = struct('postLoadFcn', @(D) io.makeImeDefault(io.setTrainTestBlocks(D, 2, 3)));
 lopts = struct('postLoadFcn', @io.makeImeDefault);
 % lopts = struct('postLoadFcn', @(D) io.makeImeDefault(D, true));
 % lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);
@@ -35,7 +43,7 @@ lopts = struct('postLoadFcn', @io.makeImeDefault);
 popts = struct();
 % popts = struct('plotdir', '', 'doSave', true, 'doTimestampFolder', false);
 % pms = struct('MAX_ANGULAR_ERROR', 20);
-pms = struct();
+pms = struct('MIN_DISTANCE', nan, 'MAX_DISTANCE', nan);
 
 dts = io.getAllowedDates();
 % dts2 = {'20120327', '20120331', '20131211', '20131212'};
@@ -50,33 +58,96 @@ dts = io.getAllowedDates();
 % figure(3); hold on;
 % figure(4); hold on;
 
-scs1 = cell(numel(dts),1);
-scs0 = scs1;
-for ii = 4%[4 5] %5:-1:1%1:numel(dts)
+S = cell(numel(dts),2);
+Sm = cell(numel(dts),2);
+angs = nan(numel(dts),2);
+for ii = [5:-1:1] % 1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/moreDts/' dtstr];
 
     D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
+    D2 = fitByDate(dtstr, struct(), nms, popts, lopts, hypopts);
+    
     plot.init;
-    subplot(1,2,1); hold on;
+    subplot(2,2,1); hold on;
+    plot.errorByKin(D2.score(2:end), 'errOfMeansByKin'); title(D.datestr);
+    subplot(2,2,2); hold on;
+    plot.barByHypQuick(D2.score(2:end), 'errOfMeans'); title(D.datestr);
+    subplot(2,2,3); hold on;
     plot.errorByKin(D.score(2:end), 'errOfMeansByKin'); title(D.datestr);
-    subplot(1,2,2); hold on;
-    plot.errorByKin(D.score(2:end), 'covErrorByKin'); title(D.datestr);
+    subplot(2,2,4); hold on;
+    plot.barByHypQuick(D.score(2:end), 'errOfMeans'); title(D.datestr);
+    saveas(gcf, 'plots/tmp.png');
+    continue;
+    
+    continue;
+    
+    D2 = fitByDate(dtstr, pms, nms, popts, lopts2, hypopts);
+    Sm{ii,1} = cell2mat({D.score(2:end).errOfMeansByKin}');
+    Sm{ii,2} = cell2mat({D2.score(2:end).errOfMeansByKin}');
+    S{ii,1} = [D.score(2:end).errOfMeans];
+    S{ii,2} = [D2.score(2:end).errOfMeans];
+    
+    ang13 = tools.angleBetweenMappings(D.blocks(1).fDecoder.NulM2, D.blocks(3).fDecoder.NulM2);
+    ang23 = tools.angleBetweenMappings(D.blocks(2).fDecoder.NulM2, D.blocks(3).fDecoder.NulM2);
+    angs(ii,:) = [ang13 ang23];
+    angs(ii,:)
+    plot.init;
+    scs = cell2mat(S(ii,:));
+    nm1 = cellfun(@(d) [d ': 1-3'], {D.score(2:end).name}, 'uni', 0);
+    nm2 = cellfun(@(d) [d ': 2-3'], {D.score(2:end).name}, 'uni', 0);
+    nma = [nm1 nm2];
+    [~,ix] = sort(nma);
+    bar(1:numel(scs), scs(ix), 'FaceColor', 'w');
+    set(gca, 'XTick', 1:numel(scs));
+    set(gca, 'XTickLabel', nma(ix));
+    set(gca, 'XTickLabelRotation', 90);
+    title(D.datestr);
+    
+    plot.init;
+    subplot(2,2,1); hold on;
+    plot.errorByKin(D.score(2:end), 'errOfMeansByKin'); title(D.datestr);
+    subplot(2,2,2); hold on;
+    plot.errorByKin(D2.score(2:end), 'errOfMeansByKin'); title(D.datestr);
+    subplot(2,2,3); hold on;
+    plot.barByHypQuick(D.score(2:end), 'errOfMeans'); title(D.datestr);
+    subplot(2,2,4); hold on;
+    plot.barByHypQuick(D2.score(2:end), 'errOfMeans'); title(D.datestr);
     saveas(gcf, 'plots/tmp.png');
     continue;
 
-%     DE = fitByDate(dtstr, pms, nms, popts, loptsE, hypopts);
-%     plot.init; plot.errorByKin(DE.score(2:end), 'errOfMeansByKin'); title(D.datestr);
-%     saveas(gcf, 'plots/tmp.png');
-%     
-%     DF = fitByDate(dtstr, pms, nms, popts, loptsF, hypopts);
-%     plot.init; plot.errorByKin(DF.score(2:end), 'errOfMeansByKin'); title(D.datestr);
-%     saveas(gcf, 'plots/tmp.png');
-%     continue;
-
-    DA = fitByDate(dtstr, pms, nms, popts, loptsA, hypopts);
-    plot.init; plot.errorByKin(DA.score(2:end), 'errOfMeansByKin'); title(D.datestr);
+    
+    
+    DE = fitByDate(dtstr, pms, nms, popts, loptsE, hypopts);
+    plot.init; plot.errorByKin(DE.score(2:end), 'errOfMeansByKin'); title(D.datestr);
     saveas(gcf, 'plots/tmp.png');
+    
+    DF = fitByDate(dtstr, pms, nms, popts, loptsF, hypopts);
+    plot.init; plot.errorByKin(DF.score(2:end), 'errOfMeansByKin'); title(D.datestr);
+    saveas(gcf, 'plots/tmp.png');
+    continue;
+
+    plot.init;
+    
+    subplot(2,2,1); hold on;
+    DA = fitByDate(dtstr, pms, nms, popts, loptsA, hypopts);
+    plot.errorByKin(DA.score(2:end), 'errOfMeansByKin'); title('NB1,1:2');
+    
+    subplot(2,2,2); hold on;
+    D2 = fitByDate(dtstr, pms, nms, popts, lopts2, hypopts);
+    plot.errorByKin(D2.score(2:end), 'errOfMeansByKin'); title('RB1');
+    
+    subplot(2,2,3); hold on;
+    D3 = fitByDate(dtstr, pms, nms, popts, lopts3, hypopts);
+    plot.errorByKin(D3.score(2:end), 'errOfMeansByKin'); title('NB1,1:2, rev');
+    
+    subplot(2,2,4); hold on;
+    D4 = fitByDate(dtstr, pms, nms, popts, lopts4, hypopts);
+    plot.errorByKin(D4.score(2:end), 'errOfMeansByKin'); title('RB1, rev');
+    
+    plot.subtitle(DA.datestr);
+    saveas(gcf, 'plots/tmp.png');
+    continue;
     
     DB = fitByDate(dtstr, pms, nms, popts, loptsB, hypopts);
     plot.init; plot.errorByKin(DB.score(2:end), 'errOfMeansByKin'); title(D.datestr);
@@ -90,9 +161,9 @@ for ii = 4%[4 5] %5:-1:1%1:numel(dts)
     plot.init; plot.errorByKin(DD.score(2:end), 'errOfMeansByKin'); title(D.datestr);
     saveas(gcf, 'plots/tmp.png');
     
-    D2 = fitByDate(dtstr, pms, nms, popts, lopts2, hypopts);
-    plot.init; plot.errorByKin(D2.score(2:end), 'errOfMeansByKin'); title(D.datestr);
-    saveas(gcf, 'plots/tmp.png');
+    scs{ii} = [DA.score(2).errOfMeans DB.score(2).errOfMeans ...
+        DC.score(2).errOfMeans DD.score(2).errOfMeans D2.score(2).errOfMeans];
+    plot.init; bar(scs{ii});
     continue;
     
 %     save(['data/fits/splitIntuitive/' dtstr], 'D');

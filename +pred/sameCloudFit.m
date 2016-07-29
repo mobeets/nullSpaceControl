@@ -29,6 +29,7 @@ function Z = sameCloudFit(D, opts)
     
     Z1 = B1.latents;
     Z2 = B2.latents;
+%     Z2 = Z2(randperm(size(Z2,1)),:)*(NB2*NB2') + Z2*(RB2*RB2');
     Zr = Z2*(RB2*RB2');
     N1 = Z1*NB2;
     R1 = Z1*RB2;    

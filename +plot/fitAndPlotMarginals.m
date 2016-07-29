@@ -4,7 +4,7 @@ function [D, opts] = fitAndPlotMarginals(D, opts)
     end
     defopts = struct('nbins', nan, 'doFit', false, 'hypInds', [], ...
         'grpsToShow', [], 'ttl', D.datestr, 'showSe', false, ...
-        'grpNm', 'thetaActualGrps');
+        'grpNm', 'thetaActualGrps', 'makeMax1', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if isempty(opts.hypInds)
         error('Must set opts.hypInds');
@@ -22,7 +22,7 @@ function [D, opts] = fitAndPlotMarginals(D, opts)
     % make and score marginal histograms
     if opts.doFit
         Xs = [];
-        for ii = 1:numel(D.hyps)
+        for ii = opts.hypInds % 1:numel(D.hyps)
             YN = D.hyps(ii).nullActivity.zNull;
             if isempty(Xs)
                 [Zs, Xs, grps] = tools.marginalDist(YN, gs, opts);

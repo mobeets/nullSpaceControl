@@ -6,8 +6,13 @@ function D = addImeDecoders(D)
     x = load(fnm);
     D.ime = x.ime;
     dt = 1/0.045; % 1/(sec per timestep)
-    for ii = 1:numel(D.ime)
-        dec = D.ime(ii);
+    for ii = 1:numel(D.blocks)
+        if ii > numel(D.ime)
+            ime_ii = 1;
+        else
+            ime_ii = ii;
+        end
+        dec = D.ime(ime_ii);
         dec.M0 = dec.b0*dt;
         dec.M1 = dec.A;
         dec.M2 = dec.B*dt;
@@ -20,7 +25,7 @@ function D = addImeDecoders(D)
         [fdec.NulM2, fdec.RowM2] = tools.getNulRowBasis(fdec.M2);
         D.blocks(ii).fImeDecoder = fdec;
         
-        [pos_ime, vel_ime] = imefit.cursorIme(D.blocks(ii), D.ime(ii));
+        [pos_ime, vel_ime] = imefit.cursorIme(D.blocks(ii), D.ime(ime_ii));
         [ths_ime, angErr_ime, thsact_ime, prog_ime] = addImeStats(...
             D.blocks(ii), pos_ime, vel_ime);
         D.blocks(ii).posIme = pos_ime;

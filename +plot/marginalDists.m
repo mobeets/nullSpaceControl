@@ -28,11 +28,13 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
     ymxs = max(max(cell2mat(cat(1, Zs{:}))));
     
     C = 0;
+    d = 0;
     muc = nan;
     for jj = 1:ngrps
         if isnan(grps(jj))
             continue;
         end
+        d = d + 1;
         if opts.oneKinPerFig && ~opts.oneColPerFig
             fig = figure; set(gcf, 'color', 'w'); figs = [figs fig];
             ncols = ceil(sqrt(nfeats));
@@ -64,7 +66,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
                 if ~isnan(opts.smoothing) && opts.smoothing > 0
                     ys = smooth(ys, opts.smoothing);
                 end
-                plot(xs, ys, '-', 'Color', clr);
+                plot(xs, ys, '-', 'Color', clr, 'LineWidth', 2);
                 
                 ymn = min(min(ys), ymn); ymx = max(max(ys), ymx);
                 ylm = [ymn ymx];
@@ -95,7 +97,9 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
 %             xlim([-5 5]);
             set(gca, 'XTick', []);
             set(gca, 'YTick', []);
-            xlabel(['YN_' num2str(ii)]);
+            if d == 1
+                title(['Y^n(' num2str(ii) ')']);
+            end
             if ii == 1 || opts.oneColPerFig
                 ylabel(['\theta = ' num2str(grps(jj))]);
             end

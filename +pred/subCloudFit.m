@@ -10,8 +10,12 @@ function Zc = subCloudFit(D, opts)
     Z1 = B1.latents;
     Z2 = B2.latents;
     NB1 = B1.(opts.decoderNm).NulM2;
+    NB2 = B2.(opts.decoderNm).NulM2;
     RB1 = B1.(opts.decoderNm).RowM2;
     RB2 = B2.(opts.decoderNm).RowM2;
+    
+    % this will f things up only if it cheats by using null space activity
+    Z2 = Z2(randperm(size(Z2,1)),:)*(NB2*NB2') + Z2*(RB2*RB2');
     
     inds = 1:8;
     Zps = cell(numel(inds),1);
@@ -19,11 +23,9 @@ function Zc = subCloudFit(D, opts)
         ind = inds(ii);
         Nc = NB1(:,ind);
         Bs = Nc*Nc';
+        % THIS IS CHEATING! Z2*(Nc*Nc') will contain activity in NB2
         Zps{ii} = subCloud(Z1*Bs, Z2*Bs, RB2);
-%         Zps{ii} = subCloud(Z1*Bs*RB2, Z2*Bs*RB2, Z1*Bs)*Nc;
     end
-%     Zc = cat(2, Zps{:});
-%     Zc = Zc*NB1';
     Zc = sum(cat(3, Zps{:}),3);
     Bs = RB1*RB1';
     Zc = Zc + subCloud(Z1*Bs, Z2*Bs, RB2);
