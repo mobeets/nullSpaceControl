@@ -38,7 +38,7 @@ function Z = sameCloudFit(D, opts)
     
     Z1nrms = sqrt(sum(Z1.^2,2));
     
-    opts.isOutOfBounds = pred.boundsFcn(B1.latents, opts.boundsType);
+    opts.isOutOfBounds = pred.boundsFcn(B1.latents, opts.boundsType, D);
     resampleCount = 0;
     invalidCount = 0;
     

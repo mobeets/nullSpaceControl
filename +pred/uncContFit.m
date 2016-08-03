@@ -12,7 +12,7 @@ function Z = uncContFit(D, opts)
     [nt, nn] = size(B2.latents);    
     
     B1 = D.blocks(1);    
-    isOutOfBounds = pred.boundsFcn(B1.latents, opts.boundsType);
+    isOutOfBounds = pred.boundsFcn(B1.latents, opts.boundsType, D);
     YR1 = B1.latents*RB2;
     YN1 = B1.latents*NB2;
     YR2 = B2.latents*RB2;

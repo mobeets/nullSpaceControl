@@ -21,7 +21,7 @@ function D = scoreAll(D, opts, histopts)
     
     for ii = 1:numel(D.hyps)
         [D.hyps(ii).nullActivity, gs] = nullActivityAll(...
-            D.hyps(ii).latents, B, NB, opts);
+            D.hyps(ii).latents, B, NB, opts, D);
     end
     
     % set default bin size using heuristic
@@ -85,12 +85,9 @@ function D = scoreAll(D, opts, histopts)
     D = score.summarizeScores(D);
 end
 
-function [sc, gs] = nullActivityAll(latents, B, NB, opts)
+function [sc, gs] = nullActivityAll(latents, B, NB, opts, D)
     idxFld = opts.idxFldNm;
-    gs = B.(opts.scoreGrpNm);
-    
-%     warning('setting latents below 0 to 0');
-%     latents(latents < 0) = 0;
+    gs = B.(opts.scoreGrpNm);    
     
     if ~isempty(idxFld) && isfield(B, idxFld) && ~isempty(B.(idxFld))
         ix = B.(idxFld);
@@ -112,7 +109,16 @@ function [sc, gs] = nullActivityAll(latents, B, NB, opts)
         sc.zNull = sc.zNull(:, opts.nullCols);
     end
     
-    [sc.zMu, sc.zCov, sc.zNullBin, sc.grps] = pred.avgByThetaGroup(sc.zNull, gs);
+    warning('setting latents with bad spikes to nan');
+    [isOutOfBoundsFcn, ~] = pred.boundsFcn(nan, 'spikes', D);
+    ixBad = isOutOfBoundsFcn(latents);
+    latents = latents(~ixBad,:);
+%     gs = gs(~ixBad);
+    
+    Yc = latents*NB;
+%     Yc = sc.zNull;
+    gsc = gs(~ixBad);
+    [sc.zMu, sc.zCov, sc.zNullBin, sc.grps] = pred.avgByThetaGroup(Yc, gsc);
 end
 
 function [sc, Xs, grps] = makeHists(YN, gs, Xs, grps, opts)

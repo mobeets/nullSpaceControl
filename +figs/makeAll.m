@@ -37,15 +37,15 @@ fnm = fullfile('data', 'fits', [dirNm '.mat']);
 dtEx = '20120601';
 % dtEx = '20120709';
 
-% dirNm = 'splitIntuitive'; % Exp. 1
-dirNm = 'savedFull'; % Exp. 2
+dirNm = 'splitIntuitive'; % Exp. 1
+% dirNm = 'savedFull'; % Exp. 2
 Y = load(fullfile('data', 'fits', [dirNm '.mat']));
 SMu = Y.SMu; SCov = Y.SCov; nms = Y.nms;
 X = load(fullfile('data', 'fits', dirNm, [dtEx '.mat'])); D = X.D;
 
 %% 3/5/7 - mean and cov error
 
-figNum = 7;
+figNum = 3;
 
 switch figNum
     case 3
@@ -126,8 +126,8 @@ set(gcf, 'Position', [0 0 1250 160]);
 % hypNms = {'observed', 'habitual', 'cloud'};
 % curHypNms = {'observed', 'unconstrained', 'baseline', 'minimum'};
 curHypNms = [{'observed'} hypNms];
-grpVals = [90 180];
-% grpVals = [135 270];
+% grpVals = [90 180];
+grpVals = [135 270];
 % grpVals = [];
 
 hypInds = find(ismember(nms, curHypNms));

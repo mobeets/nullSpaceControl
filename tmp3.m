@@ -3,25 +3,41 @@ dts = io.getAllowedDates();
 dts = io.getDates();
 baseDir = 'data/fits/savedFull';
 
-% det1 = nan(numel(dts),1);
-% det2 = nan(numel(dts),1);
-% eig1 = nan(numel(dts),8);
-% eig2 = nan(numel(dts),8);
-% 
-% nboots = 1000;
-% dt1 = nan(numel(dts),nboots);
-% dt2 = nan(numel(dts),nboots);
-% angs = nan(numel(dts),1);
+det1 = nan(numel(dts),1);
+det2 = nan(numel(dts),1);
+eig1 = nan(numel(dts),2);
+eig2 = nan(numel(dts),2);
+
+nboots = 1000;
+dt1 = nan(numel(dts),nboots);
+dt2 = nan(numel(dts),nboots);
+angs = nan(numel(dts),1);
 mscs = nan(numel(dts),11);
 cscs = nan(numel(dts),11);
+Mscs = nan(numel(dts),11,8);
+Cscs = nan(numel(dts),11,8);
+ns = nan(numel(dts),2);
+
 
 for ii = 1:numel(dts)
-    X = load(fullfile(baseDir, [dts{ii} '.mat'])); D = X.D;
+    X = load(fullfile(baseDir, [dts{ii} '.mat'])); D = X.D;    
     dts{ii}
-    
+    ns(ii,1) = numel(D.blocks(1).trial_index);
+    ns(ii,2) = numel(D.blocks(2).trial_index);
     mscs(ii,:) = [D.score.errOfMeans];
     cscs(ii,:) = [D.score.covError];
-    continue;
+%     continue;
+    
+%     D = rmfield(D, 'scores');
+%     D = score.scoreAll(D, struct('scoreGrpNm', 'targetAngle'));
+%     
+%     mscs(ii,:) = [D.score.errOfMeans];
+%     cscs(ii,:) = [D.score.covError];
+%     for jj = 1:numel(D.score)
+%         Mscs(ii,jj,:) = D.score(jj).errOfMeansByKin;
+%         Cscs(ii,jj,:) = D.score(jj).covErrorByKin;
+%     end
+%     continue;
     
     B1 = D.blocks(1);
     B2 = D.blocks(2);
@@ -35,7 +51,7 @@ for ii = 1:numel(dts)
 %     Y = Y*NB2;
 %     [u,s,v] = svd(Y);
     v = (NB2*NB2')*RB1;
-    v = NB2;
+%     v = NB2;
     Y2 = Y2*v;
 %     Y2 = Y2(:,1:2);
     
@@ -133,6 +149,25 @@ set(gca, 'XTick', 1:numel(dts));
 set(gca, 'XTickLabel', dts);
 set(gca, 'XTickLabelRotation', 45);
 ylabel('det(cov): irrelevant/relevant');
+
+%%
+
+% xs = Lrn(ix);
+% xs = PrfHit(ix);
+% xs = PrfHit(ix)./Lrn(ix);
+xs = mscs(:,7);
+ys = mean(dt2./dt1,2);
+
+% xs = xs(2:end); % skip outlier date
+% ys = ys(2:end);
+
+plot.init;
+plot(xs(mnk1(1:end)), ys(mnk1(1:end)), 'b.', 'MarkerSize', 25);
+plot(xs(~mnk1(1:end)), ys(~mnk1(1:end)), 'r.', 'MarkerSize', 25);
+plot(xlim, [1 1], 'k--');
+
+xlabel('cloud cov error');
+ylabel('ratio det(cov)');
 
 %%
 plot.init;

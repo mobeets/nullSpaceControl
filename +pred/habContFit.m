@@ -28,7 +28,7 @@ function Z = habContFit(D, opts)
     YR1 = B1.latents*RB2;
     YN1 = B1.latents*NB2;
     
-    isOutOfBounds = pred.boundsFcn(B1.latents, opts.boundsType);
+    isOutOfBounds = pred.boundsFcn(B1.latents, opts.boundsType, D);
     d = 0;
     for t = 1:nt
         isOutOfBndsNul = pred.boundsFcnCond(B2.latents(t,:)*RB2, ...

@@ -17,28 +17,104 @@ set(gca, 'XTickLabelRotation', 45);
 
 %%
 
-% xs = Lrn(ix);
-xs = Lrns;
+xs = Lrn(ix);
+% xs = yrng(:,1) - yrng(:,4);
+% xs = Lrns;
+% xs = PrfHits;
 % xs = PrfHit(ix);
 % xs = yrng(:,3);
+[~,ixc] = sort(xs);
 
-ys = mscs(:,5);
+hinds = [2 5 7 8];
 plot.init;
-plot(xs, ys, 'o');
+for ii = hinds
+    h = plot(xs(ixc), mscs(ixc,ii), '.-', 'MarkerSize', 25);
+    mdl = fitlm(xs, mscs(:,ii));
+    plot(xs, mdl.predict(xs), '-', 'Color', h.Color, 'HandleVisibility', 'off');
+end
+xlabel('Learning (Patrick)');
+ylabel('mean error');
+legend({'habitual', 'cloud', 'unconstrained', 'baseline'});
+
+%%
+
+% yrng(ii,1,jj) = nanmin(Ys{ii,jj});
+% yrng(ii,2,jj) = nanmax(Ys{ii,jj});
+% yrng(ii,3,jj) = yrng(ii,2) - yrng(ii,1);
+% yrng(ii,4,jj) = nanmean(Ys{ii,jj});
+% yrng(ii,5,jj) = Ys{ii,jj}(1);
+
+hind = 5;
+plot.init;
+for ii = 1:size(Mscs,1)
+    xs2 = squeeze(yrng(ii,4,:));
+    xs1 = squeeze(yrng(ii,5,:));
+    xs = xs1-xs2;
+    ys = squeeze(Mscs(ii,hind,:));
+    [~,ixc] = sort(xs);
+    h = plot(xs(ixc), ys(ixc), '.', 'MarkerSize', 25);
+    mdl = fitlm(xs, ys);
+    plot(xs, mdl.predict(xs), '-', 'Color', h.Color);
+end
+xlabel('Learning (Patrick)');
+ylabel('mean error');
+
+%%
+
+plot.init;
+mnk1 = cellfun(@(c) strcmp(c(4), '2'), dts);
+xs = Lrn(ix);
+% xs = Lrn(ix).*PrfHit(ix);
+% xs = ns(:,2);%ns(:,1);
+ys = mscs(:,2);
+plot(xs(mnk1), ys(mnk1), 'b.', 'MarkerSize', 25);
+plot(xs(~mnk1), ys(~mnk1), 'r.', 'MarkerSize', 25);
+xlabel('learning');
+ylabel('habitual mean err');
+% plot(ns(:,1), mscs(:,5), '.', 'MarkerSize', 25);
 
 %%
 
 xnm = 'trial_index';
 ynm = 'isCorrect';
+% ynm = 'trial_length';
+grpNm = 'targetAngle';
 ps = struct('REMOVE_INCORRECTS', false, 'START_SHUFFLE', nan);
-Xs = cell(numel(dts),1);
+Xs = cell(numel(dts),8);
 Ys = Xs;
 for ii = 1:numel(dts)
     D = io.quickLoadByDate(dts{ii}, ps);
-    [xs, ys] = behav.smoothAndBinVals(D.blocks(2).(xnm), D.blocks(2).(ynm));
-    plot.init; plot(xs, ys); xlabel(xnm); ylabel(ynm); title(dts{ii});
+    xss = D.blocks(2).(xnm);
+    yss = D.blocks(2).(ynm);
+    if ~isempty(grpNm)
+        gs = D.blocks(2).(grpNm);
+        grps = sort(unique(gs));
+    else
+        gs = ones(size(xss));
+        grps = 1;
+    end
+    plot.init; 
+    for jj = 1:numel(grps)
+        ix = grps(jj) == gs;
+        [xs, ys] = behav.smoothAndBinVals(xss(ix), yss(ix));
+        plot(xs, ys);
+        Xs{ii,jj} = xs; Ys{ii,jj} = ys;
+    end
+    xlabel(xnm); ylabel(ynm); title(dts{ii});
     saveas(gcf, 'plots/tmp.png');
-    Xs{ii} = xs; Ys{ii} = ys;
+end
+
+%%
+
+yrng = nan(numel(dts),5,8);
+for ii = 1:numel(dts)
+    for jj = 1:8
+        yrng(ii,1,jj) = nanmin(Ys{ii,jj});
+        yrng(ii,2,jj) = nanmax(Ys{ii,jj});
+        yrng(ii,3,jj) = yrng(ii,2) - yrng(ii,1);
+        yrng(ii,4,jj) = nanmean(Ys{ii,jj});
+        yrng(ii,5,jj) = Ys{ii,jj}(1);
+    end
 end
 
 %%
@@ -56,13 +132,6 @@ plot.init; plot(Lrn(ix), Lrns, 'o');
 plot.init; plot(PrfHit(ix), PrfHits, 'o');
 
 %%
-
-yrng = nan(numel(dts),3);
-for ii = 1:numel(dts)
-    yrng(ii,1) = nanmin(Ys{ii});
-    yrng(ii,2) = nanmax(Ys{ii});
-    yrng(ii,3) = yrng(ii,2) - yrng(ii,1);
-end
 
 %%
 
