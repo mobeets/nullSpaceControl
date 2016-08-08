@@ -1,7 +1,14 @@
 function [sps, isValid] = latentsHaveValidSpikes(latents, D)
+% for each latent (lts), solves for spikes (sps) such that:
+%   A*sps = lts + A*mu
+%      s.t. lb <= sps <= ub
+%
+%   i.e., beta*zs = lts
+%      where zs = inv(diag(sigma))*(sps - mu) is just the z-scored sps
+%
 
     minSps = 0;
-    maxSps = 2*max(D.trials.spikes)';
+    maxSps = max(D.trials.spikes)';
 
     decoder = D.simpleData.nullDecoder;
     if isfield(decoder.FactorAnalysisParams, 'spikeRot')
@@ -9,7 +16,7 @@ function [sps, isValid] = latentsHaveValidSpikes(latents, D)
         latents = latents/decoder.FactorAnalysisParams.spikeRot;
     end
 
-    L = decoder.FactorAnalysisParams.L;    
+    L = decoder.FactorAnalysisParams.L;
     ph = decoder.FactorAnalysisParams.ph;
     mu = decoder.spikeCountMean';
     sigma = decoder.spikeCountStd';

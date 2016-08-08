@@ -1,4 +1,4 @@
-function z = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
+function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
 % 
 % Each u(t) in U is solution (using quadprog) to:
 %   min_u norm(u + f)^2
@@ -31,7 +31,7 @@ function z = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
 %         H = []; % ALinv'*ALinv
         A = []; % -ALinv
         b = []; % mu
-    end    
+    end
     
     Aeq = Bc; % s.t. Aeq*u = Bc*z(u); might need to add term to beq
     beq = x1 - Ac*x0 - cc;
@@ -43,10 +43,12 @@ function z = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
     if ~exitflag
         warning('quadprog optimization incomplete, but stopped.');
     end
+    isRelaxed = false;
     if isempty(z)
 %         warning('Relaxing non-negative constraint and bounds.');
         z = quadprog(H, f, [], [], Aeq, beq, ...
             [],[],[], options);
+        isRelaxed = true;
     end
     
 end

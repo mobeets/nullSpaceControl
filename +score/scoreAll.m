@@ -109,16 +109,13 @@ function [sc, gs] = nullActivityAll(latents, B, NB, opts, D)
         sc.zNull = sc.zNull(:, opts.nullCols);
     end
     
-    warning('setting latents with bad spikes to nan');
-    [isOutOfBoundsFcn, ~] = pred.boundsFcn(nan, 'spikes', D);
-    ixBad = isOutOfBoundsFcn(latents);
-    latents = latents(~ixBad,:);
-%     gs = gs(~ixBad);
+%     warning('setting latents with bad spikes to nan');
+%     [isOutOfBoundsFcn, ~] = pred.boundsFcn(nan, 'spikes', D);
+%     ixBad = isOutOfBoundsFcn(latents);
+%     latents = latents(~ixBad,:);
+% %     gs = gs(~ixBad);
     
-    Yc = latents*NB;
-%     Yc = sc.zNull;
-    gsc = gs(~ixBad);
-    [sc.zMu, sc.zCov, sc.zNullBin, sc.grps] = pred.avgByThetaGroup(Yc, gsc);
+    [sc.zMu, sc.zCov, sc.zNullBin, sc.grps] = pred.avgByThetaGroup(sc.zNull, gs);
 end
 
 function [sc, Xs, grps] = makeHists(YN, gs, Xs, grps, opts)

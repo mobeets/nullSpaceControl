@@ -22,40 +22,24 @@ function [isOutOfBoundsFcn, whereOutOfBounds] = boundsFcn(Y, kind, D)
     elseif strcmpi(kind, 'spikes')
         minSps = 0;
         maxSps = 50;
+%         mult = 0;
         
         dec = D.simpleData.nullDecoder;
-        ph = dec.FactorAnalysisParams.ph;
-        
-        mult = 0.01;
-        whereOutOfBounds = @(U) cell2mat(arrayfun(@(ii) ...
-            ~isInRange(U(ii,:), ph, minSps, maxSps, mult), ...
-            1:size(U,1), 'uni', 0)');
-        isOutOfBoundsFcn = @(z) any(whereOutOfBounds(...
-            tools.latentsToSpikes(z, dec, false, true)), 2);
-        
-%         whereOutOfBounds = @(u) u < minSps | u > maxSps;
+%         ph = dec.FactorAnalysisParams.ph;
+%         isInRange = @(u, ph, minSps, maxSps, mult) ...
+%             ((u >= minSps) | (u + mult*ph' >= minSps)) & ...
+%             ((u <= maxSps) | (u - mult*ph' <= maxSps));
+%         whereOutOfBounds = @(U) cell2mat(arrayfun(@(ii) ...
+%             ~isInRange(U(ii,:), ph, minSps, maxSps, mult), ...
+%             1:size(U,1), 'uni', 0)');
 %         isOutOfBoundsFcn = @(z) any(whereOutOfBounds(...
-%             tools.latentsToSpikes(z, dec, false, true)),2);
+%             tools.latentsToSpikes(z, dec, false, true)), 2);
+        
+        whereOutOfBounds = @(u) u < minSps | u > maxSps;
+        isOutOfBoundsFcn = @(z) any(whereOutOfBounds(...
+            tools.latentsToSpikes(z, dec, false, true)),2);
 
     elseif strcmpi(kind, 'none')
         isOutOfBoundsFcn = @(z) false;
     end
-end
-
-function isGood = isInRange(u, ph, minSps, maxSps, mult)
-   
-    isGood = ((u > minSps) | (u + mult*ph' > minSps)) & ...
-        ((u < maxSps) | (u - mult*ph' < maxSps));
-    
-    isDefGood = (u > minSps) & (u < maxSps);
-    isBarelyGood = isGood & ~isDefGood;
-    if sum(isBarelyGood) > 1
-        [sum(~isGood) sum(isDefGood) sum(isBarelyGood)]
-    end
-
-%     umn = u(u < minSps);
-%     phmn = ph(u < minSps);
-%     umx = u(u > minSps);
-%     phmx = ph(u > minSps);    
-%     isGood = all(umn + mult*phmn > minSps) & all(umx - mult*phmx < maxSps);
 end

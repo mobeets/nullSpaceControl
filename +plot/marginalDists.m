@@ -20,7 +20,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
     ngrps = numel(grps);
 
     figs = [];
-    if ~opts.oneKinPerFig
+    if ~opts.oneKinPerFig && ~opts.oneColPerFig
         fig = figure; set(gcf, 'color', 'w'); figs = [figs fig];        
         ncols = sum(~isnan(grps));
         nrows = nfeats;
@@ -37,7 +37,9 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
         d = d + 1;
         if opts.oneKinPerFig && ~opts.oneColPerFig
             fig = figure; set(gcf, 'color', 'w'); figs = [figs fig];
-            ncols = ceil(sqrt(nfeats));
+%             ncols = ceil(sqrt(nfeats));
+%             nrows = ceil(nfeats/ncols);
+            ncols = floor(nfeats/2);
             nrows = ceil(nfeats/ncols);
             C = 0;
         end
@@ -45,12 +47,29 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
             if ~opts.oneColPerFig
                 C = C + 1;
                 subplot(ncols, nrows, C); hold on;
-            else
+            elseif opts.oneKinPerFig
                 fig = figure; set(gcf, 'color', 'w'); hold on;
                 figs = [figs fig];
                 if ~isempty(opts.ttl)
                     title(opts.ttl);
                 end
+            else
+                if numel(figs) < nfeats
+                    fig = figure; set(gcf, 'color', 'w'); hold on;
+                    figs = [figs fig];
+                    if ~isempty(opts.ttl)
+                        title(opts.ttl);
+                    end
+                else
+                    figure(figs(ii).Number);
+                end
+                nrows = ngrps;
+                ncols = 1;
+                if nrows > 8
+                    nrows = floor(ngrps/4);
+                    ncols = ceil(ngrps/nrows);
+                end
+                subplot(ncols, nrows, jj); hold on;
             end            
             xs = Xs{jj}(:,ii);
             ixmna = inf; ixmxa = -inf;
@@ -83,7 +102,8 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
                     plot(muc, yv, 'o', 'Color', clr);
 %                     [mn mx xs(find(cps >= 0.5, 1, 'first')) mu sum(ys)]
                 else
-                    plot([muc muc], 0.2*ylm, 'Color', clr, 'LineWidth', 2);
+                    t=1;
+%                     plot([muc muc], 0.2*ylm, 'Color', clr, 'LineWidth', 2);
 %                     plot([muc muc], [0 1], 'Color', clr, 'LineWidth', 2);
                 end
                 ylim([0 ymxs])
@@ -97,11 +117,13 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
 %             xlim([-5 5]);
             set(gca, 'XTick', []);
             set(gca, 'YTick', []);
-            if d == 1
+            if d == 1 || opts.oneKinPerFig
+                xlabel(['output-null ' num2str(ii) '']);
+            elseif ~opts.oneColPerFig
                 title(['Y^n(' num2str(ii) ')']);
             end
-            if ii == 1 || opts.oneColPerFig
-                ylabel(['\theta = ' num2str(grps(jj))]);
+            if (ii == 1 || opts.oneColPerFig) && ~opts.oneKinPerFig
+                xlabel(['\theta = ' num2str(grps(jj))]);
             end
             if ii == 1 && ~isempty(opts.ttl) && ~opts.oneKinPerFig
                 title(opts.ttl);

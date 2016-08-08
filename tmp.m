@@ -167,6 +167,31 @@ plot(score.quickScore(Y2*NB2, D.score(2).latents*NB2, gs), '--');
 
 %%
 
+plot.init;
+colind = 1;
+hinds = [2 5 7 8 9];
+
+
+% clrs = [0 0 0; clrs];
+for jj = 1:numel(hinds)
+    H = D.hyps(hinds(jj));
+    for ii = 1:16
+        Y = H.nullActivity.zNullBin{ii};
+        subplot(4,4,ii); hold on;
+        
+%         v = mean(Y(:,colind));
+%         plot([v v], [jj-0.5 jj+0.5], '-', 'LineWidth', 3, 'Color', clrs(jj,:));
+%         continue;
+        
+        for kk = 1:8
+            v = mean(Y(:,kk));
+            plot([v v], [kk-0.5 kk+0.5], '-', 'LineWidth', 3, 'Color', clrs(jj,:));
+        end
+    end
+end
+
+%%
+
 for ii = 1:numel(dts)
     X = load(fullfile(baseDir, [dts{ii} '.mat'])); D = X.D;
     Y1 = D.blocks(1).latents;

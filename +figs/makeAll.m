@@ -8,6 +8,7 @@ dtnms = io.addMnkNmToDates(dts);
 
 clrs = get(gca, 'ColorOrder');
 clrs = [clrs; mean(clrs(5:6,:))];
+baseClr = [0 0 0];
 close;
 
 %% create data file
@@ -37,30 +38,35 @@ fnm = fullfile('data', 'fits', [dirNm '.mat']);
 dtEx = '20120601';
 % dtEx = '20120709';
 
-dirNm = 'splitIntuitive'; % Exp. 1
-% dirNm = 'savedFull'; % Exp. 2
+% dirNm = 'splitIntuitive'; % Exp. 1
+dirNm = 'savedFull'; % Exp. 2
 Y = load(fullfile('data', 'fits', [dirNm '.mat']));
 SMu = Y.SMu; SCov = Y.SCov; nms = Y.nms;
 X = load(fullfile('data', 'fits', dirNm, [dtEx '.mat'])); D = X.D;
 
 %% 3/5/7 - mean and cov error
 
-figNum = 3;
+figNum = 5;
 
 switch figNum
     case 3
         hypNms = {'unconstrained', 'baseline', 'minimum'};
         maxVal = 5;
-        curClrs = clrs([3 6 5],:);
+        curClrs = clrs([3 6 2],:);
     case 5
         hypNms = {'habitual', 'cloud'};
         maxVal = nan;
-        curClrs = clrs([7 1],:);
+        curClrs = clrs([7 1 3],:);
     case 7
         hypNms = {'habitual', 'cloud', 'pruning', ...
             'prune + mean shift', 'mean shift'};
         maxVal = nan;
         curClrs = clrs([7 4 1 2 8],:);
+    case 'sup'
+        hypNms = {'habitual', 'cloud', ...
+            'unconstrained', 'baseline', 'minimum'};
+        maxVal = nan;
+        curClrs = clrs([7 1 3 6 2],:);
 end
 
 % show in reverse
@@ -71,6 +77,8 @@ curInds = allInds(inds);
 % if figNum == 7
 %     curInds = curInds(end:-1:1); % uncomment for all but 7
 % end
+
+%% mean/cov err bars
 
 % 3a - mean error for all dts
 
@@ -89,6 +97,57 @@ set(gcf, 'Position', [0 0 1250 200]);
 % plot.meanErrorByKinByCol(D, D.score(curInds), false);%, maxVal);
 % title('');
 
+%% mean/covariance scatter (for comparing two hyps)
+
+lbl = 'covariance';
+if strcmp(lbl, 'mean')
+    xs = SMu(:,5);
+    ys = SMu(:,2);
+    xstep = 1;
+else
+    xs = SCov(:,5);
+    ys = SCov(:,2);
+    xstep = 25;
+end
+
+plot.init;
+plot(xs, ys, 'k.', 'MarkerSize', 40);
+xlabel([lbl ' error, cloud']);
+ylabel([lbl ' error, minimal intervention']);
+xmx = ceil(max([xs; ys]));
+tcks = 0:xstep:xmx;
+xlim([0 xmx]); ylim(xlim);
+set(gca, 'XTick', tcks);
+set(gca, 'YTick', tcks);
+plot(xlim, ylim, 'k--');
+axis square;
+
+%% mean vs. covariance scatter
+
+xs1 = SMu(:,2);
+ys1 = SCov(:,2);
+xs2 = SMu(:,5);
+ys2 = SCov(:,5);
+clr1 = curClrs(2,:);
+clr2 = curClrs(1,:);
+
+plot.init;
+plot(xs1, (ys1), '.', 'MarkerSize', 40, 'Color', clr2);
+plot(xs2, (ys2), '.', 'MarkerSize', 40, 'Color', clr1);
+xlabel('mean error');
+ylabel('covariance error');
+xmx = ceil(max([xs1; xs2]));
+ymx = ceil(max([ys1; ys2]));
+xtcks = 0:1:xmx;
+ytcks = 0:20:ymx;
+xlim([0 xmx]);
+ylim([0 (ymx)]);
+set(gca, 'XTick', xtcks);
+set(gca, 'YTick', ytcks);
+% plot(xlim, ylim, 'k--');
+axis square;
+legend(hypNms, 'location', 'BestOutside');
+
 %% 3/5 - tuning curves
 
 curHypNms = hypNms;
@@ -104,8 +163,7 @@ for jj = 1:numel(curHypNms)
 
     curInd = find(strcmp(hypNms, curHypNms{jj}));
     curHypInd = curInds(curInd);
-    hypClr = curClrs(curInd,:);
-    baseClr = [0 0 0];
+    hypClr = curClrs(curInd,:);    
     clr0 = [baseClr; hypClr];
 
     plot.blkSummaryPredicted(D, D.score(curHypInd), false, false, false, [], clr0);
@@ -113,9 +171,15 @@ for jj = 1:numel(curHypNms)
     
     if jj == 1
         figxs = arrayfun(@(ii) fig.Children(ii).Position(1), 1:numel(fig.Children));
-        [~,ix] = sort(figxs);        
-        arrayfun(@(ii) title(fig.Children(ii), ['Y^n(' num2str(ix(ii)-1) ')']), ...
+        [~,ix] = sort(figxs);
+%         ttl = @(ii) ['Y^n(' num2str(ix(ii)-1) ')'];
+%         ttl = @(ii) ['output-null ' num2str(ix(ii)-1)];
+        ttl = @(ii) '';
+        arrayfun(@(ii) title(fig.Children(ii), ttl(ii)), ...
             2:numel(fig.Children));
+%         for kk = 2:numel(fig.Children)
+%             fig.Children(kk).YLim = [-5 5];
+%         end
     end
 end
 ylabel(fig.Children(ix(2)), 'mean activity');
@@ -127,8 +191,17 @@ set(gcf, 'Position', [0 0 1250 160]);
 % curHypNms = {'observed', 'unconstrained', 'baseline', 'minimum'};
 curHypNms = [{'observed'} hypNms];
 % grpVals = [90 180];
-grpVals = [135 270];
+grpVals = [270];
 % grpVals = [];
+
+if numel(grpVals) == 0
+    oneColPerFig = true;
+    oneKinPerFig = false;
+else
+    oneColPerFig = false;
+    oneKinPerFig = true;
+end
+
 
 hypInds = find(ismember(nms, curHypNms));
 hypClrs = nan(numel(curHypNms),3);
@@ -137,16 +210,25 @@ for ii = 2:numel(curHypNms)
     hypClrs(ii,:) = curClrs(curInds == hypInds(ii),:);
 end
 
-plot.fitAndPlotMarginals(D, struct('hypInds', hypInds, ...
-    'oneKinPerFig', false, 'tightXs', true, 'grpsToShow', grpVals, ...
-    'nbins', 70, 'clrs', hypClrs, 'ttl', '', ...
-    'sameLimsPerPanel', true, 'doFit', true, 'makeMax1', true));
-txs = findobj(gcf, 'Type', 'Axes');
-for jj = 1:numel(txs)
-    txs(jj).FontSize = 14;
-    txs(jj).YLim = [0 1.2];
+[~,~,figs] = plot.fitAndPlotMarginals(D, struct('hypInds', hypInds, ...
+    'tightXs', true, 'grpsToShow', grpVals, ...
+    'grpNm', 'thetaActualGrps16', ...
+    'nbins', 30, 'clrs', hypClrs, 'ttl', '', ...
+    'oneColPerFig', oneColPerFig, 'oneKinPerFig', oneKinPerFig, ...
+    'sameLimsPerPanel', true, 'doFit', true, 'makeMax1', false));
+
+for kk = 1:numel(figs)
+    txs = findobj(figs(kk), 'Type', 'Axes');
+    for jj = 1:numel(txs)
+        txs(jj).FontSize = 14;
+        txs(jj).YLim = [0 0.7]; % 0.7 1.2
+    end
+    if numel(grpVals) == 0
+        set(figs(kk), 'Position', [0 0 700 700]);
+    else
+        set(figs(kk), 'Position', [0 0 360 700]);
+    end
 end
-set(gcf, 'Position', [0 0 1250 numel(grpVals)*160]);
 
 %% create data file
 

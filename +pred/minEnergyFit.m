@@ -40,17 +40,24 @@ function Z = minEnergyFit(D, opts)
 
     [nt, nu] = size(Y2);
     U = nan(nt,nu);
+    nrs = 0;
     for t = 1:nt
         if mod(t, 500) == 0
             disp(['minEnergyFit: ' num2str(t) ' of ' num2str(nt)]);
         end
-        U(t,:) = pred.quadFireFit(B2, t, -mu, B2.(opts.decoderNm), ...
+        [U(t,:), isRelaxed] = pred.quadFireFit(B2, t, -mu, B2.(opts.decoderNm), ...
             opts.fitInLatent, lb, ub);
+        nrs = nrs + isRelaxed;
     end
     if opts.fitInLatent
         Z = U;
     else
-        Z = tools.convertRawSpikesToRawLatents(Dc, U'); 
+        Z = tools.convertRawSpikesToRawLatents(Dc, U');
+%         Z = Z/Dc.FactorAnalysisParams.spikeRot;
+    end
+    if nrs > 0
+        warning(['minEnergyFit relaxed non-negativity constraints ' ...
+            'and bounds for ' num2str(nrs) ' timepoints.']);
     end
     if opts.nanIfOutOfBounds
         opts.isOutOfBounds = pred.boundsFcn(B1.latents);

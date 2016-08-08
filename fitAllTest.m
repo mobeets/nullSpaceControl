@@ -6,6 +6,9 @@
 %     'voltional', 'mean shift prune', 'mean shift', 'unconstrained', ...
 %     'baseline', 'minimum'};
 nms = {'best-sample', 'habitual', 'cloud', 'unconstrained'};
+nms = {'unconstrained', 'habitual', 'cloud'};
+% nms = {'minimum'};
+% nms = {'unconstrained', 'minimum', 'baseline'};
 % nms = {'best-sample', 'habitual', 'cloud', 'cloud-sub'};
 % nms = {'best-sample', 'cloud', 'habitual'};%, 'unconstrained'};
 % nms = {'best-sample'};
@@ -15,8 +18,8 @@ nms = {'best-sample', 'habitual', 'cloud', 'unconstrained'};
 % nms = {'cheat', 'habitual', 'cloud', 'unconstrained', 'best-sample', ...
 %     'gauss', 'condnrm', 'condnrmkin', 'condnrmrow'};
 
-hypopts = struct('nBoots', 0, 'obeyBounds', false, ...
-    'scoreGrpNm', 'thetaActualGrps');
+hypopts = struct('nBoots', 0, 'obeyBounds', true, ...
+    'scoreGrpNm', 'thetaActualGrps', 'boundsType', 'spikes');
 
 % loptsA = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 1:2));
 % loptsB = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 3:4));
@@ -62,17 +65,47 @@ dts = io.getAllowedDates();
 
 S = nan(numel(dts),2);
 S2 = nan(numel(dts),2);
-for ii = [5:-1:1] %1:numel(dts)
+for ii = 5%[5:-1:1] %1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/moreDts/' dtstr];
 
     D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
-    nrows = 2; ncols = 1;
+    continue;
+    
+    [isOutOfBoundsFcn, ~] = pred.boundsFcn(nan, 'spikes', D);
+    gs = D.blocks(2).thetaActualGrps;
+    NB = D.blocks(2).fDecoder.NulM2;
+    err = nan(numel(D.hyps),8);
+    
+    dec = D.simpleData.nullDecoder;
+    Yf = @(jj) D.hyps(jj).latents;
+    Zf = @(Y) tools.latentsToSpikes(Y, dec, false, true);
+    
+    Z = Zf(D.blocks(1).latents);
+    for jj = 1:numel(D.hyps)
+        tooLow = any(bsxfun(@lt, Zf(Yf(jj)), min(Z)),2);
+        tooHigh = any(bsxfun(@gt, Zf(Yf(jj)), max(Z)),2);
+        ixBad = any(tooLow | tooHigh, 2);
+%        ixBad = isOutOfBoundsFcn(D.hyps(jj).latents);
+       D.hyps(jj).latents(ixBad,:) = nan;
+    end
+    for jj = 1:numel(D.hyps)
+        err(jj,:) = score.quickScore(D.hyps(1).latents*NB, ...
+            D.hyps(jj).latents*NB, gs);
+        D.score(jj).errOfMeansByKin = err(jj,:);
+        D.score(jj).errOfMeans = mean(err(jj,:));
+    end
+    
+    nrows = 2; ncols = 2;
     plot.init;
     subplot(nrows,ncols,1); hold on;
     plot.errorByKin(D.score(2:end), 'errOfMeansByKin'); title(D.datestr);
     subplot(nrows,ncols,2); hold on;
     plot.barByHypQuick(D.score(2:end), 'errOfMeans'); title(D.datestr);
+    subplot(nrows,ncols,3); hold on;
+    plot.errorByKin(D.score(2:end), 'covErrorByKin'); title(D.datestr);
+    subplot(nrows,ncols,4); hold on;
+    plot.barByHypQuick(D.score(2:end), 'covError'); title(D.datestr);
     saveas(gcf, 'plots/tmp.png');
     continue;
     

@@ -55,8 +55,8 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
         xlim([-50 370]);        
 %         ylim([-ymx ymx]);
         plot(xlim, [0 0], '--', 'Color', [0.5 0.5 0.5]);
-        set(gca, 'XTick', grps(1:2:end));
-        set(gca, 'XTickLabel', grps(1:2:end));
+        set(gca, 'XTick', grps(1:4:end));
+        set(gca, 'XTickLabel', grps(1:4:end));
         set(gca, 'XTickLabelRotation', 45);
         
         if jj == 1
@@ -108,7 +108,7 @@ function plotGroupMeanAndSE(xs, ms, ses, clr, clrE)
     if nargin < 4 || all(isnan(clr))
         clr = 0.8*ones(3,1);
     end
-    sz = 50;
+    sz = 20;
     lw = 3;
 
 %     plot(xs, ms - ses, 'Color', clrE);

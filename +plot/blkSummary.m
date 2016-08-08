@@ -24,16 +24,16 @@ function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr, NB, ix0, doTrans)
         doTrans = false;
     end
 
-    xs = Blk.thetaActualGrps;
+    xs = Blk.thetaActualGrps16;
     ys = Y.latents*NB;
-    grps = Blk.thetaActualGrps;
+    grps = Blk.thetaActualGrps16;
     
     % ignore nans
     ix = ix0 & ~isnan(sum(ys,2));
     xs = xs(ix); ys = ys(ix,:); grps = grps(ix);
 
     if doTrans
-        cnts = score.thetaCenters();
+        cnts = score.thetaCenters(16);
         plot.nullActivityPerKinematic(ys, xs, cnts, ...
             doScatter, doMean, clr);
     else

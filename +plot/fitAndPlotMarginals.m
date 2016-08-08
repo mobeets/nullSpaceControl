@@ -1,10 +1,11 @@
-function [D, opts] = fitAndPlotMarginals(D, opts)
+function [D, opts, figs] = fitAndPlotMarginals(D, opts)
     if nargin < 2
         opts = struct();
     end
     defopts = struct('nbins', nan, 'doFit', false, 'hypInds', [], ...
         'grpsToShow', [], 'ttl', D.datestr, 'showSe', false, ...
-        'grpNm', 'thetaActualGrps', 'makeMax1', false);
+        'grpNm', 'thetaActualGrps', 'makeMax1', false, ...
+        'oneColPerFig', false, 'oneKinPerFig', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if isempty(opts.hypInds)
         error('Must set opts.hypInds');
@@ -48,6 +49,6 @@ function [D, opts] = fitAndPlotMarginals(D, opts)
     if ~isempty(opts.grpsToShow)
         grps(~ismember(grps, opts.grpsToShow)) = nan;
     end
-    plot.marginalDists(Zs, Xs, grps, opts, {Hs.name});
+    figs = plot.marginalDists(Zs, Xs, grps, opts, {Hs.name});
 
 end
