@@ -6,7 +6,8 @@
 %     'voltional', 'mean shift prune', 'mean shift', 'unconstrained', ...
 %     'baseline', 'minimum'};
 nms = {'best-sample', 'habitual', 'cloud', 'unconstrained'};
-nms = {'unconstrained', 'habitual', 'cloud'};
+nms = {'habitual', 'cloud'};
+nms = {'hab-1s', 'habitual'};
 % nms = {'minimum'};
 % nms = {'unconstrained', 'minimum', 'baseline'};
 % nms = {'best-sample', 'habitual', 'cloud', 'cloud-sub'};
@@ -18,8 +19,8 @@ nms = {'unconstrained', 'habitual', 'cloud'};
 % nms = {'cheat', 'habitual', 'cloud', 'unconstrained', 'best-sample', ...
 %     'gauss', 'condnrm', 'condnrmkin', 'condnrmrow'};
 
-hypopts = struct('nBoots', 0, 'obeyBounds', true, ...
-    'scoreGrpNm', 'thetaActualGrps', 'boundsType', 'spikes');
+hypopts = struct('nBoots', 5, 'obeyBounds', false, ...
+    'boundsType', 'spikes', 'scoreGrpNm', 'thetaActualGrps16');
 
 % loptsA = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 1:2));
 % loptsB = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 3:4));
@@ -65,11 +66,14 @@ dts = io.getAllowedDates();
 
 S = nan(numel(dts),2);
 S2 = nan(numel(dts),2);
-for ii = 5%[5:-1:1] %1:numel(dts)
+for ii = 3%[5:-1:1] %1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/moreDts/' dtstr];
 
     D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
+    plot.init;
+    plot.errorByKin(D.score(2:end), 'errOfMeansByKin');
+    title(D.datestr);
     continue;
     
     [isOutOfBoundsFcn, ~] = pred.boundsFcn(nan, 'spikes', D);

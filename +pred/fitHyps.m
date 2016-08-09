@@ -42,6 +42,11 @@ function D = fitHyps(D, nms, opts)
         D.hyps = pred.addPrediction(D, 'cloud-1s', ...
             pred.closestRowValFit(D, opts));
     end
+    if ismember('hab-1s', nms)
+        % this is the same as "habitual", but more simply implemented
+        D.hyps = pred.addPrediction(D, 'hab-1s', ...
+            pred.randNulValInGrpFit(D, opts));
+    end
     if ismember('pruning-1s', nms)
         % this is the same as "pruning-1", but more simply implemented
         D.hyps = pred.addPrediction(D, 'pruning-1s', ...
@@ -52,10 +57,10 @@ function D = fitHyps(D, nms, opts)
             pred.closestThetaWithCloseRowValFit(D, opts));
     end
 
-    if ismember('habitual', nms)        
+    if ismember('habitual', nms)
         D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D, opts));
     end
-    if ismember('hab-kde', nms)        
+    if ismember('hab-kde', nms)
         D.hyps = pred.addPrediction(D, 'hab-kde', pred.habKdeFit(D, opts));
     end
     if ismember('pruning', nms) || ismember('cloud-hab', nms)

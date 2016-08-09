@@ -1,12 +1,12 @@
 
-nms = {'habitual', 'pruning', 'pruning-1', 'cloud', 'cloud-og', ...
-    'voltional', 'mean shift prune', 'mean shift', 'unconstrained', ...
+nms = {'habitual', 'cloud', 'unconstrained', ...
     'baseline', 'minimum'};
+nms = {'cloud'};
 
 hypopts = struct('nBoots', 0, 'obeyBounds', false, ...
-    'scoreGrpNm', 'thetaActualGrps');
+    'scoreGrpNm', 'thetaActualGrps16');
 
-fitNm = 'splitPerturbation_rand';
+fitNm = 'savedFull';
 
 if strcmp(fitNm, 'savedFull')
     lopts = struct('postLoadFcn', @io.makeImeDefault);
@@ -22,12 +22,14 @@ popts = struct();
 pms = struct();
 dts = io.getDates();
 
+isConfirmed = false;
 for ii = 1:numel(dts)
-    dtstr = dts{ii}
-    D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
+    dtstr = dts{ii}    
     fnm = fullfile('data', 'fits', fitNm, [dtstr '.mat']);
-    if exist(fnm, 'file')
+    if ~isConfirmed && exist(fnm, 'file')
         reply = input('File exists. Still want to save? ', 's');
+        isConfirmed = true;
     end
+    D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
     save(fnm, 'D');
 end
