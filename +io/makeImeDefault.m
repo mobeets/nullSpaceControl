@@ -7,6 +7,13 @@ function D = makeImeDefault(D, useSpikes)
     D.blocks(2).thetas = D.blocks(2).thetasIme;
     D.blocks(1).thetaActuals = D.blocks(1).thetaActualsIme;
     D.blocks(2).thetaActuals = D.blocks(2).thetaActualsIme;
+    
+    % for minimum/baseline
+    D.blocks(1).vel = D.blocks(1).velIme;
+    D.blocks(1).velNext = D.blocks(1).velNextIme;
+    D.blocks(2).vel = D.blocks(2).velIme;
+    D.blocks(2).velNext = D.blocks(2).velNextIme;
+    
     D.blocks(1).fDecoder = D.blocks(1).fImeDecoder;
     D.blocks(2).fDecoder = D.blocks(2).fImeDecoder;
     D.blocks(1).nDecoder = D.blocks(1).nImeDecoder;

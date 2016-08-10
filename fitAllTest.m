@@ -7,7 +7,9 @@
 %     'baseline', 'minimum'};
 nms = {'best-sample', 'habitual', 'cloud', 'unconstrained'};
 nms = {'habitual', 'cloud'};
-nms = {'hab-1s', 'habitual'};
+nms = {'cloud-1s', 'cloud'};
+nms = {'unc-1s', 'unconstrained'};
+nms = {'minimum'};
 % nms = {'minimum'};
 % nms = {'unconstrained', 'minimum', 'baseline'};
 % nms = {'best-sample', 'habitual', 'cloud', 'cloud-sub'};
@@ -19,7 +21,7 @@ nms = {'hab-1s', 'habitual'};
 % nms = {'cheat', 'habitual', 'cloud', 'unconstrained', 'best-sample', ...
 %     'gauss', 'condnrm', 'condnrmkin', 'condnrmrow'};
 
-hypopts = struct('nBoots', 5, 'obeyBounds', false, ...
+hypopts = struct('nBoots', 0, 'obeyBounds', true, ...
     'boundsType', 'spikes', 'scoreGrpNm', 'thetaActualGrps16');
 
 % loptsA = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 1:2));
@@ -66,7 +68,7 @@ dts = io.getAllowedDates();
 
 S = nan(numel(dts),2);
 S2 = nan(numel(dts),2);
-for ii = 3%[5:-1:1] %1:numel(dts)
+for ii = 5%[5:-1:1] %1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/moreDts/' dtstr];
 

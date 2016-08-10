@@ -29,7 +29,8 @@ function D = addImeDecoders(D)
         [ths_ime, angErr_ime, thsact_ime, prog_ime] = addImeStats(...
             D.blocks(ii), pos_ime, vel_ime);
         D.blocks(ii).posIme = pos_ime;
-        D.blocks(ii).velIme = vel_ime;        
+        D.blocks(ii).velIme = vel_ime;
+        D.blocks(ii).velNextIme = [vel_ime(2:end,:); [nan nan]];
         D.blocks(ii).thetasIme = ths_ime;
         D.blocks(ii).thetaActualsIme = thsact_ime;
         D.blocks(ii).progressIme = prog_ime;

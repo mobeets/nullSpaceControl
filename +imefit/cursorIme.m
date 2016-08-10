@@ -13,7 +13,7 @@ function [pos_ime, vel_ime] = cursorIme(B, ime)
     vel_ime = cell2mat(vel_ime)';
     
     % expand pos_ime to have nans at start of trial
-    ix = B.time >= 7;
+    ix = B.time >= 6;
     assert(isequal(cell2mat(Y)', B.pos(ix,:)));
     pos2 = nan(size(B.pos));
     pos2(ix,:) = pos_ime;
@@ -21,14 +21,14 @@ function [pos_ime, vel_ime] = cursorIme(B, ime)
     
     vel2 = nan(size(B.pos));
     vel2(ix,:) = vel_ime;
-    vel_ime = vel2; % /dt or *dt ?? -- only affects progressIme
+    vel_ime = vel2/dt; % /dt or *dt ?? -- only affects progressIme & minFireFit
 
 end
 
 function pos = cursorIme2(B, dec)
     nt = numel(B.time);
     pos = nan(nt,2);
-    delta = 0.045;
+    dt = 0.045;
     for t = 2:nt
         ixSameTrial = B.trial_index(t-1) == B.trial_index(t);
         ixTimePair = B.time(t-1) == B.time(t) - 1;
@@ -40,6 +40,6 @@ function pos = cursorIme2(B, dec)
             continue;
         end
         x1 = dec.M1*B.vel(t-1,:)' + dec.M2*B.spikes(t-1,:)' + dec.M0;
-        pos(t,:) = B.pos(t-1,:) + (x1*delta)';
+        pos(t,:) = B.pos(t-1,:) + (x1*dt)';
     end
 end

@@ -1,12 +1,15 @@
 
+dts = io.getDates();
+
 nms = {'habitual', 'cloud', 'unconstrained', ...
     'baseline', 'minimum'};
-nms = {'cloud'};
 
-hypopts = struct('nBoots', 0, 'obeyBounds', false, ...
-    'scoreGrpNm', 'thetaActualGrps16');
+hypopts = struct('nBoots', 10, 'scoreGrpNm', 'thetaActualGrps16', ...
+    'obeyBounds', true, 'boundsType', 'spikes');
 
 fitNm = 'savedFull';
+
+%%
 
 if strcmp(fitNm, 'savedFull')
     lopts = struct('postLoadFcn', @io.makeImeDefault);
@@ -20,12 +23,16 @@ end
 
 popts = struct();
 pms = struct();
-dts = io.getDates();
+
+baseDir = fullfile('data', 'fits', fitNm);
+if ~exist(baseDir, 'dir')
+    mkdir(baseDir);
+end
 
 isConfirmed = false;
-for ii = 1:numel(dts)
-    dtstr = dts{ii}    
-    fnm = fullfile('data', 'fits', fitNm, [dtstr '.mat']);
+for ii = 4:numel(dts)
+    dtstr = dts{ii}
+    fnm = fullfile(baseDir, [dtstr '.mat']);
     if ~isConfirmed && exist(fnm, 'file')
         reply = input('File exists. Still want to save? ', 's');
         isConfirmed = true;

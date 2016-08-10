@@ -5,6 +5,7 @@ function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
 %      s.t.
 %         (1) u ? 0
 %         (2) x1 = A2*x0 + B2*u + c2
+%         (3) lb ? u ? ub
 % i.e.
 %   min_u (1/2)*u'*H*u + f'*u
 %      s.t.
@@ -38,8 +39,14 @@ function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
     
     options = optimset('Algorithm', 'interior-point-convex', ...
         'Display', 'off');
-    [z, ~, exitflag] = quadprog(H, f, A, b, Aeq, beq, ...
-        lb, ub, [], options);
+    try
+        [z, ~, exitflag] = quadprog(H, f, A, b, Aeq, beq, ...
+            lb, ub, [], options);
+    catch
+        z = nan(size(Blk.spikes(t,:)')); isRelaxed = false;
+        warning('error in quadFireFit');
+        return;
+    end
     if ~exitflag
         warning('quadprog optimization incomplete, but stopped.');
     end

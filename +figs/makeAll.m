@@ -13,8 +13,8 @@ close;
 
 %% create data file
 
-dirNm = 'splitIntuitive'; % Exp. 1
-% dirNm = 'savedFull'; % Exp. 2
+% dirNm = 'splitIntuitive'; % Exp. 1
+dirNm = 'savedFull'; % Exp. 2
 baseDir = fullfile('data', 'fits', dirNm);
 
 SMu = cell(numel(dts), 1);
@@ -99,21 +99,27 @@ set(gcf, 'Position', [0 0 1250 200]);
 
 %% mean/covariance scatter (for comparing two hyps)
 
+hypInd1 = 3;
+hypInd2 = 4;
+hypNm1 = nms{hypInd1};
+hypNm2 = nms{hypInd2};
+
 lbl = 'covariance';
+
 if strcmp(lbl, 'mean')
-    xs = SMu(:,5);
-    ys = SMu(:,2);
+    xs = SMu(:,hypInd1);
+    ys = SMu(:,hypInd2);
     xstep = 1;
 else
-    xs = SCov(:,5);
-    ys = SCov(:,2);
+    xs = SCov(:,hypInd1);
+    ys = SCov(:,hypInd2);
     xstep = 25;
 end
 
 plot.init;
 plot(xs, ys, 'k.', 'MarkerSize', 40);
-xlabel([lbl ' error, cloud']);
-ylabel([lbl ' error, minimal intervention']);
+xlabel([lbl ' error, ' hypNm1]);
+ylabel([lbl ' error, ' hypNm2]);
 xmx = ceil(max([xs; ys]));
 tcks = 0:xstep:xmx;
 xlim([0 xmx]); ylim(xlim);

@@ -9,12 +9,15 @@ function Z = closestRowValFit(D, opts)
     
     B1 = D.blocks(1);
     B2 = D.blocks(2);
-    RB = B2.(opts.decoderNm).RowM2;
+    NB2 = B2.(opts.decoderNm).NulM2;
+    RB2 = B2.(opts.decoderNm).RowM2;
     Z1 = B1.latents;
     Z2 = B2.latents;
     
-    ds = pdist2(Z2*RB, Z1*RB);
+    ds = pdist2(Z2*RB2, Z1*RB2);
     [~, inds] = min(ds, [], 2);
-    Z = Z1(inds,:);
+    Zsamp = Z1(inds,:);
+    Zr = Z2*(RB2*RB2');
+    Z = Zr + Zsamp*(NB2*NB2');
 
 end

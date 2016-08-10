@@ -38,7 +38,7 @@ function [U, Y, T, trs] = prep(B, doLatents, doWarn, keepIncorrects)
                 'If fitting IME, make sure you turn off filtering.']);
             didWarn = true;
         end
-        it = B.time >= 7 & it;
+        it = B.time >= 6 & it;
 
         % target position
         cT = B.target(find(it, 1, 'first'),:)'; % 1x2

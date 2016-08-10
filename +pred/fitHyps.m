@@ -37,15 +37,19 @@ function D = fitHyps(D, nms, opts)
     if ismember('cloud-sub', nms)
         D.hyps = pred.addPrediction(D, 'cloud-sub', pred.subCloudFit(D, opts));
     end
-    if ismember('cloud-1s', nms)
+    if ismember('cloud', nms)
         % this is the same as "cloud-1", but more simply implemented
-        D.hyps = pred.addPrediction(D, 'cloud-1s', ...
+        D.hyps = pred.addPrediction(D, 'cloud', ...
             pred.closestRowValFit(D, opts));
     end
-    if ismember('hab-1s', nms)
-        % this is the same as "habitual", but more simply implemented
-        D.hyps = pred.addPrediction(D, 'hab-1s', ...
+    if ismember('habitual', nms)
+        % this is the same as "habitual0", but more simply implemented
+        D.hyps = pred.addPrediction(D, 'habitual', ...
             pred.randNulValInGrpFit(D, opts));
+    end
+    if ismember('unconstrained', nms)
+        % this is the same as "unconstrained0", but more simply implemented
+        D.hyps = pred.addPrediction(D, 'unconstrained', pred.randNulVal(D, opts));
     end
     if ismember('pruning-1s', nms)
         % this is the same as "pruning-1", but more simply implemented
@@ -57,7 +61,7 @@ function D = fitHyps(D, nms, opts)
             pred.closestThetaWithCloseRowValFit(D, opts));
     end
 
-    if ismember('habitual', nms)
+    if ismember('habitual0', nms)
         D.hyps = pred.addPrediction(D, 'habitual', pred.habContFit(D, opts));
     end
     if ismember('hab-kde', nms)
@@ -71,7 +75,7 @@ function D = fitHyps(D, nms, opts)
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'pruning-1', pred.sameCloudFit(D, custopts));
     end    
-    if ismember('cloud', nms) || ismember('cloud-1', nms)
+    if ismember('cloud0', nms) || ismember('cloud-1', nms)
         custopts = struct('thetaTol', nan, 'minDist', nan, 'kNN', 1);
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'cloud', pred.sameCloudFit(D, custopts));
@@ -81,7 +85,7 @@ function D = fitHyps(D, nms, opts)
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'cloud-og', pred.sameCloudFit(D, custopts));
     end
-    if ismember('unconstrained', nms)
+    if ismember('unconstrained0', nms)
         D.hyps = pred.addPrediction(D, 'unconstrained', pred.uncContFit(D, opts));
     end
     if ismember('baseline', nms)
