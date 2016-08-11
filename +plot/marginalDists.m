@@ -30,6 +30,8 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
     C = 0;
     d = 0;
     muc = nan;
+%     ixmna = inf; ixmxa = -inf;
+%     ymn = inf; ymx = -inf;
     for jj = 1:ngrps
         if isnan(grps(jj))
             continue;
@@ -43,6 +45,8 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
             nrows = ceil(nfeats/ncols);
             C = 0;
         end
+%         ixmna = inf; ixmxa = -inf;
+%         ymn = inf; ymx = -inf;
         for ii = 1:nfeats
             if ~opts.oneColPerFig
                 C = C + 1;
@@ -79,6 +83,8 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
                 ys = Zs{kk}{jj}(:,ii);                
                 ixmn = find(ys~=0, 1, 'first');
                 ixmx = find(ys~=0, 1, 'last');
+                ixmn = find(cumsum(ys)/sum(ys) >= 0.025, 1);
+                ixmx = find(cumsum(ys)/sum(ys) >= 0.975, 1);
                 ixmna = min(ixmna, ixmn); ixmxa = max(ixmxa, ixmx);
                 
                 clr = clrs(kk,:);
@@ -93,7 +99,8 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
                 lastMu = muc;
                 muc = sum(xs.*ys/sum(ys));
                 mn = xs(find(cps >= 0.1, 1, 'first'));
-                mx = xs(find(cps >= 0.9, 1, 'first'));                
+                mx = xs(find(cps >= 0.9, 1, 'first'));                    
+                
                 if opts.showSe
 %                     plot([mn mn], ylm, 'Color', clr);
 %                     plot([mx mx], ylm, 'Color', clr);
@@ -115,15 +122,15 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
             end
             
 %             xlim([-5 5]);
-            set(gca, 'XTick', []);
+%             set(gca, 'XTick', [-2 0 2]);
             set(gca, 'YTick', []);
             if d == 1 || opts.oneKinPerFig
-                xlabel(['output-null ' num2str(ii) '']);
+                title(['output-null ' num2str(ii) '']);
             elseif ~opts.oneColPerFig
                 title(['Y^n(' num2str(ii) ')']);
             end
             if (ii == 1 || opts.oneColPerFig) && ~opts.oneKinPerFig
-                xlabel(['\theta = ' num2str(grps(jj))]);
+                title(['\theta = ' num2str(grps(jj))]);
             end
             if ii == 1 && ~isempty(opts.ttl) && ~opts.oneKinPerFig
                 title(opts.ttl);

@@ -21,18 +21,19 @@ function blkSummaryPredicted(D, H, doRotate, doSolo, doTrans, NB, clrs)
     if isempty(NB)
         NB = D.blocks(2).fDecoder.NulM2;
         if doRotate
-            error('rotated...');
+            warning('rotated...');
             [~,~,v] = svd(D.blocks(2).latents*NB);
             NB = NB*v;
         end
     end
+    H0 = D.hyps(1);
     
     if doSolo
         plot.blkSummary(D.blocks(2), [], H, true, true, clrs(2,:), NB, ...
             [], doTrans);
         plot.subtitle([H.name ' in null(B2)'], 'FontSize', 14);
     else
-        plot.blkSummary(D.blocks(2), [], [], false, true, clrs(1,:), NB, ...
+        plot.blkSummary(D.blocks(2), [], H0, false, true, clrs(1,:), NB, ...
             [], doTrans);
         plot.blkSummary(D.blocks(2), [], H, false, true, clrs(2,:), NB, ...
             [], doTrans);        

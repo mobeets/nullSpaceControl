@@ -25,7 +25,7 @@ function blkSummary(Blk, NBlk, Y, doScatter, doMean, clr, NB, ix0, doTrans)
     end
 
     xs = Blk.thetaActualGrps16;
-    ys = Y.latents*NB;
+    ys = Y.nullActivity.zNull;
     grps = Blk.thetaActualGrps16;
     
     % ignore nans

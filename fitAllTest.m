@@ -10,6 +10,7 @@ nms = {'habitual', 'cloud'};
 nms = {'cloud-1s', 'cloud'};
 nms = {'unc-1s', 'unconstrained'};
 nms = {'minimum'};
+nms = {'cloud', 'unconstrained', 'uncontrolled-uniform', 'uniform'};
 % nms = {'minimum'};
 % nms = {'unconstrained', 'minimum', 'baseline'};
 % nms = {'best-sample', 'habitual', 'cloud', 'cloud-sub'};
@@ -68,11 +69,25 @@ dts = io.getAllowedDates();
 
 S = nan(numel(dts),2);
 S2 = nan(numel(dts),2);
-for ii = 5%[5:-1:1] %1:numel(dts)
+for ii = [5:-1:1] %1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/moreDts/' dtstr];
 
     D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
+    nrows = 2; ncols = 2;
+    plot.init;
+    subplot(nrows,ncols,1); hold on;
+    plot.errorByKin(D.score(2:end), 'errOfMeansByKin'); title(D.datestr);
+    subplot(nrows,ncols,2); hold on;
+    plot.barByHypQuick(D.score(2:end), 'errOfMeans'); title(D.datestr);
+    subplot(nrows,ncols,3); hold on;
+    plot.errorByKin(D.score(2:end), 'covErrorByKin'); title(D.datestr);
+    subplot(nrows,ncols,4); hold on;
+    plot.barByHypQuick(D.score(2:end), 'covError'); title(D.datestr);
+    set(gcf, 'Position', [0 0 800 600]);
+    saveas(gcf, 'plots/tmp.png');
+    continue;
+    
     plot.init;
     plot.errorByKin(D.score(2:end), 'errOfMeansByKin');
     title(D.datestr);

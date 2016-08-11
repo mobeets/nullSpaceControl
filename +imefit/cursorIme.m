@@ -1,4 +1,4 @@
-function [pos_ime, vel_ime] = cursorIme(B, ime)
+function [pos_ime, vel_ime, vel_ime2] = cursorIme(B, ime)
 % cursor movement using ime decoder
 
     dt = 0.045;
@@ -11,7 +11,7 @@ function [pos_ime, vel_ime] = cursorIme(B, ime)
     vel_ime = arrayfun(@(t) V_P{t}(end-1:end,1:size(Y{t},2)), ...
         1:numel(V_P), 'uni', 0);
     vel_ime = cell2mat(vel_ime)';
-    
+         
     % expand pos_ime to have nans at start of trial
     ix = B.time >= 6;
     assert(isequal(cell2mat(Y)', B.pos(ix,:)));
@@ -23,6 +23,14 @@ function [pos_ime, vel_ime] = cursorIme(B, ime)
     vel2(ix,:) = vel_ime;
     vel_ime = vel2/dt; % /dt or *dt ?? -- only affects progressIme & minFireFit
 
+    % attempt to get velNext or velPrev equivalent
+    vel_ime2 = arrayfun(@(t) V_P{t}(end-3:end-2,1:size(Y{t},2)), ...
+        1:numel(V_P), 'uni', 0);
+    vel_ime2 = cell2mat(vel_ime2)';
+    vel2 = nan(size(B.pos));
+    vel2(ix,:) = vel_ime2;
+    vel_ime2 = vel2/dt;
+    
 end
 
 function pos = cursorIme2(B, dec)

@@ -8,7 +8,7 @@ function D = scoreAll(D, opts, histopts)
     defopts = struct('decoderNm', 'fDecoder', 'idxFldNm', '', ...
         'scoreGrpNm', 'thetaActualGrps', 'doBoots', true, ...
         'baseHypNm', 'observed', 'scoreBlkInd', 2, 'jointKdeDimNo', 2, ...
-        'nullCols', nan);
+        'nullCols', nan, 'doPca', true);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if ~strcmp(opts.decoderNm, 'fDecoder')
         warning(['Predicting null activity using "' opts.decoderNm '"']);
@@ -17,7 +17,13 @@ function D = scoreAll(D, opts, histopts)
     % compute null activity means/covs and marginal histograms
     B = D.blocks(opts.scoreBlkInd);
     NB = B.(opts.decoderNm).NulM2;
-    Xs = []; grps = [];    
+    Xs = []; grps = [];
+    
+    % rotate all null space activity using observed data
+    if opts.doPca
+        [~,~,v] = svd(D.blocks(2).latents*NB);
+        NB = NB*v;
+    end
     
     for ii = 1:numel(D.hyps)
         [D.hyps(ii).nullActivity, gs] = nullActivityAll(...

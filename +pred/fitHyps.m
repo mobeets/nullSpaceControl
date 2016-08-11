@@ -154,4 +154,7 @@ function D = fitHyps(D, nms, opts)
     if ismember('uniform', nms)
         D.hyps = pred.addPrediction(D, 'uniform', pred.uniFit(D, opts));
     end
+    if ismember('uncontrolled-uniform', nms)
+        D.hyps = pred.addPrediction(D, 'uncontrolled-uniform', pred.uniFit(D, opts));
+    end
 end

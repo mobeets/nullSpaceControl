@@ -9,7 +9,9 @@ if isIme
     spsDecNm = 'nImeDecoder';
     facDecNm = 'fImeDecoder';
     vNm = 'velIme';
+%     vNm = 'velPrevIme';
     vNmNext = 'velNextIme';
+% %     vNmNext = 'velIme';
 else
     spsDecNm = 'nDecoder';
     facDecNm = 'fDecoder';
@@ -37,13 +39,13 @@ dt = 0.045;
 
 nt = size(Ys,1);
 errs = nan(nt,1);
-for t = 8%:nt
-    x0 = vel(t,:)';
-    x1 = velNext(t,:)';
+for t = 1:nt
+    x0 = vel(t,:)';%*dt;
+    x1 = velNext(t,:)';%*dt;
     Aeq = Bc;
     beq = x1 - Ac*x0 - cc;
     
-    [x1 - (Ac*x0 + Bc*Ys(t,:)' + cc)]
+%     [x1 - (Ac*x0 + Bc*Ys(t,:)' + cc)]
     
     errs(t) = norm(beq - Aeq*Ys(t,:)');
 end
