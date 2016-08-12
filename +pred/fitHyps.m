@@ -95,7 +95,15 @@ function D = fitHyps(D, nms, opts)
         custopts = struct('minType', 'minimum');
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'minimum', pred.minEnergyFit(D, custopts));
-    end    
+    end 
+    if ismember('baseline-sample', nms)
+        D.hyps = pred.addPrediction(D, 'baseline-sample', pred.minEnergySampleFit(D, opts));
+    end
+    if ismember('minimum-sample', nms)
+        custopts = struct('minType', 'minimum');
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'minimum-sample', pred.minEnergySampleFit(D, custopts));
+    end
     if ismember('volitional-w-2FAs', nms) || ismember('volitional', nms)
         custopts = struct('addPrecursor', true, 'useL', 2);
         custopts = io.updateParams(opts, custopts, true);
@@ -155,6 +163,6 @@ function D = fitHyps(D, nms, opts)
         D.hyps = pred.addPrediction(D, 'uniform', pred.uniFit(D, opts));
     end
     if ismember('uncontrolled-uniform', nms)
-        D.hyps = pred.addPrediction(D, 'uncontrolled-uniform', pred.uniFit(D, opts));
+        D.hyps = pred.addPrediction(D, 'uncontrolled-uniform', pred.uniformSampleFit(D, opts));
     end
 end

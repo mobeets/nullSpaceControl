@@ -21,6 +21,7 @@ curHyps = ['observed' hypSet1];
 % curHyps = ['observed' hypSet2];
 [hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
 figs.marginalHistograms(D, hypInds, [270], hypClrs);
+% figs.marginalHistograms(D, hypInds, [], hypClrs);
 
 %% mean/covariance scatter (for comparing two hyps)
 

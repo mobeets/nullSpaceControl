@@ -2,7 +2,7 @@
 dts = io.getDates();
 
 nms = {'habitual', 'cloud', 'unconstrained', ...
-    'baseline', 'minimum'};
+    'baseline', 'minimum', 'uncontrolled-uniform'};
 
 hypopts = struct('nBoots', 10, 'scoreGrpNm', 'thetaActualGrps16', ...
     'obeyBounds', true, 'boundsType', 'spikes');

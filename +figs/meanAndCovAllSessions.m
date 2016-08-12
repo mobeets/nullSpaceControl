@@ -13,11 +13,13 @@ function meanAndCovAllSessions(SMu, SCov, clrs, dtnms, nms)
     plot.init;
     figs.bar_allDts(SMu(:,indOrder), nms(indOrder), dtnms, ...
         clrs(indOrder,:), 'mean error');
+    ylim([0 5]);
     set(gcf, 'Position', [0 300 1250 200]);
 
     plot.init;
     figs.bar_allDts(SCov(:,indOrder), nms(indOrder), dtnms, ...
         clrs(indOrder,:), 'covariance error');
+    ylim([0 200]);
     set(gcf, 'Position', [0 0 1250 200]);
 
 end

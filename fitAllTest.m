@@ -10,7 +10,8 @@ nms = {'habitual', 'cloud'};
 nms = {'cloud-1s', 'cloud'};
 nms = {'unc-1s', 'unconstrained'};
 nms = {'minimum'};
-nms = {'cloud', 'unconstrained', 'uncontrolled-uniform', 'uniform'};
+nms = {'cloud', 'unconstrained', 'uncontrolled-uniform', ...
+    'minimum-sample', 'baseline-sample'};
 % nms = {'minimum'};
 % nms = {'unconstrained', 'minimum', 'baseline'};
 % nms = {'best-sample', 'habitual', 'cloud', 'cloud-sub'};

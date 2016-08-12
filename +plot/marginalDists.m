@@ -26,7 +26,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
         nrows = nfeats;
     end
     ymxs = max(max(cell2mat(cat(1, Zs{:}))));
-    
+
     C = 0;
     d = 0;
     muc = nan;
@@ -42,7 +42,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
 %             ncols = ceil(sqrt(nfeats));
 %             nrows = ceil(nfeats/ncols);
             ncols = floor(nfeats/2);
-            nrows = ceil(nfeats/ncols);
+            nrows = ceil(nfeats/ncols);            
             C = 0;
         end
 %         ixmna = inf; ixmxa = -inf;
@@ -50,7 +50,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
         for ii = 1:nfeats
             if ~opts.oneColPerFig
                 C = C + 1;
-                subplot(ncols, nrows, C); hold on;
+                subplot(ncols, nrows, ii); hold on;
             elseif opts.oneKinPerFig
                 fig = figure; set(gcf, 'color', 'w'); hold on;
                 figs = [figs fig];
@@ -70,10 +70,12 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
                 nrows = ngrps;
                 ncols = 1;
                 if nrows > 8
-                    nrows = floor(ngrps/4);
+                    nrows = floor(ngrps/8);
                     ncols = ceil(ngrps/nrows);
                 end
-                subplot(ncols, nrows, jj); hold on;
+                featSubplotInds = reshape(1:ngrps, nrows, ncols)';
+                featSubplotInds = featSubplotInds(:);
+                subplot(ncols, nrows, featSubplotInds(jj)); hold on;
             end            
             xs = Xs{jj}(:,ii);
             ixmna = inf; ixmxa = -inf;

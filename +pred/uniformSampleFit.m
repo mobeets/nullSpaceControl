@@ -33,7 +33,7 @@ function Z = uniformSampleFit(D, opts)
         end
         if n0 - sum(ixOob) > 0
             warning(['Corrected ' num2str(n0 - sum(ixOob)) ...
-                ' habitual samples to lie within bounds']);
+                ' uniform sample samples to lie within bounds']);
         end
     end
     
