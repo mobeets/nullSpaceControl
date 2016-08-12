@@ -3,15 +3,17 @@ dts = io.getDates();
 
 nms = {'habitual', 'cloud', 'unconstrained', ...
     'baseline', 'minimum', 'uncontrolled-uniform'};
+nms = {'habitual', 'cloud', 'unconstrained', ...
+    'baseline-sample', 'minimum-sample'};
 
-hypopts = struct('nBoots', 10, 'scoreGrpNm', 'thetaActualGrps16', ...
+hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16', ...
     'obeyBounds', true, 'boundsType', 'spikes');
 
-fitNm = 'savedFull';
+fitNm = 'allSampling';
 
 %%
 
-if strcmp(fitNm, 'savedFull')
+if strcmp(fitNm, 'savedFull') || strcmp(fitNm, 'allSampling')
     lopts = struct('postLoadFcn', @io.makeImeDefault);
 elseif strcmp(fitNm, 'splitIntuitive')
     lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);
@@ -30,7 +32,7 @@ if ~exist(baseDir, 'dir')
 end
 
 isConfirmed = false;
-for ii = 4:numel(dts)
+for ii = 1:numel(dts)
     dtstr = dts{ii}
     fnm = fullfile(baseDir, [dtstr '.mat']);
     if ~isConfirmed && exist(fnm, 'file')

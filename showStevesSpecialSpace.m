@@ -96,6 +96,30 @@ title('irrelevant / relevant');
 [Dts, PrtNum, Mnk, PrtType, Lrn, PrfHit] = io.importPatrickLearningMetrics();
 Dts = arrayfun(@num2str, Dts, 'uni', 0);
 ixDt = ismember(Dts, dts);
+ixMnk = cellfun(@(c) strcmp(c(4), '2'), dts);
+
+%% # trials per dt
+
+ns = nan(numel(dts),2);
+for ii = 1:numel(dts)
+%     D = io.quickLoadByDate(dts{ii});
+    X = load(fullfile(baseDir, [dts{ii} '.mat'])); D = X.D;
+    ns(ii,1) = numel(D.blocks(1).time);
+    ns(ii,2) = numel(D.blocks(2).time);
+end
+
+%%
+
+plot.init;
+% xs = ns(:,2);
+% ys = SMu(:,5);
+xs = Lrn(ixDt);
+ys = SCov(:,5) - SCov(:,2);
+
+% subplot(2,2,4); hold on;
+plot(xs(ixMnk), ys(ixMnk), '.', 'MarkerSize', 25);
+plot(xs(~ixMnk), ys(~ixMnk), '.', 'MarkerSize', 25);
+
 
 %% compare learning to ratio of det(cov)
 

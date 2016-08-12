@@ -18,3 +18,6 @@ minClr = clrs(2,:);
 allHypClrs = [baseClr; habClr; habClr; habClr; ...
     cldClr; cldClr; uncClr; basClr; ...
     minClr; habClr; habClr];
+
+% 6-name cell array
+allHypClrs = [baseClr; cldClr; habClr; uncClr; basClr; minClr];

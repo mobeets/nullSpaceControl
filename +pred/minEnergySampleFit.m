@@ -31,6 +31,7 @@ function [Z, inds] = minEnergySampleFit(D, opts)
     elseif strcmpi(opts.minType, 'minimum') && ~opts.fitInLatent
         mu = zeros(1,size(Y2,2));
     end
+    maxSps = max(Y1(:));
     
     nt = size(Y2,1);
     Un = nan(size(Ur));
@@ -38,7 +39,7 @@ function [Z, inds] = minEnergySampleFit(D, opts)
     nInvalids = 0;
     for t = 1:nt
         usc = bsxfun(@plus, Un1, Ur(t,:)); % current spikes considered
-        usc = usc(~any(usc<0,2),:); % ignore negative spikes
+        usc = usc(~any(usc<0|usc>2*maxSps,2),:); % ignore oob spikes
         % find ind of us s.t. us is nearest zero spikes
         ds = sqrt(sum(bsxfun(@plus, usc, -mu).^2,2));
         [~, ind] = min(ds);
@@ -59,7 +60,9 @@ function [Z, inds] = minEnergySampleFit(D, opts)
     if opts.fitInLatent
         Z = U;
     else
-        Z = tools.convertRawSpikesToRawLatents(Dc, U');
+        Z = tools.convertRawSpikesToRawLatents(dec, U');
     end
-
+%     NBz = D.blocks(2).fDecoder.NulM2;
+%     RBz = D.blocks(2).fDecoder.RowM2;
+%     Z = Z*(NBz*NBz') + D.blocks(2).latents*(RBz*RBz');
 end

@@ -5,7 +5,7 @@ function meanAndCovAllSessions(SMu, SCov, clrs, dtnms, nms)
         [~,inds] = sort(SMu(ii,:));
         ixs(ii,:) = inds;
     end
-    indOrder = mode(ixs);
+    [~,indOrder] = sort(mean(ixs));
 %     [~, ix] = sort(arrayfun(@(c) find(c == indOrder), curInds));
 
     clear figs;
