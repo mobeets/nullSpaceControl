@@ -20,10 +20,13 @@ function [ths, grps, D] = asymptotesByDt(dtstr, nms, grpNm, opts, bind)
         gs = ones(size(xs));
     end
     ths = cell(numel(nms),1);
+    
+    plot.init;
     for jj = 1:numel(nms)
         ys = B.(nms{jj});
         ths{jj} = behav.asymptoteByGrp(xs, ys, gs, opts);
-        showAsymps(xs, ys, ths{jj}, nms{jj}, dtstr, opts);
+        subplot(1,numel(nms),jj); hold on;
+        showAsymps(xs, ys, ths{jj}, nms{jj}, dtstr, opts);        
     end
     ths = cell2mat(ths');
     grps = sort(unique(gs));
@@ -32,11 +35,10 @@ end
 
 function showAsymps(xsb, ysb, th, nm, dtstr, opts)
     [xsb, ysb, ~] = behav.smoothAndBinVals(xsb, ysb, opts);
-    plot.init;
+%     plot.init;
     plot(xsb, ysb, '.');
     plot([th th], ylim, 'k--');
     ylabel(nm);
     xlabel('trial_index');
-    title(dtstr);
-    saveas(gcf, 'plots/tmp.png');
+    title(dtstr);    
 end

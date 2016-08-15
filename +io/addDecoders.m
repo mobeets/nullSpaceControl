@@ -27,6 +27,11 @@ end
 
 function fm = getFactorShuffleDecoder(sd, nd, fm1, kalmanInitParams)
     
+    % some sessions have sd as a struct array, where sd(2) is for spikes
+    if numel(sd) > 1
+        sd = sd(1);
+    end
+
     % shuffled Sigma_z (already in sd.shuffleMatrix)
     nshufs = numel(sd.shuffles);
     eta_f = zeros(nshufs);

@@ -1,9 +1,27 @@
+
+%%
+
+D = io.loadRawDataByDate('20130528');
+% E = io.loadRawDataByDate('20120709');
+
+%%
+
+for ii = 25:numel(dts)
+    dts{ii}
+    io.saveDataByDate(dts{ii});
+end
+
 %%
 
 [Dts, PrtNum, Mnk, PrtType, Lrn, PrfHit] = io.importPatrickLearningMetrics();
 Dts = arrayfun(@num2str, Dts, 'uni', 0);
 dts = io.getDates();
 ix = ismember(Dts, dts);
+
+%%
+
+ix1 = strcmp(PrtType, 'within-manifold') & PrtNum == 1;
+dtsNew = Dts(~ix & ix1)
 
 %%
 

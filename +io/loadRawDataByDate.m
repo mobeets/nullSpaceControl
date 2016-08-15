@@ -28,3 +28,17 @@ function D = loadRawDataByDate(dtstr)
     D.trials = io.makeTrials(D);
     
 end
+
+%%
+
+% DATADIR = getpref('factorSpace', 'data_directory');
+% mnkNm = 'Lincoln';
+% basedir = fullfile(DATADIR, mnkNm);
+% drs = dir(fullfile(basedir, '*simpleData*'));
+% tmp = arrayfun(@(ii) strsplit(drs(ii).name, 'simple'), ...
+%     1:numel(drs), 'uni', 0);
+% dtc = cellfun(@(d) d{1}, tmp, 'uni', 0);
+% for ii = 1:numel(dtc)
+%     drnm = fullfile(basedir, dtc{ii})
+%     mkdir(drnm);
+% end
