@@ -1,4 +1,4 @@
-function trial_index = shuffleStarts(dtstr)
+function SHUFFLE_START = shuffleStarts()
 % fit using behav.asymptotesAll, and corrected by eye when necessary
 %   asymptotes fit for progress and trial_index, for all trials
 
@@ -52,12 +52,6 @@ function trial_index = shuffleStarts(dtstr)
         20131214 nan; % no session asymptote by eye
         20131215 nan; % too few Block 2 trials
     ];
-    ix = SHUFFLE_START(:,1) == str2double(dtstr);
-    if sum(ix) == 0
-        error(['No entry in SHUFFLE_START for ' dtstr]);
-    elseif sum(ix) > 1
-        error(['Multiple entries in SHUFFLE_START for ' dtstr]);
-    end
-    trial_index = SHUFFLE_START(ix,2);
+    
     
 end

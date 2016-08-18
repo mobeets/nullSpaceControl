@@ -1,15 +1,17 @@
 
 dts = io.getDates();
 
-nms = {'habitual', 'cloud', 'unconstrained', ...
-    'baseline', 'minimum', 'uncontrolled-uniform'};
-nms = {'habitual', 'cloud', 'unconstrained', ...
-    'baseline-sample', 'minimum-sample'};
+nms = {'baseline', 'minimum', 'unconstrained', ...
+    'baseline-sample', 'minimum-sample', 'uncontrolled-uniform'};
+% nms = {'habitual', 'cloud', 'unconstrained', ...
+%     'baseline', 'minimum', 'uncontrolled-uniform'};
+% nms = {'habitual', 'cloud', 'unconstrained', ...
+%     'baseline-sample', 'minimum-sample'};
 
 hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16', ...
     'obeyBounds', true, 'boundsType', 'spikes');
 
-fitNm = 'allSampling';
+fitNm = 'splitIntuitive';
 
 %%
 
@@ -32,10 +34,14 @@ if ~exist(baseDir, 'dir')
 end
 
 isConfirmed = false;
-for ii = 1:numel(dts)
+skipIfExists = false;
+for ii = 16:numel(dts)
     dtstr = dts{ii}
     fnm = fullfile(baseDir, [dtstr '.mat']);
     if ~isConfirmed && exist(fnm, 'file')
+        if skipIfExists
+            continue;
+        end
         reply = input('File exists. Still want to save? ', 's');
         isConfirmed = true;
     end

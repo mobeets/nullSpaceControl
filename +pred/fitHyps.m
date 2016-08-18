@@ -42,6 +42,13 @@ function D = fitHyps(D, nms, opts)
         D.hyps = pred.addPrediction(D, 'cloud', ...
             pred.closestRowValFit(D, opts));
     end
+    if ismember('cloud-rotation', nms)
+        % this is the same as "cloud-1", but more simply implemented
+        custopts = struct('beDumb', true);
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'cloud-rotation', ...
+            pred.closestRowValFit(D, custopts));
+    end
     if ismember('habitual', nms)
         % this is the same as "habitual0", but more simply implemented
         D.hyps = pred.addPrediction(D, 'habitual', ...
@@ -103,6 +110,16 @@ function D = fitHyps(D, nms, opts)
         custopts = struct('minType', 'minimum');
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'minimum-sample', pred.minEnergySampleFit(D, custopts));
+    end
+    if ismember('baseline-sample-200', nms)
+        custopts = struct('kNN', 50);
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'baseline-sample-50', pred.minEnergySampleFit(D, custopts));
+    end
+    if ismember('minimum-sample-200', nms)
+        custopts = struct('minType', 'minimum', 'kNN', 50);
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'minimum-sample-50', pred.minEnergySampleFit(D, custopts));
     end
     if ismember('volitional-w-2FAs', nms) || ismember('volitional', nms)
         custopts = struct('addPrecursor', true, 'useL', 2);

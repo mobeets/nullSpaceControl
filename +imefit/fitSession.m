@@ -29,7 +29,11 @@ function [D, Stats, LLs] = fitSession(dtstr, opts)
     
     if opts.doPlot
         fig = imefit.plotErrByBlock(Stats{1}, Stats{2}); title(D.datestr);
-        savePlot(fig, opts.plotdir, [D.datestr '-bytrial']);
+        if ~isempty(opts.plotdir)
+            savePlot(fig, opts.plotdir, [D.datestr '-bytrial']);
+        else
+            savePlot(fig, 'plots', 'tmp');
+        end
     end
     if opts.doSave
 %         error('You sure?');

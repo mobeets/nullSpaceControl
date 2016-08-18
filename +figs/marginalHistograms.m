@@ -1,11 +1,20 @@
-function marginalHistograms(D, hypInds, grpVals, hypClrs)
+function marginalHistograms(D, hypInds, grpVals, hypClrs, opts)
+    if nargin < 5
+        opts = struct('doSave', false);
+    end
 
     if numel(grpVals) == 0
         oneColPerFig = true;
         oneKinPerFig = false;
+        tag = 'byGrp';
+        ymx = 0.9;
+        fntsz = 8;
     else
         oneColPerFig = false;
         oneKinPerFig = true;
+        tag = 'byKin';
+        ymx = 1.2;
+        fntsz = 14;
     end
 
     [~,~,fgs] = plot.fitAndPlotMarginals(D, struct('hypInds', hypInds, ...
@@ -15,19 +24,31 @@ function marginalHistograms(D, hypInds, grpVals, hypClrs)
         'oneColPerFig', oneColPerFig, 'oneKinPerFig', oneKinPerFig, ...
         'sameLimsPerPanel', true, 'doFit', true, 'makeMax1', false));
 
+    if numel(grpVals) == 0
+        wd = 200; ht = 850;
+    else
+%         wd = 360; ht = 700;
+        ht = 150; wd = 1250;
+    end
+    
     for kk = 1:numel(fgs)
         txs = findobj(fgs(kk), 'Type', 'Axes');
         lms = cell2mat(arrayfun(@(ii) txs(ii).XLim, ...
             1:numel(txs), 'uni', 0)');
         for jj = 1:numel(txs)
-            txs(jj).FontSize = 14;
-            txs(jj).YLim = [0 1.2]; % 0.7 1.2
+            txs(jj).FontSize = fntsz;
+            txs(jj).YLim = [0 ymx];
             txs(jj).XLim = [min(lms(:,1)) max(lms(:,2))];
-        end
-        if numel(grpVals) == 0
-            set(fgs(kk), 'Position', [0 0 700 700]);
-        else
-            set(fgs(kk), 'Position', [0 0 360 700]);
+        end        
+        
+        set(fgs(kk), 'PaperUnits', 'inches');
+        set(fgs(kk), 'Position', [0 0 wd ht]);
+        set(fgs(kk), 'PaperPosition', [0 0 wd/100 ht/100]);
+        
+        if opts.doSave
+            nm = ['margHist_' tag '-' num2str(kk)];
+            fignm = fullfile(opts.plotdir, [nm '.png']);
+            saveas(fgs(kk), fignm, 'png');
         end
     end
 

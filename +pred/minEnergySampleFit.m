@@ -4,19 +4,20 @@ function [Z, inds] = minEnergySampleFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'nDecoder', 'minType', 'baseline', ...
-        'fitInLatent', false);
+        'fitInLatent', false, 'kNN', nan);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
-    B = D.blocks(2);
+    B1 = D.blocks(1);
+    B2 = D.blocks(2);
     if opts.fitInLatent
-        Y1 = B.latents;
-        Y2 = B.latents;
+        Y1 = B1.latents;
+        Y2 = B2.latents;
     else
-        Y1 = B.spikes;
-        Y2 = B.spikes;
+        Y1 = B1.spikes;
+        Y2 = B2.spikes;
     end
-    RB2 = B.(opts.decoderNm).RowM2;
-    NB2 = B.(opts.decoderNm).NulM2;
+    RB2 = B2.(opts.decoderNm).RowM2;
+    NB2 = B2.(opts.decoderNm).NulM2;
     Un1 = Y1*(NB2*NB2');
     Ur = Y2*(RB2*RB2');
 
@@ -33,13 +34,32 @@ function [Z, inds] = minEnergySampleFit(D, opts)
     end
     maxSps = max(Y1(:));
     
+%     if ~isnan(opts.kNN)
+%         % only consider Un1 for points close to current row space val
+%         curinds = getRowDists(Y1, Y2, RB2, opts.kNN);
+%     else
+%         curinds = repmat(1:size(Un1,1), size(Y2,1), 1);
+%     end
+    
     nt = size(Y2,1);
     Un = nan(size(Ur));
     inds = nan(nt,1);
     nInvalids = 0;
     for t = 1:nt
-        usc = bsxfun(@plus, Un1, Ur(t,:)); % current spikes considered
-        usc = usc(~any(usc<0|usc>2*maxSps,2),:); % ignore oob spikes
+        Unc = Un1;
+%         Unc = Un1(curinds(t,:),:);
+        usc = bsxfun(@plus, Unc, Ur(t,:)); % current spikes considered
+        ixKeep = ~any(usc<0|usc>2*maxSps,2);
+        usc = usc(ixKeep,:); % ignore oob spikes
+        Unc = Unc(ixKeep,:);
+        
+        % only consider Un1 for kNN closest points to current row space val
+        if ~isnan(opts.kNN)            
+            curinds = getRowDists(Y1(ixKeep,:), Y2(t,:), RB2, opts.kNN);
+            Unc = Un1(curinds,:);
+            usc = usc(curinds,:);
+        end
+        
         % find ind of us s.t. us is nearest zero spikes
         ds = sqrt(sum(bsxfun(@plus, usc, -mu).^2,2));
         [~, ind] = min(ds);
@@ -48,7 +68,7 @@ function [Z, inds] = minEnergySampleFit(D, opts)
             continue;
         end
         inds(t) = ind;
-        Un(t,:) = Un1(ind,:);
+        Un(t,:) = Unc(ind,:);
     end
     if nInvalids > 0
         warning(['minEnergySampleFit: ' num2str(nInvalids) ...
@@ -66,3 +86,12 @@ function [Z, inds] = minEnergySampleFit(D, opts)
 %     RBz = D.blocks(2).fDecoder.RowM2;
 %     Z = Z*(NBz*NBz') + D.blocks(2).latents*(RBz*RBz');
 end
+
+function inds = getRowDists(Y1, Y2, RB2, kNN)
+    dsR = pdist2(Y2*RB2, Y1*RB2);
+    [~,inds] = sort(dsR,2);
+    if numel(inds) > kNN
+        inds = inds(:,1:kNN);
+    end
+end
+

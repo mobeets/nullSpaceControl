@@ -6,6 +6,7 @@ function bar_allDts(S, nms, dts, clrs, ylbl)
     brs = bar(1:numel(dts), S, 'FaceColor', clrs(1,:));
     for ii = 1:numel(brs)
         brs(ii).FaceColor = clrs(ii,:);
+%         brs(ii).EdgeColor = clrs(ii,:);
     end    
 
     set(gca, 'XTick', 1:numel(dts));

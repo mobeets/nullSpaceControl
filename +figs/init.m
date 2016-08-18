@@ -1,7 +1,7 @@
 
 dts = io.getDates();
 dts = sort(dts);
-dtnms = io.addMnkNmToDates(dts);
+[dtnms, ixMnk] = io.addMnkNmToDates(dts);
 
 clrs = get(gca, 'ColorOrder');
 clrs = [clrs; mean(clrs(5:6,:))];
@@ -14,10 +14,14 @@ uncClr = clrs(4,:);
 basClr = clrs(8,:);
 minClr = clrs(2,:);
 
-% this assumes a fixed 11-name cell array
-allHypClrs = [baseClr; habClr; habClr; habClr; ...
-    cldClr; cldClr; uncClr; basClr; ...
-    minClr; habClr; habClr];
+if strcmpi(fitNm, 'allSampling')
+    allHypClrs = [baseClr; cldClr; habClr; uncClr; basClr; minClr];
+elseif strcmpi(fitNm, 'splitIntuitive')
+    allHypClrs = [baseClr; uncClr; basClr; minClr; basClr; minClr; uncClr];
+elseif strcmpi(fitNm, 'savedFull')
+    allHypClrs = [baseClr; habClr; habClr; habClr; ...
+        cldClr; cldClr; uncClr; basClr; ...
+        minClr; habClr; habClr];
+end
 
-% 6-name cell array
-allHypClrs = [baseClr; cldClr; habClr; uncClr; basClr; minClr];
+fopts = struct('doSave', false, 'plotdir', fullfile('+figs', 'output'));

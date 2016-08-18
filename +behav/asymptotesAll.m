@@ -49,7 +49,7 @@ end
 
 %% save fits
 
-fnm = 'data/asymptotes/newDts.mat';
+fnm = 'data/asymptotes/bySession.mat';
 if exist(fnm, 'file')
     error('File already exists.');
 end

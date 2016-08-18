@@ -42,7 +42,9 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
 %             ncols = ceil(sqrt(nfeats));
 %             nrows = ceil(nfeats/ncols);
             ncols = floor(nfeats/2);
-            nrows = ceil(nfeats/ncols);            
+            nrows = ceil(nfeats/ncols);
+            ncols = 1;
+            nrows = nfeats;
             C = 0;
         end
 %         ixmna = inf; ixmxa = -inf;

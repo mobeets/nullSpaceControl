@@ -10,7 +10,9 @@ nms = {'habitual', 'cloud'};
 nms = {'cloud-1s', 'cloud'};
 nms = {'unc-1s', 'unconstrained'};
 nms = {'minimum'};
-nms = {'cloud', 'habitual', 'uncontrolled', 'minimum-sample', 'baseline-sample'};
+nms = {'cloud', 'habitual', 'unconstrained', 'minimum-sample', 'baseline-sample'};
+nms = {'cloud', 'unconstrained', 'minimum-sample', 'baseline-sample', 'minimum-sample-200', 'baseline-sample-200'};
+nms = {'cloud', 'cloud-rotation', 'habitual'};
 % nms = {'minimum'};
 % nms = {'unconstrained', 'minimum', 'baseline'};
 % nms = {'best-sample', 'habitual', 'cloud', 'cloud-sub'};
@@ -59,7 +61,7 @@ dts = io.getAllowedDates();
 % dts = {'20120303', '20120319', '20131218'};
 % dts = [dts dts2];
 % dts = sort(dts);
-dts = io.getDates();
+% dts = io.getDates();
 % Ss = cell(numel(dts),1);
 
 % figure(1); hold on;
@@ -69,7 +71,7 @@ dts = io.getDates();
 
 S = nan(numel(dts),2);
 S2 = nan(numel(dts),2);
-for ii = 1 % 1:5 %[5:-1:1] %1:numel(dts)
+for ii = [5:-1:1] %1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/moreDts/' dtstr];
 

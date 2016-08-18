@@ -4,7 +4,7 @@ function fig = init(FontSize)
     end
     fig = figure;
     set(gcf, 'color', 'w');
+    set(gcf, 'PaperPositionMode', 'auto'); % save the fig how it looks on screen
     hold on;
-    set(gca, 'FontSize', FontSize);
+    set(gca, 'FontSize', FontSize);    
 end
-

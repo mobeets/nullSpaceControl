@@ -13,10 +13,8 @@ end
 
 %%
 
-[Dts, PrtNum, Mnk, PrtType, Lrn, PrfHit] = io.importPatrickLearningMetrics();
-Dts = arrayfun(@num2str, Dts, 'uni', 0);
-dts = io.getDates();
-ix = ismember(Dts, dts);
+[Dts, PrtNum, Mnk, PrtType, Lrn, PrfHit] = ...
+    io.importPatrickLearningMetrics(dts);
 
 %%
 

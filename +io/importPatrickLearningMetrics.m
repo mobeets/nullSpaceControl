@@ -1,5 +1,5 @@
-function [Date1, Perturbationnumber1, Monkey1, Perturbationtype1, ...
-    Learning1, Performancehit1] = importPatrickLearningMetrics(startRow, endRow)
+function [Dts, Perturbationnumber1, Monkey1, Perturbationtype1, ...
+    Learning1, Performancehit1] = importPatrickLearningMetrics(dts)
 %IMPORTFILE Import numeric data from a text file as column vectors.
 %   [DATE1,PERTURBATIONNUMBER1,MONKEY1,PERTURBATIONTYPE1,LEARNING1,PERFORMANCEHIT1]
 %   = IMPORTFILE(FILENAME) Reads data from text file FILENAME for the
@@ -20,10 +20,8 @@ filename = '/Users/mobeets/code/nullSpaceControl/data/_shuffleSessions.csv';
 
 %% Initialize variables.
 delimiter = ',';
-if nargin<=2
-    startRow = 2;
-    endRow = inf;
-end
+startRow = 2;
+endRow = inf;
 
 %% Read columns of data as strings:
 % For more information, see the TEXTSCAN documentation.
@@ -106,4 +104,13 @@ Perturbationtype1 = rawCellColumns(:, 2);
 Learning1 = cell2mat(rawNumericColumns(:, 3));
 Performancehit1 = cell2mat(rawNumericColumns(:, 4));
 
+%% filter out dates
 
+Dts = arrayfun(@num2str, Date1, 'uni', 0);
+ix = ismember(Dts, dts);
+Dts = Dts(ix);
+Perturbationnumber1 = Perturbationnumber1(ix,:);
+Monkey1 = Monkey1(ix,:);
+Perturbationtype1 = Perturbationtype1(ix,:);
+Learning1 = Learning1(ix,:);
+Performancehit1 = Performancehit1(ix,:);

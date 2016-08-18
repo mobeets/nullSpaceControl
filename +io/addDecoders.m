@@ -4,6 +4,10 @@ function D = addDecoders(D)
     sd = D.simpleData.shuffles;
     nMap1 = nd.rawSpikes;
     nMap2 = sd.rawSpikes;
+    
+    [nMap1.NulM2, nMap1.RowM2] = tools.getNulRowBasis(nMap1.M2);
+    [nMap2.NulM2, nMap2.RowM2] = tools.getNulRowBasis(nMap2.M2);
+    
     fMap1 = getFactorNullDecoder(D.kalmanInitParams);
     fMap2 = getFactorShuffleDecoder(sd, nd, fMap1, D.kalmanInitParams);
     
