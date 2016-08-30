@@ -4,14 +4,24 @@ function Z = uniformSampleFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'fDecoder', ...
-        'obeyBounds', true, 'boundsType', 'spikes');
+        'obeyBounds', true, 'boundsType', 'spikes', ...
+        'sampleInLatent', true);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B = D.blocks(2);
-    Y = B.latents;
+    if ~opts.sampleInLatent && isempty(strfind(opts.decoderNm, 'n'))
+        warning('uniform sample: using spike decoder');
+        opts.decoderNm = strrep(opts.decoderNm, 'f', 'n');
+    end
     RB = B.(opts.decoderNm).RowM2;
     NB = B.(opts.decoderNm).NulM2;
-    Z1 = D.blocks(1).latents;
+    if opts.sampleInLatent
+        Y = B.latents;
+        Z1 = D.blocks(1).latents;
+    else
+        Y = B.spikes;
+        Z1 = D.blocks(1).spikes;
+    end
     Zr = Y*(RB*RB');
     
     nt = size(Y,1);
@@ -35,6 +45,11 @@ function Z = uniformSampleFit(D, opts)
             warning(['Corrected ' num2str(n0 - sum(ixOob)) ...
                 ' uniform sample samples to lie within bounds']);
         end
+    end
+    
+    if ~opts.sampleInLatent
+        dec = D.simpleData.nullDecoder;
+        Z = tools.convertRawSpikesToRawLatents(dec, Z');
     end
     
 end

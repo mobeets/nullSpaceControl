@@ -21,10 +21,17 @@ function [isOutOfBoundsFcn, whereOutOfBounds] = boundsFcn(Y, kind, D)
             all(z < Y(ii,:)) | all(z > Y(ii,:)), 1:size(Y,1))) > thresh;
     elseif strcmpi(kind, 'spikes')
         minSps = 0;
-        maxSps = 50;
-%         mult = 0;
-        
+        maxSps = 2*max(mxs);
         dec = D.simpleData.nullDecoder;
+        
+        if numel(mxs) == numel(dec.spikeCountMean)
+            % in spike space already
+            whereOutOfBounds = @(u) u < minSps | u > maxSps;
+            isOutOfBoundsFcn = @(u) any(whereOutOfBounds(u),2);
+            return;
+        end
+        
+%         mult = 0;
 %         ph = dec.FactorAnalysisParams.ph;
 %         isInRange = @(u, ph, minSps, maxSps, mult) ...
 %             ((u >= minSps) | (u + mult*ph' >= minSps)) & ...

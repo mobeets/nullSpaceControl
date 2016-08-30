@@ -111,10 +111,10 @@ function D = fitHyps(D, nms, opts)
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'minimum-sample', pred.minEnergySampleFit(D, custopts));
     end
-    if ismember('baseline-sample-200', nms)
-        custopts = struct('kNN', 50);
+    if ismember('minimum-sample-nse', nms)
+        custopts = struct('addSpikeNoise', true, 'minType', 'minimum');
         custopts = io.updateParams(opts, custopts, true);
-        D.hyps = pred.addPrediction(D, 'baseline-sample-50', pred.minEnergySampleFit(D, custopts));
+        D.hyps = pred.addPrediction(D, 'minimum-sample-nse', pred.minEnergySampleFit(D, custopts));
     end
     if ismember('minimum-sample-200', nms)
         custopts = struct('minType', 'minimum', 'kNN', 50);

@@ -4,7 +4,7 @@ function [Z, inds] = minEnergySampleFit(D, opts)
     end
     assert(isa(opts, 'struct'));
     defopts = struct('decoderNm', 'nDecoder', 'minType', 'baseline', ...
-        'fitInLatent', false, 'kNN', nan);
+        'fitInLatent', false, 'kNN', nan, 'addSpikeNoise', true);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     
     B1 = D.blocks(1);
@@ -39,17 +39,26 @@ function [Z, inds] = minEnergySampleFit(D, opts)
 %         curinds = getRowDists(Y1, Y2, RB2, opts.kNN);
 %     else
 %         curinds = repmat(1:size(Un1,1), size(Y2,1), 1);
-%     end
-    
+%     end    
+
     nt = size(Y2,1);
+    
+    sigma = D.simpleData.nullDecoder.spikeCountStd;
+    nse = normrnd(zeros(nt, numel(sigma)), repmat(sigma, nt, 1));
+    
     Un = nan(size(Ur));
     inds = nan(nt,1);
     nInvalids = 0;
     for t = 1:nt
         Unc = Un1;
-%         Unc = Un1(curinds(t,:),:);
+%         Unc = Un1(curinds(t,:),:);        
         usc = bsxfun(@plus, Unc, Ur(t,:)); % current spikes considered
         ixKeep = ~any(usc<0|usc>2*maxSps,2);
+        if sum(ixKeep) == 0
+            nInvalids = nInvalids + 1;
+            continue;
+        end
+        
         usc = usc(ixKeep,:); % ignore oob spikes
         Unc = Unc(ixKeep,:);
         
@@ -62,18 +71,25 @@ function [Z, inds] = minEnergySampleFit(D, opts)
         
         % find ind of us s.t. us is nearest zero spikes
         ds = sqrt(sum(bsxfun(@plus, usc, -mu).^2,2));
-        [~, ind] = min(ds);
-        if numel(ds) == 0
-            nInvalids = nInvalids + 1;
-            continue;
-        end
+        [~, ind] = min(ds);        
         inds(t) = ind;
-        Un(t,:) = Unc(ind,:);
+        
+        unc = Unc(ind,:);
+        if ~opts.fitInLatent && opts.addSpikeNoise
+            unc0 = unc;
+            c = 0;
+            unc = normrnd(unc0, sigma);
+            while (any(unc + Ur(t,:)<0) || any(unc + Ur(t,:) > 2*maxSps)) && c < 10
+                unc = normrnd(unc0, sigma);
+                c = c + 1;
+            end
+        end        
+        Un(t,:) = unc;
     end
     if nInvalids > 0
         warning(['minEnergySampleFit: ' num2str(nInvalids) ...
             ' samples had no valid points.']);
-    end
+    end    
 
     U = Ur + Un;
     % now convert to latents

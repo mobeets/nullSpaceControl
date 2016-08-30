@@ -23,8 +23,7 @@ function D = quickLoadByDate(dtstr, params, opts)
     D.params = io.updateParams(D.params, params, true);
     D.opts = opts;
     [D.blocks, ts] = io.getDataByBlock(D);
-    D.trials = ts;
-    D.blocks = pred.addTrainAndTestIdx(D.blocks);
+    D.trials = ts;    
     D = io.addDecoders(D);
     D = io.addImeDecoders(D);
     
@@ -37,6 +36,10 @@ function D = quickLoadByDate(dtstr, params, opts)
         D.blocks(1) = B2;
         D.blocks(2) = B1;
     end
+    
+    D.blocks_raw = D.blocks;
+    D.blocks = pred.addTrainAndTestIdx(D.blocks_raw);
+    
 %     if isa(opts.postLoadFcn, 'function_handle')
 %         D = opts.postLoadFcn(D);
 %     end

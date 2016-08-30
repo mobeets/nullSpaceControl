@@ -13,6 +13,8 @@ nms = {'minimum'};
 nms = {'cloud', 'habitual', 'unconstrained', 'minimum-sample', 'baseline-sample'};
 nms = {'cloud', 'unconstrained', 'minimum-sample', 'baseline-sample', 'minimum-sample-200', 'baseline-sample-200'};
 nms = {'cloud', 'cloud-rotation', 'habitual'};
+nms = {'minimum-sample', 'minimum-sample-nse'};
+nms = {'uncontrolled-uniform'};
 % nms = {'minimum'};
 % nms = {'unconstrained', 'minimum', 'baseline'};
 % nms = {'best-sample', 'habitual', 'cloud', 'cloud-sub'};
@@ -71,7 +73,7 @@ dts = io.getAllowedDates();
 
 S = nan(numel(dts),2);
 S2 = nan(numel(dts),2);
-for ii = [5:-1:1] %1:numel(dts)
+for ii = 5%[5:-1:1] %1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/moreDts/' dtstr];
 

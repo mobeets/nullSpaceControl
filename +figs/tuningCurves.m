@@ -1,4 +1,7 @@
-function tuningCurves(D, curHyps, hypClrs, baseClr)
+function tuningCurves(D, curHyps, hypClrs, baseClr, opts)
+    if nargin < 5
+        opts = struct('doSave', false);
+    end
 
     fig = plot.init;
     for jj = 1:numel(curHyps)
@@ -20,7 +23,16 @@ function tuningCurves(D, curHyps, hypClrs, baseClr)
         end
     end
     ylabel(fig.Children(ix(2)), 'mean activity');
-    set(gcf, 'Position', [0 0 1250 160]);
+    
+    wd = 1250; ht = 160;
+    set(gcf, 'Position', [0 0 wd ht]);
+    set(gcf, 'PaperUnits', 'inches');
+    set(gcf, 'PaperPosition', [0 0 30 4]);
+    if opts.doSave
+        nm = ['tuning'];
+        fignm = fullfile(opts.plotdir, [nm '.png']);
+        saveas(fig, fignm, 'png');
+    end
 
 end
 

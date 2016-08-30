@@ -34,7 +34,7 @@ function [D, opts, figs] = fitAndPlotMarginals(D, opts)
             D.hyps(ii).marginalHist.Xs = Xs;
             D.hyps(ii).marginalHist.grps = grps;
         end
-    end
+    end    
 
     % plot marginal hists    
     Hs = D.hyps(opts.hypInds);
@@ -45,6 +45,17 @@ function [D, opts, figs] = fitAndPlotMarginals(D, opts)
     grps = hists(1).grps;
     Xs = hists(1).Xs;
     Zs = {hists.Zs};
+    
+    % add Blk1
+%     warning('Adding block 1');
+%     NB = D.blocks(2).fDecoder.NulM2;
+%     Y2 = D.blocks(2).latents;
+%     [~,~,v] = svd(Y2*NB); NB = NB*v;
+%     assert(isequal(Y2*NB, D.hyps(1).nullActivity.zNull));
+%     YN1 = D.blocks(1).latents*NB;
+%     Zs1 = tools.marginalDist(YN1, D.blocks(1).(opts.grpNm), opts, Xs);
+%     Zs{numel(Zs)+1} = Zs1;
+%     opts.clrs = [opts.clrs; [0.5 0.5 0.5]];
 
     if ~isempty(opts.grpsToShow)
         grps(~ismember(grps, opts.grpsToShow)) = nan;

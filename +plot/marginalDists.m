@@ -52,7 +52,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
         for ii = 1:nfeats
             if ~opts.oneColPerFig
                 C = C + 1;
-                subplot(ncols, nrows, ii); hold on;
+                subplot(ncols, nrows, C); hold on;
             elseif opts.oneKinPerFig
                 fig = figure; set(gcf, 'color', 'w'); hold on;
                 figs = [figs fig];
@@ -126,15 +126,16 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
             end
             
 %             xlim([-5 5]);
-%             set(gca, 'XTick', [-2 0 2]);
+            set(gca, 'XTick', []);
             set(gca, 'YTick', []);
             if d == 1 || opts.oneKinPerFig
                 title(['output-null ' num2str(ii) '']);
             elseif ~opts.oneColPerFig
-                title(['Y^n(' num2str(ii) ')']);
+%                 title(['Y^n(' num2str(ii) ')']);
+                title('');
             end
             if (ii == 1 || opts.oneColPerFig) && ~opts.oneKinPerFig
-                title(['\theta = ' num2str(grps(jj))]);
+                ylabel(['\theta = ' num2str(grps(jj))]);
             end
             if ii == 1 && ~isempty(opts.ttl) && ~opts.oneKinPerFig
                 title(opts.ttl);

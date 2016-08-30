@@ -3,18 +3,22 @@ function [D, Stats, LLs] = fitSession(dtstr, opts)
         opts = struct();
     end
     defopts = struct('doLatents', false, 'doSave', false, ...
-        'doPlot', true, 'doCv', false, 'plotdir', '');
+        'doPlot', true, 'doCv', false, 'plotdir', '', ...
+        'fitPostLearnOnly', true);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
 
     params = io.setUnfilteredDefaults();
-    params = io.updateParams(params, io.setBlockStartTrials(dtstr), true);
+    if opts.fitPostLearnOnly
+        params = io.updateParams(params, ...
+            io.setBlockStartTrials(dtstr), true);
+    end
     popts = struct('doRotate', false);
     D = io.quickLoadByDate(dtstr, params, popts);
     fnm = io.pathToIme(dtstr);
 
     LLs = cell(3,1);
     Stats = cell(3,1);
-    for ii = 1:3
+    for ii = 1:2%3
         [estParams, LL, stats] = imefit.fitBlock(D.blocks(ii), opts);        
         D.ime(ii) = estParams;
         
@@ -37,11 +41,11 @@ function [D, Stats, LLs] = fitSession(dtstr, opts)
     end
     if opts.doSave
 %         error('You sure?');
-        saveIme(D.ime, fnm);
+        saveIme(D.ime, fnm, Stats, LLs);
     end
 end
 
-function saveIme(ime, fnm)
+function saveIme(ime, fnm, Stats, LLs)
     if exist(fnm, 'file')
         resp = input('File exists. Continue? (y/n) ', 's');
         if resp(1) ~= 'y'
@@ -49,7 +53,7 @@ function saveIme(ime, fnm)
         end
     end
     disp(['Saving ime model to ' fnm]);
-    save(fnm, 'ime');
+    save(fnm, 'ime', 'Stats', 'LLs');
 end
 
 function savePlot(fig, fldr, nm)

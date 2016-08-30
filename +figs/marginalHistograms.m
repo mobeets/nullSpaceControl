@@ -1,9 +1,15 @@
 function marginalHistograms(D, hypInds, grpVals, hypClrs, opts)
     if nargin < 5
-        opts = struct('doSave', false);
+        opts = struct('showAll', false, 'doSave', false);
     end
 
-    if numel(grpVals) == 0
+    if opts.showAll
+        oneColPerFig = false;
+        oneKinPerFig = false;
+        tag = 'all';
+        ymx = 0.9;
+        fntsz = 8;
+    elseif numel(grpVals) == 0
         oneColPerFig = true;
         oneKinPerFig = false;
         tag = 'byGrp';
@@ -13,18 +19,20 @@ function marginalHistograms(D, hypInds, grpVals, hypClrs, opts)
         oneColPerFig = false;
         oneKinPerFig = true;
         tag = 'byKin';
-        ymx = 1.2;
-        fntsz = 14;
+        ymx = 0.7;
+        fntsz = 10;
     end
 
     [~,~,fgs] = plot.fitAndPlotMarginals(D, struct('hypInds', hypInds, ...
         'tightXs', true, 'grpsToShow', grpVals, ...
         'grpNm', 'thetaActualGrps16', ...
-        'nbins', 40, 'clrs', hypClrs, 'ttl', '', ...
+        'nbins', 20, 'clrs', hypClrs, 'ttl', '', ...
         'oneColPerFig', oneColPerFig, 'oneKinPerFig', oneKinPerFig, ...
         'sameLimsPerPanel', true, 'doFit', true, 'makeMax1', false));
 
-    if numel(grpVals) == 0
+    if opts.showAll
+        wd = 2000; ht = 2000;
+    elseif numel(grpVals) == 0
         wd = 200; ht = 850;
     else
 %         wd = 360; ht = 700;
