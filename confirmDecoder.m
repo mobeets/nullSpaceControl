@@ -109,7 +109,7 @@ ph = decoder.FactorAnalysisParams.ph;
 beta = L'/(L*L'+diag(ph));
 sigmainv = diag(1./decoder.spikeCountStd');
 M = sigmainv'*beta';
-RBn = M*RB;
+% RBn = M*RB;
 
 Y_noRow = Y*(NBn*NBn');
 % Z_noRow = tools.convertRawSpikesToRawLatents(Dc, Y_noRow');

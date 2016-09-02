@@ -1,4 +1,4 @@
-function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
+function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub, D)
 % 
 % Each u(t) in U is solution (using quadprog) to:
 %   min_u norm(u + f)^2
@@ -31,6 +31,8 @@ function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
     
 %     A = []; b = []; lb = []; ub = [];
 %     A = decoder.NulM2'; b = zeros(1,size(A,1));
+%     mu = D.simpleData.nullDecoder.spikeCountMean;
+%     b = A*mu';
     
     if fitInLatent
         %  % L'*L where L = diag(sigma)*L from FactorParams

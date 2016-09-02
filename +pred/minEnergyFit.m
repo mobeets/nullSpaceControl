@@ -4,7 +4,8 @@ function [Z,U] = minEnergyFit(D, opts)
     end
     defopts = struct('decoderNm', 'nDecoder', 'minType', 'baseline', ...
         'nanIfOutOfBounds', false, 'fitInLatent', false, ...
-        'obeyBounds', true, 'boundsType', 'marginal');
+        'obeyBounds', true, 'boundsType', 'marginal', ...
+        'addSpikeNoise', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if ~opts.fitInLatent && strcmp(opts.decoderNm(1), 'f')
         warning('minEnergyFit must use spike decoder, not factors.');
@@ -38,7 +39,9 @@ function [Z,U] = minEnergyFit(D, opts)
         mu = tools.convertRawSpikesToRawLatents(Dc, zers);
     elseif strcmpi(opts.minType, 'minimum') && ~opts.fitInLatent
         mu = [];
-    end    
+    end
+    sigma = D.simpleData.nullDecoder.spikeCountStd;
+    maxSps = 2*max(B1.spikes(:));
 
     [nt, nu] = size(Y2);
     U = nan(nt,nu);
@@ -48,8 +51,22 @@ function [Z,U] = minEnergyFit(D, opts)
             disp(['minEnergyFit: ' num2str(t) ' of ' num2str(nt)]);
         end
         [U(t,:), isRelaxed] = pred.quadFireFit(B2, t, -mu, ...
-            B2.(opts.decoderNm), opts.fitInLatent, lb, ub);
+            B2.(opts.decoderNm), opts.fitInLatent, lb, ub, D);
         nrs = nrs + isRelaxed;
+        
+        if ~opts.fitInLatent && opts.addSpikeNoise
+            ut0 = U(t,:);
+            c = 0;
+            ut = normrnd(ut0, sigma);
+            while (any(ut < 0) || any(ut > 2*maxSps)) && c < 10
+                ut = normrnd(ut0, sigma);
+                c = c + 1;
+            end
+            if ~(any(ut < 0) || any(ut > 2*maxSps))
+                U(t,:) = ut;
+            end
+        end
+        
         if any(abs(U(t,:) - lb) < 1e-5)
             nlbs = nlbs + 1;
         end
@@ -63,6 +80,11 @@ function [Z,U] = minEnergyFit(D, opts)
         Z = tools.convertRawSpikesToRawLatents(Dc, U');
 %         Z = Z/Dc.FactorAnalysisParams.spikeRot;
     end
+    
+    NBz = D.blocks(2).fDecoder.NulM2;
+    RBz = D.blocks(2).fDecoder.RowM2;
+    Z = Z*(NBz*NBz') + D.blocks(2).latents*(RBz*RBz');
+    
     if nrs > 0
         warning(['minEnergyFit relaxed non-negativity constraints ' ...
             'and bounds for ' num2str(nrs) ' timepoints.']);
@@ -80,5 +102,5 @@ function [Z,U] = minEnergyFit(D, opts)
             warning(['minEnergyFit ignoring ' num2str(c) ...
                 ' points outside of bounds.']);
         end
-    end
+    end    
 end
