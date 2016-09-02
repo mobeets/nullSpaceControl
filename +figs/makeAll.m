@@ -3,10 +3,10 @@
 
 % dtEx = '20120601';
 dtEx = '20131205';
-% fitNm = 'splitIntuitive';
+fitNm = 'splitIntuitive';
 % fitNm = 'savedFull';
-fitNm = 'allHyps';
-fitNm = 'allHypsNoIme';
+% fitNm = 'allHyps';
+% fitNm = 'allHypsNoIme';
 
 figs.init;
 % figs.createData(fitNm, dts);
@@ -38,21 +38,24 @@ end
 
 %% tuning curves
 
-curHyps = hypSet1;
-curHyps = {'uncontrolled-uniform'};
+curHyps = hypSet2;
+curHyps = {'baseline'};
+hypnms = {D.score.name};
 % curHyps = {'observed'};
-fopts.doSave = true;
+fopts.doSave = false;
 [~, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
 figs.tuningCurves(D, curHyps, hypClrs, baseClr, fopts);
 
 %% marginal histograms
 
 % close all;
-fopts.doSave = true;
+fopts.doSave = false;
 fopts.showAll = true;
 % curHyps = ['observed' {'uncontrolled-uniform'}];
-curHyps = ['observed' {'cloud'}];
+% curHyps = ['observed' {'cloud', 'unconstrained'}];
+curHyps = {'minimum'};
 % curHyps = {'observed'};
+% hypnms = {D.score.name};
 [hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
 % figs.marginalHistograms(D, hypInds, [45], hypClrs, fopts);
 figs.marginalHistograms(D, hypInds, [], hypClrs, fopts);

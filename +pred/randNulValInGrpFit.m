@@ -53,7 +53,7 @@ function [Zsamp, nZero] = getSamples(Z1, ix)
     nix = sum(ix,2);
     
     % if nothing is in range, sample from anything
-    nZero = sum(nix);
+    nZero = sum(nix == 0);
     ix(nix == 0,:) = true;
     nix(nix == 0) = size(ix,2);
     

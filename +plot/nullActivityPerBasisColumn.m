@@ -26,7 +26,7 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
     ncols = npanels;
     
     grps = sort(unique(zs));
-    [Gms, Gses, ~, Gs] = score.avgByThetaGroup(xs, ys, grps);
+    [Gms, Gstds, Gses, ~, Gs] = score.avgByThetaGroup(xs, ys, grps);
         
     if doScatter
         ymx = ceil(max(abs(ys(:))));        
@@ -49,7 +49,8 @@ function nullActivityPerBasisColumn(xs, ys, zs, doScatter, doMean, clr)
             scatterByColorGroup(xs, ys(:,jj), zs, false);
         end
         if doMean
-            plotGroupMeanAndSE(Gs, Gms(:,jj), Gses(:,jj), clr);
+%             plotGroupMeanAndSE(Gs, Gms(:,jj), 2*Gses(:,jj), clr);
+            plotGroupMeanAndSE(Gs, Gms(:,jj), Gstds(:,jj), clr);
         end
         
         xlim([-50 370]);        
@@ -103,7 +104,7 @@ end
 
 function plotGroupMeanAndSE(xs, ms, ses, clr, clrE)
     if nargin < 5 || all(isnan(clrE))
-        clrE = 0.5*ones(3,1);
+        clrE = 0.8*ones(3,1);
     end
     if nargin < 4 || all(isnan(clr))
         clr = 0.8*ones(3,1);
@@ -113,6 +114,9 @@ function plotGroupMeanAndSE(xs, ms, ses, clr, clrE)
 
 %     plot(xs, ms - ses, 'Color', clrE);
 %     plot(xs, ms + ses, 'Color', clrE);
+    X = [xs', fliplr(xs')];
+    Y = [(ms - ses)', fliplr((ms + ses)')];
+    f = fill(X, Y, clrE'); set(f, 'EdgeColor', 'none');
     plot(xs, ms, '-', 'Color', clr, 'LineWidth', lw);
     scatter(xs, ms, sz, clr, 'MarkerFaceColor', clr);
 end

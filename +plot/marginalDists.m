@@ -103,8 +103,13 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
                 lastMu = muc;
                 muc = sum(xs.*ys/sum(ys));
                 mn = xs(find(cps >= 0.1, 1, 'first'));
-                mx = xs(find(cps >= 0.9, 1, 'first'));                    
+                mx = xs(find(cps >= 0.9, 1, 'first'));
                 
+                mn = xs(find(ys > 0, 1, 'first'));
+                mx = xs(find(ys > 0, 1, 'last'));
+%                 plot([mn mn], ylm, 'Color', clr);
+%                 plot([mx mx], ylm, 'Color', clr);
+                    
                 if opts.showSe
 %                     plot([mn mn], ylm, 'Color', clr);
 %                     plot([mx mx], ylm, 'Color', clr);

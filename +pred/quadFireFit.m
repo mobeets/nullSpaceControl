@@ -16,6 +16,7 @@ function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
         lb = [];
         ub = [];
     end
+    
     x0 = Blk.vel(t,:)';
     x1 = Blk.velNext(t,:)';
 
@@ -25,8 +26,12 @@ function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
         
     nd = size(decoder.M2, 2);
     H = eye(nd);
-    A = -eye(nd);
+    A = -eye(nd); % A,b enforce non-negativity of spike solution
     b = zeros(nd,1);
+    
+%     A = []; b = []; lb = []; ub = [];
+%     A = decoder.NulM2'; b = zeros(1,size(A,1));
+    
     if fitInLatent
         %  % L'*L where L = diag(sigma)*L from FactorParams
 %         H = []; % ALinv'*ALinv

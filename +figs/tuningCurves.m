@@ -9,6 +9,9 @@ function tuningCurves(D, curHyps, hypClrs, baseClr, opts)
         curClrs = [baseClr; hypClrs(jj,:)];
         plot.blkSummaryPredicted(D, H, false, false, false, [], curClrs);
         title('');
+        
+        ymn = min(min(cell2mat({fig.Children.YLim}')));
+        ymx = max(max(cell2mat({fig.Children.YLim}')));
 
         if jj == 1
             figxs = arrayfun(@(ii) fig.Children(ii).Position(1), 1:numel(fig.Children));
@@ -17,9 +20,9 @@ function tuningCurves(D, curHyps, hypClrs, baseClr, opts)
             ttl = @(ii) '';
             arrayfun(@(ii) title(fig.Children(ii), ttl(ii)), ...
                 2:numel(fig.Children));
-    %         for kk = 2:numel(fig.Children)
-    %             fig.Children(kk).YLim = [-5 5];
-    %         end
+            for kk = 2:numel(fig.Children)
+                fig.Children(kk).YLim = [ymn ymx];
+            end
         end
     end
     ylabel(fig.Children(ix(2)), 'mean activity');

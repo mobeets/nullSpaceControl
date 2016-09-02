@@ -24,8 +24,8 @@ function [Z,U] = minEnergyFit(D, opts)
         Y1 = B1.spikes;
         Y2 = B2.spikes;
     end
-    lb = min(Y1); ub = max(Y1);
-    lb = lb*0; ub(ub>=0) = 50;
+    lb = min(Y1); ub = 1.2*max(Y1);
+%     lb = lb*0; ub(ub>=0) = 50;
     
     % set minimum, in latent or spike space
     Dc = D.simpleData.nullDecoder;
@@ -42,7 +42,7 @@ function [Z,U] = minEnergyFit(D, opts)
 
     [nt, nu] = size(Y2);
     U = nan(nt,nu);
-    nrs = 0;
+    nrs = 0; nlbs = 0; nubs = 0;
     for t = 1:nt
         if mod(t, 500) == 0
             disp(['minEnergyFit: ' num2str(t) ' of ' num2str(nt)]);
@@ -50,6 +50,12 @@ function [Z,U] = minEnergyFit(D, opts)
         [U(t,:), isRelaxed] = pred.quadFireFit(B2, t, -mu, ...
             B2.(opts.decoderNm), opts.fitInLatent, lb, ub);
         nrs = nrs + isRelaxed;
+        if any(abs(U(t,:) - lb) < 1e-5)
+            nlbs = nlbs + 1;
+        end
+        if any(abs(U(t,:) - ub) < 1e-5)
+            nubs = nubs + 1;
+        end
     end
     if opts.fitInLatent
         Z = U;
@@ -60,6 +66,10 @@ function [Z,U] = minEnergyFit(D, opts)
     if nrs > 0
         warning(['minEnergyFit relaxed non-negativity constraints ' ...
             'and bounds for ' num2str(nrs) ' timepoints.']);
+    end
+    if nlbs > 0 || nubs > 0
+        warning(['minEnergyFit hit lower bounds ' num2str(nlbs) ...
+            ' times and upper bounds ' num2str(nubs) ' times.']);
     end
     if opts.nanIfOutOfBounds && opts.obeyBounds
         opts.isOutOfBounds = pred.boundsFcn(B1.latents, opts.boundsType, D);

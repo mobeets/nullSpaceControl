@@ -43,11 +43,11 @@ function popts = hypothesisErrorByTime(D, binNm, tbins, ...
         ylabel('errMus');
         legend([{D.hyps(2:end).name} extraNm], 'Location', 'BestOutside');
         title([D.datestr ' ' suff]);
-                
-        fnm = fullfile(popts.plotdir, [D.datestr '_' suff '.png']);
-        [popts.doSave, popts.askedOnce] = plot.checkSafeToSave(...
-            popts.plotdir, fnm, popts.doSave, popts.askedOnce);
+        
         if popts.doSave
+            fnm = fullfile(popts.plotdir, [D.datestr '_' suff '.png']);
+            [popts.doSave, popts.askedOnce] = plot.checkSafeToSave(...
+                popts.plotdir, fnm, popts.doSave, popts.askedOnce);        
             saveas(gcf, fnm, 'png');
         end
     end

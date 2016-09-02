@@ -10,16 +10,16 @@ function [errMus, ns, allErrMus, errMusKins, allErrMusKins, nsKins] = ...
     errKinName = [errName 'ByKin'];
     
     D = score.scoreAll(D, hypopts);
-    allErrMus = [D.hyps(2:end).(errName)];
-    allErrMusKins = cell2mat({D.hyps(2:end).(errKinName)}');
+    allErrMus = [D.score(2:end).(errName)];
+    allErrMusKins = cell2mat({D.score(2:end).(errKinName)}');
 
     hypopts.idxFldNm = 'idxScore';
     
-    nhyps = numel(D.hyps)-1;
+    nhyps = numel(D.score)-1;
     errMus = nan(numel(tbins), nhyps);
     ns = nan(size(errMus,1),1);
     kins = score.thetaCenters(8);
-    nkins = numel([D.hyps(2).(errKinName)]);
+    nkins = numel([D.score(2).(errKinName)]);
     errMusKins = cell(nkins, 1);
     nsKins = cell(nkins,1);
     for ii = 1:numel(errMusKins)
@@ -36,11 +36,12 @@ function [errMus, ns, allErrMus, errMusKins, allErrMusKins, nsKins] = ...
             vs0 = D.blocks(2).(extraNm);
             ns(ii) = nanmean(vs0(D.blocks(2).idxScore));
         end
+        D = rmfield(rmfield(D, 'scores'), 'score');
         D = score.scoreAll(D, hypopts);
-        errMus(ii,:) = [D.hyps(2:end).(errName)];
+        errMus(ii,:) = [D.score(2:end).(errName)];
         
         % note: want each one of these like errMus
-        scs = cell2mat({D.hyps(2:end).(errKinName)}');
+        scs = cell2mat({D.score(2:end).(errKinName)}');
         for jj = 1:nkins
             errMusKins{jj}(ii,:) = scs(:,jj)';
             nsKins{jj}(ii) = sum(D.blocks(2).idxScore & D.blocks(2).thetaGrps == kins(jj));
@@ -50,10 +51,10 @@ function [errMus, ns, allErrMus, errMusKins, allErrMusKins, nsKins] = ...
 % %         tA = min(abs(t1), abs(t2)); tB = max(abs(t1), abs(t2));
 % %         ps = params; ps.MIN_ANGULAR_ERROR = tA; ps.MAX_ANGULAR_ERROR = tB;
 %         E = io.quickLoadByDate(dtstr, ps);
-%         E.hyps = pred.addPrediction(E, 'observed', E.blocks(2).latents);
-%         E.hyps = pred.addPrediction(E, 'kinematics mean', pred.cvMeanFit(E, true));
+%         E.score = pred.addPrediction(E, 'observed', E.blocks(2).latents);
+%         E.score = pred.addPrediction(E, 'kinematics mean', pred.cvMeanFit(E, true));
 %         E = score.scoreAll(E, hypopts);
-%         errMus(ii,1) = E.hyps(2).errOfMeans;
+%         errMus(ii,1) = E.score(2).errOfMeans;
     end
 end
     

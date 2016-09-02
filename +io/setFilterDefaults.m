@@ -5,5 +5,6 @@ function ps = setFilterDefaults(datestr)
     ps.MAX_ANGULAR_ERROR = 360;
     ps.MIN_ANGULAR_ERROR = 0;
     ps.REMOVE_INCORRECTS = true;
-    ps.END_SHUFFLE = nan;    
+    ps.END_SHUFFLE = nan;
+    ps.REMOVE_SPEED_TAILS = false;
 end

@@ -9,12 +9,12 @@ nms = {'best-sample', 'habitual', 'cloud', 'unconstrained'};
 nms = {'habitual', 'cloud'};
 nms = {'cloud-1s', 'cloud'};
 nms = {'unc-1s', 'unconstrained'};
-nms = {'minimum'};
-nms = {'cloud', 'habitual', 'unconstrained', 'minimum-sample', 'baseline-sample'};
-nms = {'cloud', 'unconstrained', 'minimum-sample', 'baseline-sample', 'minimum-sample-200', 'baseline-sample-200'};
-nms = {'cloud', 'cloud-rotation', 'habitual'};
-nms = {'minimum-sample', 'minimum-sample-nse'};
-nms = {'uncontrolled-uniform'};
+nms = {'baseline'};
+% nms = {'cloud-200', 'cloud', 'habitual', 'unconstrained', 'minimum-sample', 'baseline-sample'};
+% nms = {'cloud', 'unconstrained', 'minimum-sample', 'baseline-sample', 'minimum-sample-200', 'baseline-sample-200'};
+% nms = {'cloud', 'cloud-rotation', 'habitual'};
+% nms = {'minimum-sample', 'minimum-sample-nse'};
+% nms = {'uncontrolled-uniform'};
 % nms = {'minimum'};
 % nms = {'unconstrained', 'minimum', 'baseline'};
 % nms = {'best-sample', 'habitual', 'cloud', 'cloud-sub'};
@@ -47,7 +47,7 @@ hypopts = struct('nBoots', 0, 'obeyBounds', true, ...
 lopts = struct('postLoadFcn', @io.makeImeDefault);
 % lopts2 = struct('postLoadFcn', @(D) io.swapNulRow(io.makeImeDefault(D)));
 % lopts = struct('postLoadFcn', @(D) io.makeImeDefault(D, true));
-% lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);
+lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);
 % lopts = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, true));
 % lopts2 = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, false));
 
@@ -56,7 +56,8 @@ popts = struct();
 % popts = struct('plotdir', '', 'doSave', true, 'doTimestampFolder', false);
 % pms = struct('MAX_ANGULAR_ERROR', 20);
 pms = struct();
-% pms = struct('MIN_DISTANCE', nan, 'MAX_DISTANCE', nan);
+% pms = struct();
+% pms = struct('REMOVE_INCORRECTS', false, 'MIN_DISTANCE', nan, 'MAX_DISTANCE', nan);
 
 dts = io.getAllowedDates();
 % dts2 = {'20120327', '20120331', '20131211', '20131212'};
@@ -71,13 +72,14 @@ dts = io.getAllowedDates();
 % figure(3); hold on;
 % figure(4); hold on;
 
-S = nan(numel(dts),2);
+S = cell(numel(dts),2);
 S2 = nan(numel(dts),2);
 for ii = 5%[5:-1:1] %1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/moreDts/' dtstr];
-
+    
     D = fitByDate(dtstr, pms, nms, popts, lopts, hypopts);
+
     nrows = 2; ncols = 2;
     plot.init;
     subplot(nrows,ncols,1); hold on;
@@ -92,6 +94,30 @@ for ii = 5%[5:-1:1] %1:numel(dts)
     saveas(gcf, 'plots/tmp.png');
     continue;
     
+    S{ii,1} = D.score;
+    for jj = 3
+        D = rmfield(rmfield(D, 'score'), 'scores');
+        hypopts.nullCols = 1:jj;
+        D = score.scoreAll(D, hypopts);
+        plot.init;
+        subplot(nrows,ncols,1); hold on;
+        plot.errorByKin(D.score(2:end), 'errOfMeansByKin'); title(D.datestr);
+        subplot(nrows,ncols,2); hold on;
+        plot.barByHypQuick(D.score(2:end), 'errOfMeans'); title(D.datestr);
+        subplot(nrows,ncols,3); hold on;
+        plot.errorByKin(D.score(2:end), 'covErrorByKin'); title(D.datestr);
+        subplot(nrows,ncols,4); hold on;
+        plot.barByHypQuick(D.score(2:end), 'covError'); title(D.datestr);
+        set(gcf, 'Position', [0 0 800 600]);
+        S{ii,2} = D.score;
+        saveas(gcf, 'plots/tmp.png');
+    end
+    hypopts = rmfield(hypopts, 'nullCols');
+    [S{ii,2}(2).errOfMeansByKin; S{ii,1}(2).errOfMeansByKin]
+    [S{ii,2}(2).covErrorByKin S{ii,1}(2).covErrorByKin]'
+    '------'
+    continue;
+
     plot.init;
     plot.errorByKin(D.score(2:end), 'errOfMeansByKin');
     title(D.datestr);

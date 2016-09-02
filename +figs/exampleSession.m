@@ -5,7 +5,7 @@ function [D, nms] = exampleSession(dirNm, dtEx)
     
     % rescore to rotate with PCA
 %     hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16', ...
-%         'obeyBounds', true, 'boundsType', 'spikes');
+%         'obeyBounds', true, 'boundsType', 'spikes', 'doPca', false);
 %     D = score.scoreAll(rmfield(rmfield(D, 'score'), 'scores'), hypopts);
 
 end

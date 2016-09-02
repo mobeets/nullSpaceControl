@@ -42,11 +42,11 @@ function D = fitHyps(D, nms, opts)
         D.hyps = pred.addPrediction(D, 'cloud', ...
             pred.closestRowValFit(D, opts));
     end
-    if ismember('cloud-rotation', nms)
-        % this is the same as "cloud-1", but more simply implemented
-        custopts = struct('beDumb', true);
+    if ismember('cloud-200', nms)
+        % cloud-200
+        custopts = struct('kNN', 200);
         custopts = io.updateParams(opts, custopts, true);
-        D.hyps = pred.addPrediction(D, 'cloud-rotation', ...
+        D.hyps = pred.addPrediction(D, 'cloud-200', ...
             pred.closestRowValFit(D, custopts));
     end
     if ismember('habitual', nms)
