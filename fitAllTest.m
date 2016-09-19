@@ -5,11 +5,13 @@
 % nms = {'habitual', 'pruning', 'pruning-1', 'cloud', 'cloud-og', ...
 %     'voltional', 'mean shift prune', 'mean shift', 'unconstrained', ...
 %     'baseline', 'minimum'};
-nms = {'best-sample', 'habitual', 'cloud', 'unconstrained'};
-nms = {'habitual', 'cloud'};
-nms = {'cloud-1s', 'cloud'};
-nms = {'unc-1s', 'unconstrained'};
-nms = {'baseline'};
+% nms = {'best-sample', 'habitual', 'cloud', 'unconstrained'};
+% nms = {'habitual', 'cloud'};
+% nms = {'cloud-1s', 'cloud'};
+% nms = {'unc-1s', 'unconstrained'};
+nms = {'minimum'};%, 'baseline', 'uncontrolled-uniform'};
+% nms = {'minimum'};
+% nms = {'minimum-sample'};
 % nms = {'cloud-200', 'cloud', 'habitual', 'unconstrained', 'minimum-sample', 'baseline-sample'};
 % nms = {'cloud', 'unconstrained', 'minimum-sample', 'baseline-sample', 'minimum-sample-200', 'baseline-sample-200'};
 % nms = {'cloud', 'cloud-rotation', 'habitual'};
@@ -27,7 +29,8 @@ nms = {'baseline'};
 %     'gauss', 'condnrm', 'condnrmkin', 'condnrmrow'};
 
 hypopts = struct('nBoots', 0, 'obeyBounds', true, ...
-    'boundsType', 'spikes', 'scoreGrpNm', 'thetaActualGrps16');
+    'boundsType', 'spikes', 'scoreGrpNm', 'thetaActualGrps16', ...
+    'fitInLatent', true, 'addSpikeNoise', false);
 
 % loptsA = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 1:2));
 % loptsB = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 3:4));

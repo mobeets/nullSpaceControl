@@ -1,4 +1,4 @@
-function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub, D)
+function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
 % 
 % Each u(t) in U is solution (using quadprog) to:
 %   min_u norm(u + f)^2
@@ -24,40 +24,45 @@ function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub, D
     Bc = decoder.M2;
     cc = decoder.M0;
         
-    nd = size(decoder.M2, 2);
+    nd = size(Bc, 2);
     H = eye(nd);
     A = -eye(nd); % A,b enforce non-negativity of spike solution
     b = zeros(nd,1);
     
 %     A = []; b = []; lb = []; ub = [];
-%     A = decoder.NulM2'; b = zeros(1,size(A,1));
-%     mu = D.simpleData.nullDecoder.spikeCountMean;
-%     b = A*mu';
     
     if fitInLatent
-        %  % L'*L where L = diag(sigma)*L from FactorParams
-%         H = []; % ALinv'*ALinv
-        A = []; % -ALinv
-        b = []; % mu
+        A = [];
+        b = [];
     end
     
-    Aeq = Bc; % s.t. Aeq*u = Bc*z(u); might need to add term to beq
+    Aeq = Bc;
     beq = x1 - Ac*x0 - cc;
-    
+
+    if ~fitInLatent
+        % update Aeq,beq so that our spike solutions, after 
+        % converting to inferred latents, satisfy the kinematics 
+        % constraints under the mapping in latents
+        [~, beta] = tools.convertRawSpikesToRawLatents(decoder, zeros(1,nd));
+        mu = decoder.spikeCountMean;
+        Aeq = Aeq*beta;
+        beq = beq + Aeq*mu';
+    end
+
     options = optimset('Algorithm', 'interior-point-convex', ...
         'Display', 'off');
+    isRelaxed = false;
     try
         [z, ~, exitflag] = quadprog(H, f, A, b, Aeq, beq, ...
             lb, ub, [], options);
     catch
-        z = nan(size(Blk.spikes(t,:)')); isRelaxed = false;
+        z = nan(1,nd);
         warning('error in quadFireFit');
         return;
     end
     if ~exitflag
         warning('quadprog optimization incomplete, but stopped.');
     end
-    isRelaxed = false;
     if isempty(z)
 %         warning('Relaxing non-negative constraint and bounds.');
         z = quadprog(H, f, [], [], Aeq, beq, ...

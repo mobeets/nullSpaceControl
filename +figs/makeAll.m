@@ -3,10 +3,11 @@
 
 % dtEx = '20120601';
 dtEx = '20131205';
-fitNm = 'splitIntuitive';
+% fitNm = 'splitIntuitive';
 % fitNm = 'savedFull';
 % fitNm = 'allHyps';
 % fitNm = 'allHypsNoIme';
+fitNm = 'allHypsAgain';
 
 figs.init;
 % figs.createData(fitNm, dts);
@@ -26,7 +27,7 @@ elseif strcmpi(fitNm, 'savedFull')
     hypSet2 = {'habitual', 'cloud'};
     hypSet3 = {'habitual', 'cloud', 'unconstrained', 'baseline', 'minimum'};
 elseif strcmpi(fitNm, 'allSampling') || strcmpi(fitNm, 'allSampling0') ...
-        || strcmpi(fitNm, 'allHyps')
+        || strcmpi(fitNm, 'allHyps') || strcmpi(fitNm, 'allHypsAgain')
     hypSet1 = {'unconstrained', 'baseline-sample', 'minimum-sample'};
     hypSet2 = {'cloud', 'habitual'};
     hypSet3 = {'habitual', 'cloud', 'unconstrained', 'baseline-sample', 'minimum-sample'};
@@ -34,14 +35,16 @@ elseif strcmpi(fitNm, 'allSampling') || strcmpi(fitNm, 'allSampling0') ...
     hypSet5 = {'habitual', 'baseline'};
     hypSet6 = {'habitual', 'cloud', 'unconstrained', 'baseline', 'baseline-sample'};
     hypSet7 = {'habitual', 'cloud', 'baseline', 'minimum'};
+    hypSet8 = {'habitual', 'cloud', 'unconstrained', 'baseline', 'minimum'};
+    hypSet9 = {'habitual', 'cloud', 'unconstrained', 'uncontrolled-uniform', 'baseline', 'minimum'};
 end
 
 %% tuning curves
 
 curHyps = hypSet2;
-curHyps = {'baseline'};
+curHyps = {'uncontrolled-uniform'};
+curHyps = {'minimum'};
 hypnms = {D.score.name};
-% curHyps = {'observed'};
 fopts.doSave = false;
 [~, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
 figs.tuningCurves(D, curHyps, hypClrs, baseClr, fopts);
@@ -49,11 +52,12 @@ figs.tuningCurves(D, curHyps, hypClrs, baseClr, fopts);
 %% marginal histograms
 
 % close all;
-fopts.doSave = false;
+fopts.doSave = true;
 fopts.showAll = true;
 % curHyps = ['observed' {'uncontrolled-uniform'}];
+curHyps = ['observed' {'minimum'}];
 % curHyps = ['observed' {'cloud', 'unconstrained'}];
-curHyps = {'minimum'};
+% curHyps = {'minimum'};
 % curHyps = {'observed'};
 % hypnms = {D.score.name};
 [hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
@@ -63,6 +67,9 @@ figs.marginalHistograms(D, hypInds, [], hypClrs, fopts);
 %% mean/covariance scatter (for comparing two hyps)
 
 hypSet = hypSet2;
+hypSet = {'cloud', 'habitual'};
+hypSet = {'cloud-200', 'habitual'};
+% hypSet = {'baseline', 'unconstrained'};
 % hypSet = {'minimum-sample', 'baseline-sample'};
 % hypSet = {'unconstrained', 'baseline-sample'};
 % hypSet = {'cloud', 'baseline-sample'};
@@ -77,7 +84,8 @@ figs.meanCovScatterTwoHyps(SCov, hypnms, ixMnk, hyp1, hyp2, 'covariance', ix, 2*
 
 %% combining scores across sessions
 
-curHyps = hypSet3;
+curHyps = {'cloud', 'habitual', 'unconstrained', 'baseline'};
+% curHyps = hypSet9;
 [hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
 mus = score.normalizeAcrossSessions(SMu(:,hypInds));
 cvs = score.normalizeAcrossSessions(SCov(:,hypInds));
@@ -96,6 +104,8 @@ for ii = 1:size(mus,2)
     plot(mups(2), cvps(2), '.', 'Color', hypClrs(ii,:), ...
         'MarkerSize', 50);
 end
+% set(gca, 'XScale', 'log');
+% set(gca, 'YScale', 'log');
 set(gca, 'XTick', 0:0.2:1.0);
 set(gca, 'YTick', 0:0.2:1.0);
 axis square;
@@ -104,7 +114,7 @@ axis square;
 
 %% mean/cov err bars
 
-curHyps = hypSet4;
+curHyps = hypSet9;
 ylims = [nan nan];
 [hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
 figs.meanAndCovAllSessions(SMu(:,hypInds), SCov(:,hypInds), ...
@@ -117,7 +127,7 @@ figs.meanAndCovAllSessions(SMu(:,hypInds), SCov(:,hypInds), ...
 
 %% mean score vs. # trials in session
 
-curHyps = hypSet3;
+curHyps = hypSet9;
 hypInds = figs.getHypIndsAndClrs(curHyps, hypnms);
 % xs = ntrials(:,1); xlbl = '# trials in intuitive session';
 xs = Lrn; xlbl = 'Learning';

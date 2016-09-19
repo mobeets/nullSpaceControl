@@ -20,7 +20,7 @@ subplot(1,2,1); hold on;
 plot(0, 0, 'k.', 'MarkerSize', 25);
 for ii = 1:numel(grps)
     ix = gs == grps(ii);
-    mu = mean(D.hyps(hind).latents(ix,:)*RB);
+    mu = nanmean(D.hyps(hind).latents(ix,:)*RB);
     plot(mu(1), mu(2), 'o', 'MarkerSize', 25, 'Color', clrs(ii,:));
 end
 axis equal;
@@ -29,7 +29,7 @@ subplot(1,2,2); hold on;
 plot(0, 0, 'k.', 'MarkerSize', 25);
 for ii = 1:numel(grps)
     ix = gs == grps(ii);
-    mu = mean(D.hyps(hind).latents(ix,:)*NB*v);
+    mu = nanmean(D.hyps(hind).latents(ix,:)*NB*v);
     plot(mu(1), mu(2), 'o', 'MarkerSize', 25, 'Color', clrs(ii,:));
 end
 axis equal;

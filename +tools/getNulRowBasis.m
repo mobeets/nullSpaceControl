@@ -2,7 +2,7 @@ function [NB, RB] = getNulRowBasis(M)
     RB = orth(M');
     NB = null(M);
 
-%     [u,~,v] = svd(M);
+%     [u,s,v] = svd(M);
 %     rnk = size(u,1);
 %     NB = v(:,rnk+1:end); % null(M)
 %     RB = v(:,1:rnk);

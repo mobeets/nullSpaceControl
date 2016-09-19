@@ -12,15 +12,18 @@ nms = {'habitual', 'cloud', 'cloud-200', 'unconstrained', ...
 hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16', ...
     'obeyBounds', true, 'boundsType', 'spikes');
 
+hypopts.fitInLatent = true;
+hypopts.addSpikeNoise = true;
+
 % fitNm = 'splitIntuitive';
 % fitNm = 'allSampling';
-fitNm = 'allHyps';
+fitNm = 'allHypsAgain';
 % fitNm = 'allHypsNoIme';
 
 %%
 
 if strcmp(fitNm, 'savedFull') || strcmp(fitNm, 'allHyps') ...
-    || strcmp(fitNm, 'allSampling')
+    || strcmp(fitNm, 'allSampling') || strcmp(fitNm, 'allHypsAgain')
     lopts = struct('postLoadFcn', @io.makeImeDefault);
 elseif strcmp(fitNm, 'splitIntuitive')
     lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);

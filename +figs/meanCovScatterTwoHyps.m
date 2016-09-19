@@ -9,10 +9,15 @@ hypInd1 = find(strcmp(nms, hypNm1));
 hypInd2 = find(strcmp(nms, hypNm2));
 xs = SVals(ix,hypInd1);
 ys = SVals(ix,hypInd2);
-esx = SErrs(ix,hypInd1);
-esy = SErrs(ix,hypInd2);
+if ~isempty(SErrs)
+    esx = SErrs(ix,hypInd1);
+    esy = SErrs(ix,hypInd2);
+else
+    esx = zeros(size(xs));
+    esy = zeros(size(ys));
+end
 
-if strcmp(lbl, 'mean')    
+if strcmp(lbl, 'mean')
     xstep = 1;
 else
     xstep = 25;

@@ -6,7 +6,14 @@ function [Z, inds] = minEnergySampleFit(D, opts)
     defopts = struct('decoderNm', 'nDecoder', 'minType', 'baseline', ...
         'fitInLatent', false, 'kNN', nan, 'addSpikeNoise', true);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
-    
+    if ~opts.fitInLatent && strcmp(opts.decoderNm(1), 'f')
+        warning('minEnergyFit must use spike decoder, not factors.');
+        opts.decoderNm(1) = 'n';
+    elseif opts.fitInLatent && strcmp(opts.decoderNm(1), 'n')
+        warning('minEnergyFit must use factor decoder, not spikes.');
+        opts.decoderNm(1) = 'f';
+    end
+
     B1 = D.blocks(1);
     B2 = D.blocks(2);
     if opts.fitInLatent

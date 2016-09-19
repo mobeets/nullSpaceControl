@@ -24,9 +24,12 @@ elseif strcmpi(fitNm, 'savedFull')
     allHypClrs = [baseClr; habClr; habClr; habClr; ...
         cldClr; cldClr; uncClr; basClr; ...
         minClr; habClr; habClr];
-elseif strcmpi(fitNm, 'allHyps') || strcmpi(fitNm, 'allHypsNoIme')
+elseif strcmpi(fitNm, 'allHyps') || strcmpi(fitNm, 'allHypsNoIme')    
     allHypClrs = [baseClr; cldClr; habClr; uncClr; basClr; minClr; ...
         basClr; minClr; uncClr];
+elseif strcmpi(fitNm, 'allHypsAgain')
+    allHypClrs = [baseClr; cldClr; cldClr; habClr; uncClr; basClr; ...
+        minClr; basClr; minClr; uncClr];
 end
 
 fopts = struct('doSave', false, 'plotdir', fullfile('+figs', 'output'));

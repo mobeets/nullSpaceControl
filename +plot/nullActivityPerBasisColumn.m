@@ -116,7 +116,9 @@ function plotGroupMeanAndSE(xs, ms, ses, clr, clrE)
 %     plot(xs, ms + ses, 'Color', clrE);
     X = [xs', fliplr(xs')];
     Y = [(ms - ses)', fliplr((ms + ses)')];
-    f = fill(X, Y, clrE'); set(f, 'EdgeColor', 'none');
+    f = fill(X, Y, clr);
+    set(f, 'EdgeColor', 'none');
+    alpha(f, 0.2);
     plot(xs, ms, '-', 'Color', clr, 'LineWidth', lw);
     scatter(xs, ms, sz, clr, 'MarkerFaceColor', clr);
 end

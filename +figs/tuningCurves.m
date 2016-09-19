@@ -12,6 +12,7 @@ function tuningCurves(D, curHyps, hypClrs, baseClr, opts)
         
         ymn = min(min(cell2mat({fig.Children.YLim}')));
         ymx = max(max(cell2mat({fig.Children.YLim}')));
+%         ymn = -4; ymx = 6;
 
         if jj == 1
             figxs = arrayfun(@(ii) fig.Children(ii).Position(1), 1:numel(fig.Children));

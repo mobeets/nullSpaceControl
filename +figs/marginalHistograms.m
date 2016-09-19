@@ -7,37 +7,41 @@ function marginalHistograms(D, hypInds, grpVals, hypClrs, opts)
         oneColPerFig = false;
         oneKinPerFig = false;
         tag = 'all';
-        ymx = 0.9;
+%         ymx = 0.9;
+        ymx = 0.6;
         fntsz = 8;
+        wd = 2000; ht = 2000;
+        lw = 0.5;
+        
+%         ht = 1000;
+%         fntsz = 12;
+%         grpVals = [45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5];
+%         lw = 1;
+        
     elseif numel(grpVals) == 0
         oneColPerFig = true;
         oneKinPerFig = false;
         tag = 'byGrp';
         ymx = 0.9;
         fntsz = 8;
+        wd = 200; ht = 850;
+        lw = 0.5;
     else
         oneColPerFig = false;
         oneKinPerFig = true;
         tag = 'byKin';
         ymx = 0.7;
         fntsz = 10;
+        ht = 150; wd = 1250;
+        lw = 0.5;
     end
 
     [~,~,fgs] = plot.fitAndPlotMarginals(D, struct('hypInds', hypInds, ...
         'tightXs', true, 'grpsToShow', grpVals, ...
-        'grpNm', 'thetaActualGrps', ...
+        'grpNm', 'thetaActualGrps16', ...
         'nbins', 20, 'clrs', hypClrs, 'ttl', '', ...
         'oneColPerFig', oneColPerFig, 'oneKinPerFig', oneKinPerFig, ...
         'sameLimsPerPanel', true, 'doFit', true, 'makeMax1', false));
-
-    if opts.showAll
-        wd = 2000; ht = 2000;
-    elseif numel(grpVals) == 0
-        wd = 200; ht = 850;
-    else
-%         wd = 360; ht = 700;
-        ht = 150; wd = 1250;
-    end
     
     for kk = 1:numel(fgs)
         txs = findobj(fgs(kk), 'Type', 'Axes');
@@ -49,6 +53,7 @@ function marginalHistograms(D, hypInds, grpVals, hypClrs, opts)
             txs(jj).XLim = [min(lms(:,1)) max(lms(:,2))];
             txs(jj).XTick = 0;
             txs(jj).XTickLabel = '0';
+            txs(jj).LineWidth = lw;
         end        
         
         set(fgs(kk), 'PaperUnits', 'inches');

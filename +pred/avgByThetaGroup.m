@@ -10,8 +10,8 @@ function [zMu, zCov, zByGrp, grps] = avgByThetaGroup(Z, gs)
     for ii = 1:numel(grps)
         ix = grps(ii) == gs & noNans;
         zCur = Z(ix,:);
-        zMu{ii} = mean(zCur)';
-        zCov{ii} = cov(zCur);
+        zMu{ii} = mean(zCur,1)';
+        zCov{ii} = cov(zCur,0);
         zByGrp{ii} = zCur;
     end
 

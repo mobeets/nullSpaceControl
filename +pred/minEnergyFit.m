@@ -13,7 +13,7 @@ function [Z,U] = minEnergyFit(D, opts)
     elseif opts.fitInLatent && strcmp(opts.decoderNm(1), 'n')
         warning('minEnergyFit must use factor decoder, not spikes.');
         opts.decoderNm(1) = 'f';
-    end    
+    end
     
     % set upper and lower bounds
     B1 = D.blocks(1);
@@ -25,15 +25,20 @@ function [Z,U] = minEnergyFit(D, opts)
         Y1 = B1.spikes;
         Y2 = B2.spikes;
     end
-    lb = min(Y1); ub = 1.2*max(Y1);
-%     lb = lb*0; ub(ub>=0) = 50;
+
+    if opts.obeyBounds
+        lb = 0.8*min(Y1); ub = 1.2*max(Y1);
+%         lb = lb*0; ub(ub>=0) = 50;
+    else
+        lb = []; ub = [];
+    end
     
     % set minimum, in latent or spike space
     Dc = D.simpleData.nullDecoder;
     if strcmpi(opts.minType, 'baseline') && opts.fitInLatent
         mu = [];
     elseif strcmpi(opts.minType, 'baseline') && ~opts.fitInLatent
-        mu = Dc.spikeCountMean;        
+        mu = Dc.spikeCountMean;
     elseif strcmpi(opts.minType, 'minimum') && opts.fitInLatent        
         zers = zeros(size(D.blocks(1).spikes,2), 1);
         mu = tools.convertRawSpikesToRawLatents(Dc, zers);
@@ -43,15 +48,24 @@ function [Z,U] = minEnergyFit(D, opts)
     sigma = D.simpleData.nullDecoder.spikeCountStd;
     maxSps = 2*max(B1.spikes(:));
 
+    grps = sort(unique(D.blocks(2).thetaActualGrps16));
+    gcs = zeros(numel(grps),1);
+
     [nt, nu] = size(Y2);
     U = nan(nt,nu);
     nrs = 0; nlbs = 0; nubs = 0;
     for t = 1:nt
+%         grp = D.blocks(2).thetaActualGrps16(t);
+%         if gcs(grps == grp) > 0
+%             continue;
+%         end
+%         gcs(grps == grp) = gcs(grps == grp) + 1;
+        
         if mod(t, 500) == 0
             disp(['minEnergyFit: ' num2str(t) ' of ' num2str(nt)]);
         end
         [U(t,:), isRelaxed] = pred.quadFireFit(B2, t, -mu, ...
-            B2.(opts.decoderNm), opts.fitInLatent, lb, ub, D);
+            B2.(opts.decoderNm), opts.fitInLatent, lb, ub);
         nrs = nrs + isRelaxed;
         
         if ~opts.fitInLatent && opts.addSpikeNoise
@@ -67,15 +81,20 @@ function [Z,U] = minEnergyFit(D, opts)
             end
         end
         
-        if any(abs(U(t,:) - lb) < 1e-5)
+        if numel(lb) > 0 && any(abs(U(t,:) - lb) < 1e-5)
             nlbs = nlbs + 1;
         end
-        if any(abs(U(t,:) - ub) < 1e-5)
+        if numel(ub) > 0 && any(abs(U(t,:) - ub) < 1e-5)
             nubs = nubs + 1;
         end
     end
-    if opts.fitInLatent
+    if opts.fitInLatent        
         Z = U;
+        if opts.addSpikeNoise
+            % project to spikes, then infer latents
+            sps = tools.latentsToSpikes(Z, Dc, true, true);
+            Z = tools.convertRawSpikesToRawLatents(Dc, sps');
+        end
     else
         Z = tools.convertRawSpikesToRawLatents(Dc, U');
 %         Z = Z/Dc.FactorAnalysisParams.spikeRot;
