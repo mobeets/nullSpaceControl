@@ -8,6 +8,7 @@ dtEx = '20131205';
 % fitNm = 'allHyps';
 % fitNm = 'allHypsNoIme';
 fitNm = 'allHypsAgain';
+% fitNm = 'allHypsEightKins';
 
 figs.init;
 % figs.createData(fitNm, dts);
@@ -43,7 +44,7 @@ end
 
 curHyps = hypSet2;
 curHyps = {'uncontrolled-uniform'};
-curHyps = {'minimum'};
+curHyps = {'cloud'};
 hypnms = {D.score.name};
 fopts.doSave = false;
 [~, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
@@ -52,23 +53,21 @@ figs.tuningCurves(D, curHyps, hypClrs, baseClr, fopts);
 %% marginal histograms
 
 % close all;
+hypnms = {D.score.name};
 fopts.doSave = true;
 fopts.showAll = true;
-% curHyps = ['observed' {'uncontrolled-uniform'}];
-curHyps = ['observed' {'minimum'}];
-% curHyps = ['observed' {'cloud', 'unconstrained'}];
-% curHyps = {'minimum'};
+curHyps = ['observed' {'uncontrolled-uniform'}];
 % curHyps = {'observed'};
-% hypnms = {D.score.name};
 [hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
 % figs.marginalHistograms(D, hypInds, [45], hypClrs, fopts);
 figs.marginalHistograms(D, hypInds, [], hypClrs, fopts);
 
 %% mean/covariance scatter (for comparing two hyps)
 
-hypSet = hypSet2;
-hypSet = {'cloud', 'habitual'};
-hypSet = {'cloud-200', 'habitual'};
+% hypSet = hypSet2;
+hypSet = {'habitual', 'cloud'};
+% hypSet = {'unconstrained', 'cloud'};
+% hypSet = {'cloud-200', 'habitual'};
 % hypSet = {'baseline', 'unconstrained'};
 % hypSet = {'minimum-sample', 'baseline-sample'};
 % hypSet = {'unconstrained', 'baseline-sample'};
@@ -82,15 +81,51 @@ hyp2 = hypSet{2};
 figs.meanCovScatterTwoHyps(SMu, hypnms, ixMnk, hyp1, hyp2, 'mean', ix, 2*SMuErr);
 figs.meanCovScatterTwoHyps(SCov, hypnms, ixMnk, hyp1, hyp2, 'covariance', ix, 2*SCovErr);
 
+%% rank-order across sessions
+
+curHyps = {'cloud', 'habitual', 'unconstrained', 'baseline', ...
+    'minimum', 'uncontrolled-uniform'};
+% curHyps = hypSet9;
+[hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
+
+rnkMu = score.sortAcrossSessions(SMu(:,hypInds), 2);
+rnkCv = score.sortAcrossSessions(SCov(:,hypInds), 2);
+mx = numel(hypInds);
+
+% add jitter
+rnkMuJ = rnkMu + (rand(size(rnkMu))-0.5)/3;
+rnkCvJ = rnkCv + (rand(size(rnkCv))-0.5)/3;
+
+plot.init;
+for ii = 1:mx
+    plot(rnkMuJ(:,ii), rnkCvJ(:,ii), '.', 'Color', hypClrs(ii,:), ...
+        'MarkerSize', 10);
+end
+for ii = 1:mx
+    plot(mean(rnkMu(:,ii)), mean(rnkMu(:,ii)), '.', ...
+        'Color', hypClrs(ii,:), 'MarkerSize', 50);
+end
+
+xlim([0 mx+1]);
+ylim([0 mx+1]);
+set(gca, 'XTick', 1:mx);
+set(gca, 'YTick', 1:mx);
+axis square;
+xlabel('rank in mean error');
+ylabel('rank in covariance error');
+
 %% combining scores across sessions
 
 curHyps = {'cloud', 'habitual', 'unconstrained', 'baseline'};
+curHyps = {'cloud', 'habitual', 'unconstrained', 'uncontrolled-uniform', ...
+    'minimum', 'baseline'};
 % curHyps = hypSet9;
 [hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
-mus = score.normalizeAcrossSessions(SMu(:,hypInds));
-cvs = score.normalizeAcrossSessions(SCov(:,hypInds));
+mus = score.normalizeAcrossSessions(SMu(:,hypInds), numel(hypInds));
+cvs = score.normalizeAcrossSessions(SCov(:,hypInds), numel(hypInds));
 
-lb = 25; ub = 75;
+% lb = 25; ub = 75;
+lb = 50; ub = 50;
 plot.init;
 for ii = 1:size(mus,2)
     plot(mus(:,ii), cvs(:,ii), '.', 'Color', hypClrs(ii,:), ...
@@ -106,9 +141,56 @@ for ii = 1:size(mus,2)
 end
 % set(gca, 'XScale', 'log');
 % set(gca, 'YScale', 'log');
-set(gca, 'XTick', 0:0.2:1.0);
-set(gca, 'YTick', 0:0.2:1.0);
+xmx = 1*max(median(mus));
+ymx = 1*max(median(cvs));
+xlim([0 xmx]);
+ylim([0 ymx]);
+set(gca, 'XTick', 0:1:8);
+set(gca, 'YTick', 0:1:8);
 axis square;
+xlabel('error in mean (normalized)');
+ylabel('error in covariance (normalized)');
+
+%% bar plot across sessions
+
+doAvg = true;
+doRank = true;
+
+curHyps = {'cloud', 'habitual', 'unconstrained', 'baseline'};
+curHyps = {'cloud', 'habitual', 'unconstrained', ...
+    'uncontrolled-uniform', 'minimum', 'baseline'};
+% curHyps = hypSet9;
+
+[hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
+if doRank
+    mus = score.sortAcrossSessions(SMu(:,hypInds), 2);
+    cvs = score.sortAcrossSessions(SCov(:,hypInds), 2);
+    ymx = 7;
+    prcs = [25 50 75];
+else
+    mus = score.normalizeAcrossSessions(SMu(:,hypInds), numel(hypInds));
+    cvs = score.normalizeAcrossSessions(SCov(:,hypInds), numel(hypInds));
+    ymx = nan;
+    prcs = [25 50 75];
+end
+
+if doAvg
+    
+    mups = prctile(mus, prcs);
+    ms = mups(2,:); bs = mups([1 3],:);
+    plot.init;
+    figs.bar_oneDt(ms, hypnms(hypInds), hypClrs, ...
+        'error in mean', bs, ymx);
+    
+    cvps = prctile(cvs, prcs);
+    cs = cvps(2,:); bs = cvps([1 3],:);
+    plot.init;
+    figs.bar_oneDt(cs, hypnms(hypInds), hypClrs, ...
+        'error in covariance', bs, ymx);    
+else
+    figs.meanAndCovAllSessions(mus, cvs, ...
+        hypClrs, dtnms, hypnms(hypInds), [4 2]);
+end
 
 %% EXTRA STUFF BELOW
 

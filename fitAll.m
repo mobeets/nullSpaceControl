@@ -8,8 +8,9 @@ dts = io.getDates();
 nms = {'habitual', 'cloud', 'cloud-200', 'unconstrained', ...
     'baseline-sample', 'minimum-sample', 'uncontrolled-uniform', ...
     'baseline', 'minimum'};
+nms = {'habitual', 'cloud', 'unconstrained'};
 
-hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16', ...
+hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps', ...
     'obeyBounds', true, 'boundsType', 'spikes');
 
 hypopts.fitInLatent = true;
@@ -17,22 +18,20 @@ hypopts.addSpikeNoise = true;
 
 % fitNm = 'splitIntuitive';
 % fitNm = 'allSampling';
-fitNm = 'allHypsAgain';
+% fitNm = 'allHypsAgain';
 % fitNm = 'allHypsNoIme';
+fitNm = 'allHypsEightKins';
 
 %%
 
-if strcmp(fitNm, 'savedFull') || strcmp(fitNm, 'allHyps') ...
-    || strcmp(fitNm, 'allSampling') || strcmp(fitNm, 'allHypsAgain')
-    lopts = struct('postLoadFcn', @io.makeImeDefault);
-elseif strcmp(fitNm, 'splitIntuitive')
+if strcmp(fitNm, 'splitIntuitive')
     lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);
 elseif strcmp(fitNm, 'allIntHalfPert_rand')
     lopts = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, true));
 elseif strcmp(fitNm, 'splitPerturbation_rand')
     lopts = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, false));
 else
-    lopts = struct();
+    lopts = struct('postLoadFcn', @io.makeImeDefault);
 end
 
 popts = struct();

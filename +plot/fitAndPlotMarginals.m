@@ -5,7 +5,7 @@ function [D, opts, figs] = fitAndPlotMarginals(D, opts)
     defopts = struct('nbins', nan, 'doFit', false, 'hypInds', [], ...
         'grpsToShow', [], 'ttl', D.datestr, 'showSe', false, ...
         'grpNm', 'thetaActualGrps', 'makeMax1', false, ...
-        'oneColPerFig', false, 'oneKinPerFig', false);
+        'oneColPerFig', false, 'oneKinPerFig', false, 'dimInds', []);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if isempty(opts.hypInds)
         error('Must set opts.hypInds');
@@ -45,6 +45,14 @@ function [D, opts, figs] = fitAndPlotMarginals(D, opts)
     grps = hists(1).grps;
     Xs = hists(1).Xs;
     Zs = {hists.Zs};
+    
+    if ~isempty(opts.dimInds)
+        fcn = @(x) x(:,opts.dimInds);
+        Xs = cellfun(fcn, Xs, 'uni', 0);
+        for ii = 1:numel(Zs)
+            Zs{ii} = cellfun(fcn, Zs{ii}, 'uni', 0);
+        end
+    end
     
     % add Blk1
 %     warning('Adding block 1');

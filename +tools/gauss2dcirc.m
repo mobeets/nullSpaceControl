@@ -1,13 +1,17 @@
-function [bp, mu, sigma] = gauss2dcirc(data, sigMult)
+function [bp, mu, sigma] = gauss2dcirc(data, sigMult, sigma)
 % data [n x 2]
 % plot(bp(1,:), bp(2,:)) will plot a circle
 % 
     if nargin < 2
         sigMult = 1;
     end
-    assert(size(data,2)==2);
-    mu = mean(data)';
-    sigma = cov(data);
+    if nargin < 3
+        assert(size(data,2)==2);
+        mu = mean(data)';
+        sigma = cov(data);
+    else
+        mu = zeros(size(sigma,1),1);
+    end    
     tt = linspace(0, 2*pi, 30)';
     x = cos(tt); y = sin(tt);
     ap = [x(:) y(:)]';

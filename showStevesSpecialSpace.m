@@ -1,13 +1,18 @@
 %% load ratio of det(cov)
 
+baseDir = 'data/fits/allHypsAgain';
 dts = io.getDates();
+
+nboots = 100;
+nms = {D.score.name};
 
 angsYesIme = nan(numel(dts),1);
 angsNoIme = nan(numel(dts),1);
 dtcvYesImeNoRot = nan(numel(dts),8,6);
-% dtcvPert = nan(numel(dts),6,8);
-% dtcvYesIme = nan(numel(dts),1);
-% dtcvNoIme = nan(numel(dts),1);
+dtcvPert = nan(numel(dts),6,8);
+dtcvYesIme = nan(numel(dts),nboots);
+dtcvYesIme2 = nan(numel(dts), numel(nms));
+dtcvNoIme = nan(numel(dts),1);
 for ii = 1:numel(dts)
     
 %     D = io.quickLoadByDate(dts{ii});
@@ -35,24 +40,30 @@ for ii = 1:numel(dts)
     
     grps = sort(unique(B2.thetaActualGrps));
     for jj = 1:numel(D.hyps)
-        for kk = 1:numel(grps)
-            ig1 = B1.thetaActualGrps == grps(kk);
-            ig = B2.thetaActualGrps == grps(kk);
+        for kk = 1%:numel(grps)
+            ig1 = B1.thetaActualGrps >= 0;%grps(kk);
+            ig = B2.thetaActualGrps >= 0; grps(kk);
             Y2 = D.hyps(jj).latents(ig,:);
-            det1 = det(cov(Y1(ig1,:)*SS0));
-            det2 = det(cov(Y2*SS0));
-            dtcvYesImeNoRot(ii,kk,jj) = det1./det2;
+            det1 = trace(cov(Y1(ig1,:)*SS0));
+            det2 = trace(cov(Y2*SS0));
+            dtcvYesIme2(ii,jj) = det1./det2;
         end
 %         dtcvPert(ii,jj) = det2;
     end
     
     continue;
     
-    [u,s,v] = svd(SS0);
-    SS = SS0*v;
+    Y1 = B1.latents;
+    Y2 = B2.latents;
+    [SS,s,v] = svd(SS0, 'econ');
+%     [SS,s,v] = svd((RB1*RB1')*NB2, 'econ');
+%     SS = SS0*v;
     det1 = det(cov(Y1*SS));
     det2 = det(cov(Y2*SS));
-    dtcvYesIme(ii) = det1./det2;
+
+    det1 = bootstrp(nboots, @(x) det(cov(x)), Y1*SS);
+    det2 = bootstrp(nboots, @(x) det(cov(x)), Y2*SS);
+    dtcvYesIme(ii,:) = det1./det2;
     
     decNm = 'fDecoder';
     RB1 = B1.(decNm).RowM2;
@@ -68,10 +79,15 @@ end
 
 %% bar plot of ratio of det(cov)
 
-dtcv = 1./dtcvYesImeNoRot;
-% dtcv = dtcvPert;
+dtcv = 1./dtcvYesImeNoRot(:,:,1);
+dtcv = 1./dtcvYesIme;
 plot.init;
-bar(1:numel(dts), dtcv);%, 'FaceColor', 'w');
+% bar(1:numel(dts), dtcv, 'FaceColor', 'w');
+for ii = 1:size(dtcv,1)
+    pcs = prctile(dtcv(ii,:), [5 50 95]);
+    bar(ii, pcs(2), 'FaceColor', 'w');
+    line([ii ii], [pcs(1) pcs(3)], 'Color', 'k');
+end
 plot(xlim, [1 1], 'k--');
 set(gca, 'FontSize', 14);
 set(gca, 'XTick', 1:numel(dts));
@@ -135,19 +151,26 @@ ylabel('det(cov), no ime');
 
 %% compare dtcvYesImeNoRot by grp, ALL HYPS
 
-ys = dtcvYesImeNoRot;
+ys = 1./dtcvYesImeNoRot;
 plot.init;
-for jj = 2:(size(ys,3)-2)
-    subplot(1,3,jj-1); hold on;
+c = 0;
+nms = {D.score.name};
+for jj = [2 4 5]
+    c = c + 1;
+    subplot(1,3,c); hold on;
     x1 = squeeze(ys(:,:,1));
     x2 = squeeze(ys(:,:,jj));
     plot(x1, x2, 'k.');
     ylabel(nms{jj});
     mn = min([x1(:); x2(:)]);
     mx = max([x1(:); x2(:)]);
-    xlim([mn, mx]);
-    ylim(xlim);
+    mn = 0; mx = 5;
+        
+    axis equal;
+    xlim([mn mx]);
+    ylim([mn mx]);
     plot(xlim, ylim, 'k--');
+    
 end
 
 %% compare learning to ratio of det(cov), ALL HYPS

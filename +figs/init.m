@@ -30,6 +30,8 @@ elseif strcmpi(fitNm, 'allHyps') || strcmpi(fitNm, 'allHypsNoIme')
 elseif strcmpi(fitNm, 'allHypsAgain')
     allHypClrs = [baseClr; cldClr; cldClr; habClr; uncClr; basClr; ...
         minClr; basClr; minClr; uncClr];
+elseif strcmpi(fitNm, 'allHypsEightKins')
+    allHypClrs = [baseClr; cldClr; habClr; uncClr];
 end
 
 fopts = struct('doSave', false, 'plotdir', fullfile('+figs', 'output'));

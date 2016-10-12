@@ -72,7 +72,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
                 nrows = ngrps;
                 ncols = 1;
                 if nrows > 8
-                    nrows = floor(ngrps/8);
+                    nrows = floor(ngrps/4);
                     ncols = ceil(ngrps/nrows);
                 end
                 featSubplotInds = reshape(1:ngrps, nrows, ncols)';

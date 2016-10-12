@@ -3,6 +3,7 @@ function marginalHistograms(D, hypInds, grpVals, hypClrs, opts)
         opts = struct('showAll', false, 'doSave', false);
     end
 
+    dimInds = [];
     if opts.showAll
         oneColPerFig = false;
         oneKinPerFig = false;
@@ -13,26 +14,27 @@ function marginalHistograms(D, hypInds, grpVals, hypClrs, opts)
         wd = 2000; ht = 2000;
         lw = 0.5;
         
-%         ht = 1000;
-%         fntsz = 12;
-%         grpVals = [45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5];
-%         lw = 1;
+        wd = 600; ht = 1000;
+        fntsz = 12;
+        grpVals = score.thetaCenters(8);
+        lw = 1;
+        dimInds = 1:3;
         
     elseif numel(grpVals) == 0
         oneColPerFig = true;
         oneKinPerFig = false;
         tag = 'byGrp';
-        ymx = 0.9;
-        fntsz = 8;
-        wd = 200; ht = 850;
-        lw = 0.5;
+        ymx = 0.5;
+        fntsz = 12;
+        wd = 200; ht = 850; lw = 0.5;
+        ht = 850; wd = 850; lw = 1.0;
     else
         oneColPerFig = false;
         oneKinPerFig = true;
         tag = 'byKin';
         ymx = 0.7;
         fntsz = 10;
-        ht = 150; wd = 1250;
+        ht = 150; wd = 1250;        
         lw = 0.5;
     end
 
@@ -41,7 +43,8 @@ function marginalHistograms(D, hypInds, grpVals, hypClrs, opts)
         'grpNm', 'thetaActualGrps16', ...
         'nbins', 20, 'clrs', hypClrs, 'ttl', '', ...
         'oneColPerFig', oneColPerFig, 'oneKinPerFig', oneKinPerFig, ...
-        'sameLimsPerPanel', true, 'doFit', true, 'makeMax1', false));
+        'sameLimsPerPanel', true, 'doFit', true, 'makeMax1', false, ...
+        'dimInds', dimInds));
     
     for kk = 1:numel(fgs)
         txs = findobj(fgs(kk), 'Type', 'Axes');

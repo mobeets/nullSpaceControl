@@ -1,13 +1,13 @@
-function dts = getDates(showAsymps, showRaw)
+function dts = getDates(asympsOnly, showRaw)
     if nargin < 1
-        showAsymps = true; % show those that have asymptotes
+        asympsOnly = true; % include only those that have asymptotes
     end
     if nargin < 2
         showRaw = false;
     end
 %     dts = {'20120525', '20120601', '20131125', '20131205'};
 
-    if showAsymps
+    if asympsOnly
         ss = io.shuffleStarts;
         dtnums = sort(ss(~isnan(ss(:,2)),1));
         dts = arrayfun(@num2str, dtnums, 'uni', 0);
