@@ -1,4 +1,5 @@
 function D = saveDataByDate(dtstr)
+% BATCH MODE: cellfun(@io.saveDataByDate, dts);
 
     DATADIR = getpref('factorSpace', 'data_directory');
 

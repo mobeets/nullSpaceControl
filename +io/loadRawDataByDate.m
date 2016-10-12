@@ -1,10 +1,12 @@
 function D = loadRawDataByDate(dtstr)
 
     DATADIR = getpref('factorSpace', 'data_directory');
-    mnkNms = io.getMonkeys();
+    mnkNm = '';
+    mnkNms = io.getMonkeys();    
     for ii = 1:numel(mnkNms)
         [fs, dr] = getFolders(DATADIR, mnkNms{ii}, dtstr);
         if numel(fs) > 0
+            mnkNm = mnkNms{ii};
             break;
         end
     end
@@ -12,6 +14,11 @@ function D = loadRawDataByDate(dtstr)
     if numel(fs) == 0
         error('Date not found.');
         return;
+    elseif strcmp(mnkNm, 'Nelson')
+        if numel(fs) ~= 3
+            error(['There should be exactly three files in ' dr]);
+            return;
+        end
     elseif numel(fs) ~= 2
         error(['There should be exactly two files in ' dr]);
         % one for kalmanInitParams, and one for simpleData
@@ -19,13 +26,19 @@ function D = loadRawDataByDate(dtstr)
     end
     load(fullfile(dr, fs{1}));
     load(fullfile(dr, fs{2}));
+    if strcmp(mnkNm, 'Nelson')
+        tm = load(fullfile(dr, fs{3}));
+        D.kalmanInitParamsPert = tm.kalmanInitParams;
+    end
 
     D.datestr = dtstr;
     D.kalmanInitParams = kalmanInitParams;
     D.simpleData = simpleData;
 %     D.params = io.setBlockStartTrials(D.datestr);
     D.params.IDEAL_SPEED = 175;
-    D = everythingInItsRightPlace(D);
+    if strcmp(mnkNm, 'Nelson')
+        D = io.preprocessNelsonData(D);
+    end
     D.trials = io.makeTrials(D);
     
 end
@@ -34,32 +47,6 @@ function [fldrs, dr] = getFolders(datadir, mnkname, dtstr)
     dr = fullfile(datadir, mnkname, dtstr);
     fs0 = dir(fullfile(dr, '*.mat'));
     fldrs = {fs0(~[fs0.isdir]).name};
-end
-
-function D = everythingInItsRightPlace(D)
-    if ~isfield(D.simpleData, 'targetAngles')
-        D.simpleData.targetAngles = addAngles(D.simpleData.targetLocations);
-    end
-    if ~isfield(D.simpleData, 'nullDecoder')
-        D.simpleData.nullDecoder = addNullDecoder(D);
-    end
-end
-
-function dec = addNullDecoder(D)
-    dec.FactorAnalysisParams = D.kalmanInitParams.FactorAnalysisParams;
-    dec.FactorAnalysisParams.ph = dec.FactorAnalysisParams.Ph;
-    dec.FactorAnalysisParams = rmfield(dec.FactorAnalysisParams, 'Ph');
-    dec.spikeCountStd = D.kalmanInitParams.NormalizeSpikes.std;
-    dec.spikeCountMean = D.kalmanInitParams.NormalizeSpikes.mean;
-end
-
-function angs = addAngles(locs)
-    locs = locs(:,1:2);
-    xm = median(unique(locs(:,1)));
-    ym = median(unique(locs(:,2)));
-    locs(:,1) = locs(:,1) - xm;
-    locs(:,2) = locs(:,2) - ym;
-    angs = tools.computeAngles(locs);
 end
 
 %%

@@ -17,6 +17,9 @@ function ths = asymptoteByGrp(xs, ys, gs, opts)
     for ii = 1:numel(grps)
         ix = gs == grps(ii);
         [xsb, ysb, ~] = behav.smoothAndBinVals(xs(ix), ys(ix), opts);
+        if isempty(xsb)
+            continue;
+        end
         [~, ths(ii,:)] = tools.satExpFit(xsb, ysb);
     end
     ths(ths >= max(xs)) = nan;

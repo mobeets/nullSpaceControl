@@ -1,9 +1,10 @@
 %% choose dates
 
-badDts = {'20130528', '20130614', '20130619', '20131124', '20131215'};
+dts = io.getDates(false, true, {'Nelson'});
 
-dts = io.getDates();
-dts = dts(~ismember(dts, badDts));
+% badDts = {'20130528', '20130614', '20130619', '20131124', '20131215'};
+% dts = io.getDates();
+% dts = dts(~ismember(dts, badDts));
 
 % beh = load('data/asymptotes/byTargetAngle.mat');
 % dts = beh.dts;
@@ -26,7 +27,7 @@ bind = 2;
 %% fit by session
 
 ths = cell(numel(dts),1);
-for ii = 1:numel(dts)    
+for ii = 1:numel(dts)
     ths{ii} = behav.asymptotesByDt(dts{ii}, nms, '', opts, bind);
     [dts{ii} ': ' num2str(ths{ii})]
     plotnm = fullfile('plots', 'behavioralAsymptotes', [dts{ii} '.png']);
@@ -51,10 +52,17 @@ end
 
 fnm = 'data/asymptotes/bySession.mat';
 if exist(fnm, 'file')
-    error('File already exists.');
+    d = load(fnm);
+    if isequal(d.nms, nms) && isequal(d.opts, opts) && ...
+        isempty(intersect(d.dts, dts))
+        ths = [d.ths; ths];
+        dts = [d.dts dts'];
+    else
+        error('File already exists with the overlapping dates.');
+    end
 end
+save(fnm, 'ths', 'dts', 'nms', 'opts');
 % save(fnm, 'ths', 'thsByGrp', 'nms', 'dts', 'opts', 'grps');
-save(fnm, 'ths', 'nms', 'dts', 'opts');
 
 %% load saved asymptotes
 

@@ -51,7 +51,23 @@ function SHUFFLE_START = shuffleStarts()
         20131208 nan; % no session asymptote by eye
         20131214 nan; % no session asymptote by eye
         20131215 nan; % too few Block 2 trials
+        20160329 400; % manual correction based on plot
+        20160402 280;
+        20160404 nan; % not sure what's going on here...
+        20160405 360;
+        20160714 350; % manual correction based on plot
+        20160722 nan; % no session asymptote by eye
+        20160726 500;
+        20160727 320;
+        20160728 nan; % no session asymptote by eye
+        20160810 380;
+        20160812 nan; % not enough trials to fit asymptote
+        20160814 250;
     ];
     
+    % add missing dates and give them nan
+    dtnums = cellfun(@str2num, io.getDates(false, true));
+    dtsMissing = dtnums(~ismember(dtnums, SHUFFLE_START(:,1)));
+    SHUFFLE_START = [SHUFFLE_START; [dtsMissing nan(numel(dtsMissing),1)]];
     
 end
