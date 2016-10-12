@@ -1,7 +1,13 @@
-function [dts, ixJfy] = addMnkNmToDates(dts)
+function [dts, inds] = addMnkNmToDates(dts)
 
-    ixJfy = cellfun(@(c) numel(strfind(c, '2012')) > 0, dts);
-    dts(ixJfy) = cellfun(@(c) ['J' c], dts(ixJfy), 'uni', 0);
-    dts(~ixJfy) = cellfun(@(c) ['L' c], dts(~ixJfy), 'uni', 0);
+    mnks = io.getMonkeys();
+    inds = nan(numel(dts),1);
+    for ii = 1:numel(mnks)
+        dtsCur = io.getDates(false, true, mnks(ii));
+        prefix = mnks{ii}(1);
+        ixCur = ismember(dts, dtsCur);
+        dts(ixCur) = cellfun(@(dt) [prefix dt], dts(ixCur), 'uni', 0);
+        inds(ixCur) = ii;
+    end
 
 end

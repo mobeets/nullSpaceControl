@@ -1,11 +1,13 @@
-function dts = getDates(asympsOnly, showRaw)
+function dts = getDates(asympsOnly, showRaw, mnkNms)
     if nargin < 1
         asympsOnly = true; % include only those that have asymptotes
     end
     if nargin < 2
         showRaw = false;
     end
-%     dts = {'20120525', '20120601', '20131125', '20131205'};
+    if nargin < 3
+        mnkNms = io.getMonkeys();
+    end
 
     if asympsOnly
         ss = io.shuffleStarts;
@@ -16,15 +18,15 @@ function dts = getDates(asympsOnly, showRaw)
 
     DATADIR = getpref('factorSpace', 'data_directory');
     if showRaw
-        fnms = dir(fullfile(DATADIR, 'Jeffy'));
-        ix = [fnms.isdir] & ~strcmp({fnms.name}, '.') & ...
-            ~strcmp({fnms.name}, '..');
-        Jeffy = {fnms(ix).name};
-        fnms = dir(fullfile(DATADIR, 'Lincoln'));
-        ix = [fnms.isdir] & ~strcmp({fnms.name}, '.') & ...
-            ~strcmp({fnms.name}, '..');
-        Lincoln = {fnms(ix).name};
-        dts = [Jeffy Lincoln];
+        dts = [];
+        for ii = 1:numel(mnkNms)
+            fnms = dir(fullfile(DATADIR, mnkNms{ii}));
+            ix = [fnms.isdir] & ~strcmp({fnms.name}, '.') & ...
+                ~strcmp({fnms.name}, '..');
+            mnk = {fnms(ix).name};
+            dts = [dts mnk];
+        end
+        dts = dts';
     else
         fnms = dir(fullfile(DATADIR, 'preprocessed'));
         dts = strrep({fnms(~[fnms.isdir]).name}, '.mat', '');
