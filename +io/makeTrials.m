@@ -1,7 +1,7 @@
 function trials = makeTrials(D)
 
     % collect the fields we'll need, and compute a few more
-    d = D.simpleData;
+    d = D.simpleData;    
     ts = struct([]);
     ntrials = numel(d.spikeBins);
     tblkinds = io.getSuccessfulTrialsByBlock(D);
@@ -17,8 +17,8 @@ function trials = makeTrials(D)
         
         trial.pos = d.decodedPositions{tr};
         trial.vel = d.decodedVelocities{tr};
-        trial.spd = arrayfun(@(ii) norm(trial.vel(ii,:)), 1:ntimes)';
-        trial.target = repmat(d.targetLocations(tr, 1:2), ntimes, 1);        
+        trial.spd = arrayfun(@(ii) norm(trial.vel(ii,:)), 1:ntimes)';        
+        trial.target = repmat(d.targetLocations(tr, 1:2), ntimes, 1);
         trial.targetAngle = d.targetAngles(tr)*ones(ntimes,1);
         trial.trial_length = repmat(ntimes, ntimes, 1);
         trial.isCorrect = repmat(double(d.trialStatus(tr)), ntimes, 1);
