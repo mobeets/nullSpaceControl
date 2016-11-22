@@ -1,11 +1,16 @@
-function [xsb, ysb, nsb] = smoothAndBinVals(xsc, ysc, opts)
+function [xsb, ysb, nsb, Ysc] = smoothAndBinVals(xsc, ysc, opts)
     if nargin < 3
         opts = struct();
     end
     defopts = struct('binSz', 100, 'minPtsPerBin', 10, ...
-        'doMeanPerTrial', true, 'doSlidingBins', true);
+        'doMeanPerTrial', true, 'doSlidingBins', true, ...
+        'useVarAsReduce', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
-    reduceFcn = @(y) nanmean(y);
+    if opts.useVarAsReduce
+        reduceFcn = @(y) nanvar(y);
+    else
+        reduceFcn = @(y) nanmean(y);
+    end
     
     % define trial bins
     xsa = sort(unique(xsc));
@@ -22,12 +27,13 @@ function [xsb, ysb, nsb] = smoothAndBinVals(xsc, ysc, opts)
     % take mean of each value per trial
     if opts.doMeanPerTrial
         ysc = grpstats(ysc, xsc, @nanmean);
-        xsc = xsa;                
+        xsc = xsa;
     end
 
     % fcn of current Y per bin
     ysb = nan(numel(xsb), 1);
     nsb = nan(numel(xsb), 1);
+    Ysc = cell(numel(xsb), 1);
     for jj = 1:numel(xsb)-1
         if opts.doSlidingBins
             it = xsc >= xsb(jj) & xsc <= xsb(jj)+opts.binSz;
@@ -43,5 +49,6 @@ function [xsb, ysb, nsb] = smoothAndBinVals(xsc, ysc, opts)
         end
         ysb(jj) = reduceFcn(ysc(it,:));
         nsb(jj) = nNonNan;
+        Ysc{jj} = ysc(it,:);
     end
 end

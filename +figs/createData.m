@@ -6,6 +6,7 @@ function createData(dirNm, dts)
     SCov = SMu;
     SMuErr = SMu;
     SCovErr = SMu;
+    ntimes = nan(numel(dts),2);
     ntrials = nan(numel(dts),2);
     for ii = 1:numel(dts)
         dtstr = dts{ii}
@@ -19,6 +20,7 @@ function createData(dirNm, dts)
         cverrs = [0 cverrs]; % for observed
         SMuErr{ii} = muerrs/sqrt(ngrps);
         SCovErr{ii} = cverrs/sqrt(ngrps);
+        ntimes(ii,:) = [numel(D.blocks(1).time) numel(D.blocks(2).time)];
         ntrials(ii,:) = [numel(unique(D.blocks(1).trial_index)) ...
             numel(unique(D.blocks(2).trial_index))];
     end
@@ -29,6 +31,7 @@ function createData(dirNm, dts)
     nms = {D.score.name};
 
     fnm = fullfile('data', 'fits', [dirNm '.mat']);
-    save(fnm, 'SMu', 'SCov', 'SMuErr', 'SCovErr', 'nms', 'ntrials');
+    save(fnm, 'SMu', 'SCov', 'SMuErr', 'SCovErr', 'nms', ...
+        'ntimes', 'ntrials', 'dts');
 
 end

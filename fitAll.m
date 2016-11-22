@@ -1,5 +1,6 @@
 
 dts = io.getDates();
+% dts = io.getDates(true, false, {'Nelson'});
 
 % nms = {'baseline', 'minimum', 'unconstrained', ...
 %     'baseline-sample', 'minimum-sample', 'uncontrolled-uniform'};
@@ -8,19 +9,21 @@ dts = io.getDates();
 nms = {'habitual', 'cloud', 'cloud-200', 'unconstrained', ...
     'baseline-sample', 'minimum-sample', 'uncontrolled-uniform', ...
     'baseline', 'minimum'};
-nms = {'habitual', 'cloud', 'unconstrained'};
+
+% nms = {'habitual', 'cloud', 'unconstrained'};
 
 hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps', ...
     'obeyBounds', true, 'boundsType', 'spikes');
 
-hypopts.fitInLatent = true;
+hypopts.fitInLatent = false;
 hypopts.addSpikeNoise = true;
 
 % fitNm = 'splitIntuitive';
 % fitNm = 'allSampling';
-% fitNm = 'allHypsAgain';
 % fitNm = 'allHypsNoIme';
-fitNm = 'allHypsEightKins';
+% fitNm = 'allHypsEightKins';
+% fitNm = 'allHypsAgain';
+fitNm = 'allAutoFit_v2';
 
 %%
 
@@ -42,9 +45,11 @@ if ~exist(baseDir, 'dir')
     mkdir(baseDir);
 end
 
+%%
+
 isConfirmed = false;
 skipIfExists = false;
-for ii = 1:numel(dts)
+for ii = 10:numel(dts) % 27 and 28 failed
     dtstr = dts{ii}
     fnm = fullfile(baseDir, [dtstr '.mat']);
     if ~isConfirmed && exist(fnm, 'file')

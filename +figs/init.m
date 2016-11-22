@@ -1,5 +1,6 @@
 
 dts = io.getDates();
+
 dts = sort(dts);
 [dtnms, ixMnk] = io.addMnkNmToDates(dts);
 
@@ -27,7 +28,7 @@ elseif strcmpi(fitNm, 'savedFull')
 elseif strcmpi(fitNm, 'allHyps') || strcmpi(fitNm, 'allHypsNoIme')    
     allHypClrs = [baseClr; cldClr; habClr; uncClr; basClr; minClr; ...
         basClr; minClr; uncClr];
-elseif strcmpi(fitNm, 'allHypsAgain')
+elseif strcmpi(fitNm, 'allHypsAgain') || strcmpi(fitNm, 'allAutoFit')
     allHypClrs = [baseClr; cldClr; cldClr; habClr; uncClr; basClr; ...
         minClr; basClr; minClr; uncClr];
 elseif strcmpi(fitNm, 'allHypsEightKins')
@@ -35,3 +36,10 @@ elseif strcmpi(fitNm, 'allHypsEightKins')
 end
 
 fopts = struct('doSave', false, 'plotdir', fullfile('+figs', 'output'));
+
+hypNmsShown = {'Habitual-corrected', 'Constant-cloud', ...
+    'Uncontrolled-empirical', 'Uncontrolled-uniform', 'Minimal firing', ...
+    'Baseline firing', 'Data'};
+hypNmsShown_cosyne = {'HC', 'CC', 'UE', 'UU', 'MF', 'BF', 'Data'}; 
+hypNmsInternal = {'habitual', 'cloud', 'unconstrained', ...
+    'uncontrolled-uniform', 'minimum', 'baseline', 'observed'};

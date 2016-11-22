@@ -4,7 +4,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
     end    
     defopts = struct('oneKinPerFig', true, 'oneColPerFig', false, ...
         'showSe', true, 'clrs', [], 'tightXs', true, 'ttl', '', ...
-        'smoothing', 0);
+        'smoothing', 0, 'LineWidth', 2);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
 
     % check defaults
@@ -95,7 +95,7 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
                 if ~isnan(opts.smoothing) && opts.smoothing > 0
                     ys = smooth(ys, opts.smoothing);
                 end
-                plot(xs, ys, '-', 'Color', clr, 'LineWidth', 2);
+                plot(xs, ys, '-', 'Color', clr, 'LineWidth', opts.LineWidth);
                 
                 ymn = min(min(ys), ymn); ymx = max(max(ys), ymx);
                 ylm = [ymn ymx];
@@ -134,13 +134,14 @@ function figs = marginalDists(Zs, Xs, grps, opts, nms)
             set(gca, 'XTick', []);
             set(gca, 'YTick', []);
             if d == 1 || opts.oneKinPerFig
-                title(['output-null ' num2str(ii) '']);
+                title(['dim ' num2str(ii) ''], 'FontWeight','Normal');
             elseif ~opts.oneColPerFig
 %                 title(['Y^n(' num2str(ii) ')']);
                 title('');
             end
             if (ii == 1 || opts.oneColPerFig) && ~opts.oneKinPerFig
-                ylabel(['\theta = ' num2str(grps(jj))]);
+                ylabel(['(\theta = ' num2str(grps(jj)) ')']);
+                ylabel('');
             end
             if ii == 1 && ~isempty(opts.ttl) && ~opts.oneKinPerFig
                 title(opts.ttl);

@@ -1,17 +1,30 @@
 
 baseDir = 'data/fits/allHypsAgain';
 dts = io.getDates();
+dts = dts(cellfun(@str2num, dts) < 20160101);
 
 nhyps = 10;
 ngrps = 16;
 grps = score.thetaCenters(ngrps);
+
 Cov1F = cell(numel(dts), ngrps, nhyps);
+Cov1R = cell(numel(dts), ngrps, nhyps);
 Cov1S = cell(numel(dts), ngrps, nhyps);
+
 Cov2F = cell(numel(dts), ngrps, nhyps);
+Cov2R = cell(numel(dts), ngrps, nhyps);
 Cov2S = cell(numel(dts), ngrps, nhyps);
+ns = nan(numel(dts), ngrps, 2);
+es = nan(numel(dts), nhyps, 2);
+
 Err2S = nan(numel(dts), ngrps, nhyps);
 Err12 = nan(numel(dts), ngrps);
 for jj = 1:numel(dts)
+    indir = fullfile(baseDir, [dts{jj} '.mat']);
+    if ~exist(indir)
+        warning(indir);
+        continue;
+    end
     X = load(fullfile(baseDir, [dts{jj} '.mat'])); D = X.D;
 
     B1 = D.blocks(1);
@@ -22,29 +35,33 @@ for jj = 1:numel(dts)
     decNm = 'fDecoder';
     RB1 = B1.(decNm).RowM2;
     RB2 = B2.(decNm).RowM2;
+    NB1 = B1.(decNm).NulM2;
     NB2 = B2.(decNm).NulM2;
     
-    SS0 = (NB2*NB2')*RB1;    
+    SS0 = (NB2*NB2')*RB1;
     [SSS,s,v] = svd(SS0, 'econ');
-%     SS0 = (RB1*RB1')*NB2;
-%     [SSS,s,v] = svd(SS0, 'econ');
-%     SSS = SSS(:,1:2);
-    
     gs1 = score.thetaGroup(tools.computeAngles(Y1*RB1), grps);
     gs2 = score.thetaGroup(tools.computeAngles(Y2*RB1), grps);
-%     gs1 = B1.thetaActualImeGrps16;
-%     gs2 = B2.thetaActualImeGrps16;
+    
+%     SS1 = (NB1*NB1')*RB2;
+%     [SSS,s,v] = svd(SS1, 'econ');
+%     gs1 = score.thetaGroup(tools.computeAngles(Y1*RB2), grps);
+%     gs2 = score.thetaGroup(tools.computeAngles(Y2*RB2), grps);
 
     for ii = 1:numel(grps)
         ix1 = gs1 == grps(ii);
         ix2 = gs2 == grps(ii);
-        Y1c = Y1(ix1,:);        
+        Y1c = Y1(ix1,:);
+        ns(jj,ii,:) = [sum(ix1) sum(ix2)];
         for kk = 1:numel(D.hyps)
+            es(jj,kk,:) = [D.score(kk).errOfMeans D.score(kk).covError];
             Y2c = D.hyps(kk).latents(ix2,:);
             Cov2S{jj,ii,kk} = nancov(Y2c*SSS);
             Cov2F{jj,ii,kk} = nancov(Y2c);
+            Cov2R{jj,ii,kk} = nancov(Y2c*RB2);
             Cov1S{jj,ii,kk} = nancov(Y1c*SSS);
             Cov1F{jj,ii,kk} = nancov(Y1c);
+            Cov1R{jj,ii,kk} = nancov(Y1c*RB2);
             Err2S(jj,ii,kk) = score.compareCovs(Y2c*SSS, Y2(ix2,:)*SSS);
         end
         Err12(jj,ii) = score.compareCovs(Y2(ix2,:)*SSS, Y1c*SSS);
@@ -52,12 +69,29 @@ for jj = 1:numel(dts)
     
 end
 
+covAreaFcn = @trace;
+for jj = 1:size(Cov2S,1)
+    for ii = 1:size(Cov2S,2)
+        for kk = 1:size(Cov2S,3)
+            Cov1Sa(jj,ii,kk) = covAreaFcn(Cov1S{jj,ii,kk});
+            Cov2Sa(jj,ii,kk) = covAreaFcn(Cov2S{jj,ii,kk});
+            Cov1Fa(jj,ii,kk) = covAreaFcn(Cov1F{jj,ii,kk});
+            Cov2Fa(jj,ii,kk) = covAreaFcn(Cov2F{jj,ii,kk});
+            Cov1Ra(jj,ii,kk) = covAreaFcn(Cov1R{jj,ii,kk});
+            Cov2Ra(jj,ii,kk) = covAreaFcn(Cov2R{jj,ii,kk});
+        end
+    end
+end
+
 %% plot cov ellipses
 
 kNmA = 'observed';
-kNmB = 'uncontrolled-uniform';
+kNmB = 'cloud';
 CovA = Cov1S;
 CovB = Cov2S;
+
+CovAf = Cov1R;
+CovBf = Cov2R;
 
 hypnms = {D.hyps.name};
 kkA = find(strcmp(hypnms, kNmA));
@@ -67,30 +101,46 @@ clrB = allHypClrs(kkB,:);
 sigMult = 2;
 
 if isequal(kNmA, kNmB)
-    clrB = [0.6 0.6 0.6];
+    clrA = [0.6 0.6 0.6];
 elseif strcmpi(kNmA, 'observed') && isequal(CovA, Cov1S)
     clrA = [0.6 0.6 0.6];
 end
 
-errs = nan(size(Cov2S,1), size(Cov2S,2));
+errs = nan(size(Cov1S));
 covAreaFcn = @trace;
 errFcn = @(C0, Ch) covAreaFcn(Ch)/covAreaFcn(C0);
 
 plot.init;
-dstep = 10;
+dstep = 5;
 for jj = 1:size(Cov2S,1)
     for ii = 1:size(Cov2S,2)
-        C1 = CovA{jj,ii,kkA};
-        C2 = CovB{jj,ii,kkB};
-        [bpA, ~, ~] = tools.gauss2dcirc([], sigMult, C1);
-        [bpB, ~, ~] = tools.gauss2dcirc([], sigMult, C2);
-        errs(jj,ii) = errFcn(C1, C2);
-        bpA(1,:) = bpA(1,:) + (ii-1)*dstep;
-        bpB(1,:) = bpB(1,:) + (ii-1)*dstep;
-        bpA(2,:) = bpA(2,:) - (jj-1)*dstep;
-        bpB(2,:) = bpB(2,:) - (jj-1)*dstep;
-        plot(bpA(1,:), bpA(2,:), '-', 'Color', clrA);
-        plot(bpB(1,:), bpB(2,:), '-', 'Color', clrB);
+        for kk = 1:size(Cov2S,3)
+            C1 = CovA{jj,ii,kkA};
+            C2 = CovB{jj,ii,kk};
+            if isempty(C1) || isempty(C2)
+                continue;
+            end
+            errs(jj,ii,kk) = errFcn(C1, C2);
+
+%             C1f = CovAf{jj,ii,kkA};
+%             C2f = CovBf{jj,ii,kk};
+%             errs(jj,ii,kk) = errFcn(C1, C2)*errFcn(C2f, C1f);
+
+            if kk == kkA || kk == kkB
+                [bpA, ~, ~] = tools.gauss2dcirc([], sigMult, C1);
+                [bpB, ~, ~] = tools.gauss2dcirc([], sigMult, C2);
+                bpA(1,:) = bpA(1,:) + (ii-1)*dstep;
+                bpB(1,:) = bpB(1,:) + (ii-1)*dstep;
+                bpA(2,:) = bpA(2,:) - (jj-1)*dstep;
+                bpB(2,:) = bpB(2,:) - (jj-1)*dstep;
+            end            
+            if kk == kkA
+                plot(bpA(1,:), bpA(2,:), '-', 'Color', clrA);
+            end
+            if kk == kkB
+                plot(bpB(1,:), bpB(2,:), '-', 'Color', clrB);
+            end
+        end
     end
 end
 
@@ -98,17 +148,75 @@ box off; axis off;
 plot.subtitle([kNmA ' and ' kNmB]);
 set(gcf, 'Position', [0 0 700 600]);
 
+%% heatmap and barplot
+
+cErr = errs(:,:,kkB);
+
 plot.init;
 clrs = cbrewer('div', 'RdBu', 11);
 colormap(clrs);
-imagesc(flipud(log(errs)));
+imagesc(flipud(log(cErr)));
 caxis([-2 2]);
 axis off; box off;
 
 plot.init;
-bar(mean(log(errs),2), 'FaceColor', 'w');
+bar(mean(log(cErr),2), 'FaceColor', 'w');
 
-%% image heatmap of cov errors
+%% plot avg cov ellipse error
+
+doSave = false;
+saveDir = 'notes/sfn/imgs';
+
+curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', ...
+    'unconstrained', 'habitual', 'cloud'};
+[hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
+hypInds = [hypInds 1];
+hypClrs = [hypClrs; baseClr];
+
+nmsToShow = figs.getHypDisplayNames(hypnms(hypInds), ...
+    hypNmsInternal, hypNmsShown);
+
+cErr = log(errs);
+
+plot.init;
+c = 1;
+for kk = hypInds
+    cv = squeeze(cErr(:,:,kk));
+%     cv = nanmean(cv, 2);
+    cv = cv(:);
+    ps = prctile(cv, [25 50 75]);
+    bar(c, ps(2), 'EdgeColor', hypClrs(c,:), 'FaceColor', hypClrs(c,:));
+    plot([c c], [ps(1) ps(3)], 'k-');
+    c = c + 1;
+end
+set(gca, 'XTick', 1:numel(hypInds));
+set(gca, 'XTickLabel', nmsToShow);
+set(gca, 'XTickLabelRotation', 45);
+set(gca, 'TickDir', 'out');
+ylabel('\leftarrow Contraction  Expansion \rightarrow');
+xlim([0.5 numel(hypInds)+0.5]);
+ylim([-2.5 2.5]);
+
+if doSave
+    export_fig(gcf, fullfile(saveDir, 'SSS.pdf'));
+end
+
+%%
+
+kNm = 'cloud';
+kkC = find(strcmp(hypnms, kNm));
+As = Cov1Sa(:,:,kkC);
+Bs = Cov2Sa(:,:,kkC);
+Af = Cov1Fa(:,:,kkC);
+Bf = Cov2Fa(:,:,kkC);
+errS = Bs./As;
+errF = Bf./Af;
+errA = (Bs./Bf)./(As./Af);
+
+plot.init; plot(log(errF(:)), log(errS(:)), 'k.'); xlabel('full cov'); ylabel('sss cov');
+plot.init; plot(log(errF(:)), log(errA(:)), 'k.'); xlabel('full cov'); ylabel('sss-norm cov');
+
+%% image heatmap of covError
 
 plot.init;
 c = 1;
@@ -125,25 +233,6 @@ for kk = [2 4 5 6 7 10]
     set(gca, 'YTick', []);
     c = c + 1;
 end
-
-%% plot avg cov ellipse error
-
-plot.init;
-c = 1;
-hinds = [2 4 5 6 7 10];
-for kk = hinds
-    cv = squeeze(Err2S(:,:,kk));
-%     cv = nanmean(cv, 2);
-    cv = cv(:);
-    ps = prctile(cv, [25 50 75]);
-    bar(c, ps(2), 'FaceColor', 'w');
-    plot([c c], [ps(1) ps(3)], 'k-');
-    c = c + 1;
-end
-set(gca, 'XTick', 1:numel(hinds));
-set(gca, 'XTickLabel', {D.hyps(hinds).name});
-set(gca, 'XTickLabelRotation', 45);
-ylim([0 3]);
 
 %%
 

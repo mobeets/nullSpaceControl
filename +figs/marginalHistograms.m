@@ -1,42 +1,39 @@
-function marginalHistograms(D, hypInds, grpVals, hypClrs, opts)
+function fgs = marginalHistograms(D, hypInds, grpVals, hypClrs, dimInds, opts, popts)
     if nargin < 5
-        opts = struct('showAll', false, 'doSave', false);
+        dimInds = [];
+    end
+    if nargin < 6
+        opts = struct('showAll', false, 'doSave', false, ...
+            'ext', 'pdf', 'nameFcn', @(ii) ['margHist_' num2str(ii)]);
+    end
+    if nargin < 7
+        popts = struct();
     end
 
-    dimInds = [];
     if opts.showAll
         oneColPerFig = false;
         oneKinPerFig = false;
         tag = 'all';
-%         ymx = 0.9;
-        ymx = 0.6;
-        fntsz = 8;
-        wd = 2000; ht = 2000;
-        lw = 0.5;
-        
-        wd = 600; ht = 1000;
-        fntsz = 12;
-        grpVals = score.thetaCenters(8);
-        lw = 1;
-        dimInds = 1:3;
+        defopts = struct('FontName', 'Helvetica', 'FontSize', 12, ...
+            'width', 6, 'height', 10, 'margin', 0.25, 'LineWidth', 1, ...
+            'yMax', 0.6, 'dimInds', 1:3);
         
     elseif numel(grpVals) == 0
         oneColPerFig = true;
         oneKinPerFig = false;
         tag = 'byGrp';
-        ymx = 0.5;
-        fntsz = 12;
-        wd = 200; ht = 850; lw = 0.5;
-        ht = 850; wd = 850; lw = 1.0;
+        defopts = struct('FontName', 'Helvetica', 'FontSize', 12, ...
+            'width', 8.5, 'height', 8.5, 'margin', 0.25, ...
+            'LineWidth', 1, 'yMax', 0.5, 'dimInds', []);
     else
         oneColPerFig = false;
         oneKinPerFig = true;
         tag = 'byKin';
-        ymx = 0.7;
-        fntsz = 10;
-        ht = 150; wd = 1250;        
-        lw = 0.5;
+        defopts = struct('FontName', 'Helvetica', 'FontSize', 10, ...
+            'width', 12.5, 'height', 1.5, 'margin', 0.25, ...
+            'LineWidth', 0.5, 'yMax', 0.7, 'dimInds', []);
     end
+    popts = tools.setDefaultOptsWhenNecessary(popts, defopts);
 
     [~,~,fgs] = plot.fitAndPlotMarginals(D, struct('hypInds', hypInds, ...
         'tightXs', true, 'grpsToShow', grpVals, ...
@@ -44,29 +41,34 @@ function marginalHistograms(D, hypInds, grpVals, hypClrs, opts)
         'nbins', 20, 'clrs', hypClrs, 'ttl', '', ...
         'oneColPerFig', oneColPerFig, 'oneKinPerFig', oneKinPerFig, ...
         'sameLimsPerPanel', true, 'doFit', true, 'makeMax1', false, ...
-        'dimInds', dimInds));
+        'dimInds', dimInds, 'LineWidth', popts.LineWidth));
     
     for kk = 1:numel(fgs)
         txs = findobj(fgs(kk), 'Type', 'Axes');
         lms = cell2mat(arrayfun(@(ii) txs(ii).XLim, ...
             1:numel(txs), 'uni', 0)');
         for jj = 1:numel(txs)
-            txs(jj).FontSize = fntsz;
-            txs(jj).YLim = [0 ymx];
+            if jj == numel(txs) && numel(fgs) == 1 % don't show angle
+                txs(jj).XLabel.String = 'Activity level';
+                txs(jj).YLabel.String = ['Frequency ' txs(jj).YLabel.String];
+            end
+            txs(jj).FontSize = popts.FontSize;
+            txs(jj).FontName = popts.FontName;
+            txs(jj).YLim = [0 popts.yMax];
             txs(jj).XLim = [min(lms(:,1)) max(lms(:,2))];
             txs(jj).XTick = 0;
-            txs(jj).XTickLabel = '0';
-            txs(jj).LineWidth = lw;
+            txs(jj).XTickLabel = '';
+            txs(jj).TickDir = 'out';
+            txs(jj).TickLength = [0.05 0];
+%             txs(jj).LineWidth = popts.LineWidth;
         end        
         
-        set(fgs(kk), 'PaperUnits', 'inches');
-        set(fgs(kk), 'Position', [0 0 wd ht]);
-        set(fgs(kk), 'PaperPosition', [0 0 wd/100 ht/100]);
+        figs.setPrintSize(fgs(kk), popts.width, popts.height, popts.margin);
         
         if opts.doSave
-            nm = ['margHist_' tag '-' num2str(kk)];
-            fignm = fullfile(opts.plotdir, [nm '.png']);
-            saveas(fgs(kk), fignm, 'png');
+            fignm = fullfile(opts.plotdir, opts.nameFcn(kk));
+            export_fig(fgs(kk), fignm, ['-' opts.ext]);
+%             saveas(fgs(kk), fignm, opts.ext);
         end
     end
 

@@ -9,7 +9,7 @@
 % nms = {'habitual', 'cloud'};
 % nms = {'cloud-1s', 'cloud'};
 % nms = {'unc-1s', 'unconstrained'};
-nms = {'minimum'};%, 'baseline', 'uncontrolled-uniform'};
+nms = {'bestMean', 'cloud'};%, 'baseline', 'uncontrolled-uniform'};
 % nms = {'minimum'};
 % nms = {'minimum-sample'};
 % nms = {'cloud-200', 'cloud', 'habitual', 'unconstrained', 'minimum-sample', 'baseline-sample'};
@@ -29,8 +29,8 @@ nms = {'minimum'};%, 'baseline', 'uncontrolled-uniform'};
 %     'gauss', 'condnrm', 'condnrmkin', 'condnrmrow'};
 
 hypopts = struct('nBoots', 0, 'obeyBounds', true, ...
-    'boundsType', 'spikes', 'scoreGrpNm', 'thetaActualGrps16', ...
-    'fitInLatent', true, 'addSpikeNoise', false);
+    'boundsType', 'spikes', 'scoreGrpNm', 'thetaActualGrps', ...
+    'fitInLatent', false, 'addSpikeNoise', true);
 
 % loptsA = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 1:2));
 % loptsB = struct('postLoadFcn', @(D) io.keepThingsIrrelevant(D, false, 3:4));
@@ -47,13 +47,14 @@ hypopts = struct('nBoots', 0, 'obeyBounds', true, ...
 % lopts2 = struct('postLoadFcn', @(D) io.makeImeDefault(io.setTrainTestBlocks(D, 3, 2)));
 % lopts = struct('postLoadFcn', @(D) io.makeImeDefault(io.setTrainTestBlocks(D, 1, 3)));
 % lopts2 = struct('postLoadFcn', @(D) io.makeImeDefault(io.setTrainTestBlocks(D, 2, 3)));
-lopts = struct('postLoadFcn', @io.makeImeDefault);
 % lopts2 = struct('postLoadFcn', @(D) io.swapNulRow(io.makeImeDefault(D)));
 % lopts = struct('postLoadFcn', @(D) io.makeImeDefault(D, true));
-lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);
+
 % lopts = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, true));
 % lopts2 = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, false));
 
+% lopts = struct('postLoadFcn', @io.makeImeDefault);
+lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);
 
 popts = struct();
 % popts = struct('plotdir', '', 'doSave', true, 'doTimestampFolder', false);
@@ -63,11 +64,11 @@ pms = struct();
 % pms = struct('REMOVE_INCORRECTS', false, 'MIN_DISTANCE', nan, 'MAX_DISTANCE', nan);
 
 dts = io.getAllowedDates();
+% dts = io.getDates();
 % dts2 = {'20120327', '20120331', '20131211', '20131212'};
 % dts = {'20120303', '20120319', '20131218'};
 % dts = [dts dts2];
 % dts = sort(dts);
-% dts = io.getDates();
 % Ss = cell(numel(dts),1);
 
 % figure(1); hold on;
@@ -77,7 +78,7 @@ dts = io.getAllowedDates();
 
 S = cell(numel(dts),2);
 S2 = nan(numel(dts),2);
-for ii = 5%[5:-1:1] %1:numel(dts)
+for ii = 1:numel(dts)
     dtstr = dts{ii}
 %     popts.plotdir = ['plots/moreDts/' dtstr];
     

@@ -4,7 +4,7 @@ function [Z,U] = minEnergyFit(D, opts)
     end
     defopts = struct('decoderNm', 'nDecoder', 'minType', 'baseline', ...
         'nanIfOutOfBounds', false, 'fitInLatent', false, ...
-        'obeyBounds', true, 'boundsType', 'marginal', ...
+        'obeyBounds', true, 'boundsType', 'spikes', ...
         'addSpikeNoise', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if ~opts.fitInLatent && strcmp(opts.decoderNm(1), 'f')
@@ -13,6 +13,15 @@ function [Z,U] = minEnergyFit(D, opts)
     elseif opts.fitInLatent && strcmp(opts.decoderNm(1), 'n')
         warning('minEnergyFit must use factor decoder, not spikes.');
         opts.decoderNm(1) = 'f';
+    end
+    
+    if ~opts.fitInLatent
+        % using factor decoder but still fitting in spikes
+        opts.decoderNm(1) = 'f';
+    end
+    if strcmpi(opts.minType, 'nullMean')
+        warning('Fitting in latent for nullMean in minEnergyFit.');
+        opts.fitInLatent = true;
     end
     
     % set upper and lower bounds
@@ -44,6 +53,12 @@ function [Z,U] = minEnergyFit(D, opts)
         mu = tools.convertRawSpikesToRawLatents(Dc, zers);
     elseif strcmpi(opts.minType, 'minimum') && ~opts.fitInLatent
         mu = [];
+    elseif strcmpi(opts.minType, 'nullMean')        
+        NB2 = D.blocks(2).fDecoder.NulM2;
+        YN1 = Y1*(NB2*NB2');
+        mu = mean(YN1);
+    else
+        assert(false, 'Invalid minType for minEnergyFit');
     end
     sigma = D.simpleData.nullDecoder.spikeCountStd;
     maxSps = 2*max(B1.spikes(:));
@@ -65,7 +80,7 @@ function [Z,U] = minEnergyFit(D, opts)
             disp(['minEnergyFit: ' num2str(t) ' of ' num2str(nt)]);
         end
         [U(t,:), isRelaxed] = pred.quadFireFit(B2, t, -mu, ...
-            B2.(opts.decoderNm), opts.fitInLatent, lb, ub);
+            B2.(opts.decoderNm), opts.fitInLatent, lb, ub, Dc);
         nrs = nrs + isRelaxed;
         
         if ~opts.fitInLatent && opts.addSpikeNoise
@@ -100,9 +115,9 @@ function [Z,U] = minEnergyFit(D, opts)
 %         Z = Z/Dc.FactorAnalysisParams.spikeRot;
     end
     
-    NBz = D.blocks(2).fDecoder.NulM2;
-    RBz = D.blocks(2).fDecoder.RowM2;
-    Z = Z*(NBz*NBz') + D.blocks(2).latents*(RBz*RBz');
+    NB2 = D.blocks(2).fDecoder.NulM2;
+    RB2 = D.blocks(2).fDecoder.RowM2;
+    Z = Z*(NB2*NB2') + D.blocks(2).latents*(RB2*RB2');
     
     if nrs > 0
         warning(['minEnergyFit relaxed non-negativity constraints ' ...

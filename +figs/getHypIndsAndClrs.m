@@ -1,6 +1,6 @@
-function [hypInds, hypClrs] = getHypIndsAndClrs(nms, allNms, allHypClrs)
-    hypInds = cellfun(@(nm) find(strcmp(allNms, nm)), nms);
+function [hypinds, hypClrs] = getHypIndsAndClrs(nms, allNms, allHypClrs)
+    hypinds = cellfun(@(nm) find(strcmp(allNms, nm)), nms);
     if nargin > 2
-        hypClrs = allHypClrs(hypInds,:);
+        hypClrs = allHypClrs(hypinds,:);
     end
 end

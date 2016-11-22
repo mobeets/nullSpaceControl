@@ -10,9 +10,15 @@ function dts = getDates(asympsOnly, showRaw, mnkNms)
     end
 
     if asympsOnly
+        assert(~showRaw, 'Cannot set showRaw=true if asympsOnly=true');
         ss = io.shuffleStarts;
         dtnums = sort(ss(~isnan(ss(:,2)),1));
         dts = arrayfun(@num2str, dtnums, 'uni', 0);
+        if numel(mnkNms) ~= numel(io.getMonkeys)
+            % only get dates from these monkeys
+            dtsM = io.getDates(false, true, mnkNms);
+            dts = dts(ismember(dts, dtsM));
+        end
         return;
     end
 

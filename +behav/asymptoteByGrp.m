@@ -12,6 +12,7 @@ function ths = asymptoteByGrp(xs, ys, gs, opts)
     if nargin < 4
         opts = struct();
     end
+    
     grps = sort(unique(gs));
     ths = nan(numel(grps),1);
     for ii = 1:numel(grps)

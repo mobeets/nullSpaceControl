@@ -1,4 +1,5 @@
-function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
+function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, ...
+    lb, ub, Dc)
 % 
 % Each u(t) in U is solution (using quadprog) to:
 %   min_u norm(u + f)^2
@@ -23,8 +24,12 @@ function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
     Ac = decoder.M1;
     Bc = decoder.M2;
     cc = decoder.M0;
-        
-    nd = size(Bc, 2);
+
+    if numel(lb) > 0
+        nd = numel(lb);
+    else
+        nd = size(Bc, 2);
+    end
     H = eye(nd);
     A = -eye(nd); % A,b enforce non-negativity of spike solution
     b = zeros(nd,1);
@@ -43,8 +48,8 @@ function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, lb, ub)
         % update Aeq,beq so that our spike solutions, after 
         % converting to inferred latents, satisfy the kinematics 
         % constraints under the mapping in latents
-        [~, beta] = tools.convertRawSpikesToRawLatents(decoder, zeros(1,nd));
-        mu = decoder.spikeCountMean;
+        [~, beta] = tools.convertRawSpikesToRawLatents(Dc, zeros(1,nd));
+        mu = Dc.spikeCountMean;
         Aeq = Aeq*beta;
         beq = beq + Aeq*mu';
     end

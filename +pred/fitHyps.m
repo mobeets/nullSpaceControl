@@ -103,6 +103,14 @@ function D = fitHyps(D, nms, opts)
         custopts = io.updateParams(opts, custopts, true);
         D.hyps = pred.addPrediction(D, 'minimum', pred.minEnergyFit(D, custopts));
     end 
+    if ismember('nullMean', nms)
+        custopts = struct('minType', 'nullMean');
+        custopts = io.updateParams(opts, custopts, true);
+        D.hyps = pred.addPrediction(D, 'nullMean', pred.minEnergyFit(D, custopts));
+    end
+    if ismember('bestMean', nms)
+        D.hyps = pred.addPrediction(D, 'bestMean', pred.bestMeanFit(D, opts));
+    end
     if ismember('baseline-sample', nms)
         D.hyps = pred.addPrediction(D, 'baseline-sample', pred.minEnergySampleFit(D, opts));
     end
