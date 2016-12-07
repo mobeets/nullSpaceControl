@@ -8,7 +8,7 @@ dts = io.getDates();
 %     'baseline', 'minimum', 'uncontrolled-uniform'};
 nms = {'habitual', 'cloud', 'cloud-200', 'unconstrained', ...
     'baseline-sample', 'minimum-sample', 'uncontrolled-uniform', ...
-    'baseline', 'minimum'};
+    'baseline', 'minimum', 'bestMean'};
 
 % nms = {'habitual', 'cloud', 'unconstrained'};
 

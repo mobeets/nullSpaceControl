@@ -5,6 +5,9 @@ function bar_oneDt(S, nms, clrs, ylbl, bs, ymx, pts)
     if nargin < 6
         ymx = nan;
     end
+    if nargin < 7
+        pts = [];
+    end
 
     for ii = 1:numel(nms)        
         bar(ii, S(ii), 'FaceColor', clrs(ii,:), 'EdgeColor', clrs(ii,:));

@@ -12,7 +12,7 @@ function objs = scoreNullActivity(D, opts)
     zNull = actual.zNullBin;
     zMu = actual.zMu;
     zCov = actual.zCov;
-    zHist = H.marginalHist.Zs;
+    zHist = H.marginalHist_raw.Zs; % uses raw histograms (i.e., no PCA)
     if isfield(H, 'jointKde')
         zKde = H.jointKde.ps;
     end
@@ -31,7 +31,7 @@ function objs = scoreNullActivity(D, opts)
         zNull0 = hyp.zNullBin;
         zMu0 = hyp.zMu;
         zCov0 = hyp.zCov;
-        zHist0 = D.hyps(ii).marginalHist.Zs;        
+        zHist0 = D.hyps(ii).marginalHist_raw.Zs;
         if isfield(D.hyps(ii), 'jointKde')
             zKde0 = D.hyps(ii).jointKde.ps;
         end
@@ -62,9 +62,10 @@ function objs = scoreNullActivity(D, opts)
         
         histErr = score.histError(zHist, zHist0);
         obj.histErrByKinByCol = histErr;
-        obj.histErrByKin = sum(histErr,2);
-        obj.histErrByCol = sum(histErr,1)';
-        obj.histErr = sum(histErr(:));
+        obj.histErrByKin = nanmean(histErr,2);
+        obj.histErrByCol = nanmean(histErr,1)';
+        obj.histErr = nanmean(histErr(:));
+        obj.histErr_se = std(histErr(:))/sqrt(sum(~isnan(histErr(:))));
         
         if exist('zKde', 'var')
             kdeErr = score.jKdeError(zKde, zKde0);
@@ -75,7 +76,7 @@ function objs = scoreNullActivity(D, opts)
         reportOutOfBounds(D.hyps(ii).latents, H.latents, D.hyps(ii).name);
         objs = fillEmptyFields(objs, obj);
         objs = [objs obj];
-    end    
+    end
 end
 
 function X = fillEmptyFields(X, x)

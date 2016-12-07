@@ -1,7 +1,7 @@
 
 baseDir = 'data/fits/allHypsAgain';
 dts = io.getDates();
-dts = dts(cellfun(@str2num, dts) < 20160101);
+% dts = dts(cellfun(@str2num, dts) < 20160101);
 
 nhyps = 10;
 ngrps = 16;
@@ -38,10 +38,13 @@ for jj = 1:numel(dts)
     NB1 = B1.(decNm).NulM2;
     NB2 = B2.(decNm).NulM2;
     
-    SS0 = (NB2*NB2')*RB1;
+    NB = NB2; RB = RB1; % when activity became irrelevant
+%     NB = NB1; RB = RB2; % when activity became relevant
+    
+    SS0 = (NB*NB')*RB;
     [SSS,s,v] = svd(SS0, 'econ');
-    gs1 = score.thetaGroup(tools.computeAngles(Y1*RB1), grps);
-    gs2 = score.thetaGroup(tools.computeAngles(Y2*RB1), grps);
+    gs1 = score.thetaGroup(tools.computeAngles(Y1*RB), grps);
+    gs2 = score.thetaGroup(tools.computeAngles(Y2*RB), grps);
     
 %     SS1 = (NB1*NB1')*RB2;
 %     [SSS,s,v] = svd(SS1, 'econ');
@@ -58,10 +61,10 @@ for jj = 1:numel(dts)
             Y2c = D.hyps(kk).latents(ix2,:);
             Cov2S{jj,ii,kk} = nancov(Y2c*SSS);
             Cov2F{jj,ii,kk} = nancov(Y2c);
-            Cov2R{jj,ii,kk} = nancov(Y2c*RB2);
+            Cov2R{jj,ii,kk} = nancov(Y2c*RB);
             Cov1S{jj,ii,kk} = nancov(Y1c*SSS);
             Cov1F{jj,ii,kk} = nancov(Y1c);
-            Cov1R{jj,ii,kk} = nancov(Y1c*RB2);
+            Cov1R{jj,ii,kk} = nancov(Y1c*RB);
             Err2S(jj,ii,kk) = score.compareCovs(Y2c*SSS, Y2(ix2,:)*SSS);
         end
         Err12(jj,ii) = score.compareCovs(Y2(ix2,:)*SSS, Y1c*SSS);
@@ -90,8 +93,8 @@ kNmB = 'cloud';
 CovA = Cov1S;
 CovB = Cov2S;
 
-CovAf = Cov1R;
-CovBf = Cov2R;
+% CovAf = Cov1R;
+% CovBf = Cov2R;
 
 hypnms = {D.hyps.name};
 kkA = find(strcmp(hypnms, kNmA));
@@ -166,6 +169,8 @@ bar(mean(log(cErr),2), 'FaceColor', 'w');
 
 doSave = false;
 saveDir = 'notes/sfn/imgs';
+mnkNm = 'Nelson';
+% mnkNm = '';
 
 curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', ...
     'unconstrained', 'habitual', 'cloud'};
@@ -177,6 +182,12 @@ nmsToShow = figs.getHypDisplayNames(hypnms(hypInds), ...
     hypNmsInternal, hypNmsShown);
 
 cErr = log(errs);
+if ~isempty(mnkNm)
+    ix = io.getMonkeyDateInds(dts, mnkNm);
+else
+    ix = true(size(cErr,1),1);
+end
+cErr = cErr(ix,:,:);
 
 plot.init;
 c = 1;
@@ -184,9 +195,16 @@ for kk = hypInds
     cv = squeeze(cErr(:,:,kk));
 %     cv = nanmean(cv, 2);
     cv = cv(:);
-    ps = prctile(cv, [25 50 75]);
-    bar(c, ps(2), 'EdgeColor', hypClrs(c,:), 'FaceColor', hypClrs(c,:));
-    plot([c c], [ps(1) ps(3)], 'k-');
+    cv = cv(~isinf(cv) & ~isnan(cv));
+%     ps = prctile(cv, [25 50 75]);
+%     mu = ps(2); es = [ps(1) ps(3)];
+    
+    mu = mean(cv);
+    vs = 2*std(cv)/sqrt(numel(cv));
+    es = [mu-vs mu+vs];
+    
+    bar(c, mu, 'EdgeColor', hypClrs(c,:), 'FaceColor', hypClrs(c,:));
+    plot([c c], es, 'k-');
     c = c + 1;
 end
 set(gca, 'XTick', 1:numel(hypInds));
@@ -197,6 +215,9 @@ ylabel('\leftarrow Contraction  Expansion \rightarrow');
 xlim([0.5 numel(hypInds)+0.5]);
 ylim([-2.5 2.5]);
 
+if ~isempty(mnkNm)
+    title(mnkNm);
+end
 if doSave
     export_fig(gcf, fullfile(saveDir, 'SSS.pdf'));
 end

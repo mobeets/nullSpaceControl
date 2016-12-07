@@ -2,6 +2,7 @@
 dts = io.getDates(false);
 % dts = setdiff(io.getDates(false), io.getDates);
 % dts = io.getDates(false, true, {'Jeffy'});
+dts = {'20120528'};
 
 %%
 
@@ -60,7 +61,14 @@ Vs = cell(numel(dts),1);
 Trs = nan(numel(dts),4);
 isGoods = nan(numel(dts),1);
 
-isDebug = false;
+isDebug = true;
+doSave = false;
+
+% extra bin sizes to display
+binSzs = [20 100 200];
+binSzsV = [50 150];
+binSzs = [];
+binSzsV = [];
 
 for ii = 1:numel(dts)
     dtstr = dts{ii};
@@ -95,7 +103,7 @@ for ii = 1:numel(dts)
     [str2num(dtstr) min(xsb(ixs{1})) max(xsb(ixs{1}))]
 
     plot.init;
-    subplot(2,1,1); hold on;
+    subplot(2,1,1); hold on; set(gca, 'FontSize', 14);
     plot(xsb, ysb, 'k-');
     plot([min(xsb) max(xsb)], [opts.muThresh opts.muThresh], 'k--');
     plot(xsb(ixs{1}), ysb(ixs{1}), 'r-');
@@ -104,7 +112,6 @@ for ii = 1:numel(dts)
     title(dtstr);
     ylim([0 1.5]);
     
-    binSzs = [20 100 200];
     for jj = 1:numel(binSzs)
         opts2 = opts;
         opts2.meanBinSz = binSzs(jj);
@@ -113,14 +120,13 @@ for ii = 1:numel(dts)
     end
 
     [isGood, ixs, xsb, ysb, ysv] = behav2.plotThreshTrials(xs, ys, opts);
-    subplot(2,1,2); hold on;
+    subplot(2,1,2); hold on; set(gca, 'FontSize', 14);
     plot(xsb, ysv, 'k-');
     plot([min(xsb) max(xsb)], [opts.varThresh opts.varThresh], 'k--');
     xlabel('trial #');
     ylabel(['var(' opts.behavNm ')']);
     ylim([0 1.5]);
 
-    binSzsV = [50 150];
     for jj = 1:numel(binSzsV)
         opts2 = opts;
         opts2.varBinSz = binSzsV(jj);
@@ -139,7 +145,7 @@ for ii = 1:numel(dts)
     if isDebug
         saveas(gcf, 'plots/tmp.png');
         break;
-    else
+    elseif doSave
         saveas(gcf, fullfile(chcFldr, [dts{ii} '.png']));
     end
 end

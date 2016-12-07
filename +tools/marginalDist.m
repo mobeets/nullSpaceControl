@@ -33,6 +33,9 @@ function [Zs, Xs, grps] = marginalDist(Y, gs, opts, Xs0)
                     xs = linspace(mns(ii), mxs(ii), opts.nbins);
                 end
             end
+            if sum(size(Xs{jj}(:,ii))) ~= sum(size(xs))
+                t=1;
+            end
             Xs{jj}(:,ii) = xs;
             Zs{jj}(:,ii) = singleMarginal(Y(grps(jj) == gs,ii), xs, opts);
             if opts.makeMax1
