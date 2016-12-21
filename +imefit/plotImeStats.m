@@ -17,7 +17,7 @@ function fig = plotImeStats(D, bind, mdlErrs, cErrs, by_trial)
     axis square;
     
     % bar plot of average angular errors
-    scale = 1.96/sqrt(numel(by_trial.cErrs));
+    scale = 2/sqrt(numel(by_trial.cErrs));
     cErrAvg = nanmean(cellfun(@(e) nanmean(abs(e)), by_trial.cErrs));
     mErrAvg = nanmean(cellfun(@(e) nanmean(abs(e)), by_trial.mdlErrs));
     cErrStd = scale*nanstd(cellfun(@(e) nanmean(abs(e)), by_trial.cErrs));

@@ -2,11 +2,11 @@
 dts = io.getDates(false);
 % dts = setdiff(io.getDates(false), io.getDates);
 % dts = io.getDates(false, true, {'Jeffy'});
-dts = {'20120528'};
+% dts = {'20120528'};
 
-%%
+%% set up directories for saving
 
-baseDir = fullfile('plots', 'behavVarProg');
+baseDir = fullfile('plots', 'behavAsymps');
 goodDir = fullfile(baseDir, 'good');
 badDir = fullfile(baseDir, 'bad');
 if exist(goodDir, 'dir')
@@ -18,8 +18,16 @@ if exist(badDir, 'dir')
 end
 mkdir(badDir);
 
+isDebug = false;
+doSave = false;
+
 %%
 
+% plot opts
+popts = struct();
+popts.width = 4; popts.height = 6; popts.margin = 0.125;
+
+% fit opts
 opts = struct();
 opts.muThresh = 0.5;
 opts.varThresh = 0.5;
@@ -29,7 +37,13 @@ opts.minGroupSize = 150; % want at least 150 consecutive trials
 opts.meanBinSz = 150; % smoothing for mean
 opts.varMeanBinSz = 100; % smoothing for mean before var
 opts.varBinSz = 100; % bin size for running var
-opts.behavNm = 'progress';
+% opts.behavNm = 'progress';
+opts.behavNm = 'trial_length';
+
+behNm = opts.behavNm;
+if strcmp(opts.behavNm, 'trial_length')
+    behNm = 'normalized Acquisition time';
+end
 
 % dts = {'20131205', '20120525', '20160810'};
 % dts = {'20131125', '20131204', '20131205', '20131211', '20131212', '20131218'};
@@ -60,9 +74,6 @@ Ys = cell(numel(dts),1);
 Vs = cell(numel(dts),1);
 Trs = nan(numel(dts),4);
 isGoods = nan(numel(dts),1);
-
-isDebug = true;
-doSave = false;
 
 % extra bin sizes to display
 binSzs = [20 100 200];
@@ -108,9 +119,9 @@ for ii = 1:numel(dts)
     plot([min(xsb) max(xsb)], [opts.muThresh opts.muThresh], 'k--');
     plot(xsb(ixs{1}), ysb(ixs{1}), 'r-');
     xlabel('trial #');
-    ylabel(opts.behavNm);
-    title(dtstr);
-    ylim([0 1.5]);
+    ylabel(['Mean of ' behNm]);
+%     title(dtstr);
+    ylim([0 1.01]);
     
     for jj = 1:numel(binSzs)
         opts2 = opts;
@@ -124,8 +135,8 @@ for ii = 1:numel(dts)
     plot(xsb, ysv, 'k-');
     plot([min(xsb) max(xsb)], [opts.varThresh opts.varThresh], 'k--');
     xlabel('trial #');
-    ylabel(['var(' opts.behavNm ')']);
-    ylim([0 1.5]);
+    ylabel(['Var of ' behNm]);
+    ylim([0 1.01]);
 
     for jj = 1:numel(binSzsV)
         opts2 = opts;
@@ -141,12 +152,15 @@ for ii = 1:numel(dts)
         chcFldr = badDir;
         pos = [0 (ii-1)*20 600 600];
     end
-    set(gcf, 'Position', pos);
+%     set(gcf, 'Position', pos);
+    figs.setPrintSize(gcf, wd, ht, mrg);
     if isDebug
         saveas(gcf, 'plots/tmp.png');
+        export_fig(gcf, 'plots/tmp.pdf');
         break;
     elseif doSave
-        saveas(gcf, fullfile(chcFldr, [dts{ii} '.png']));
+%         saveas(gcf, fullfile(chcFldr, [dts{ii} '.png']));
+        export_fig(gcf, fullfile(chcFldr, [dts{ii} '.pdf']));
     end
 end
 

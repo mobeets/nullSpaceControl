@@ -92,6 +92,12 @@ kNmA = 'observed';
 kNmB = 'cloud';
 CovA = Cov1S;
 CovB = Cov2S;
+doSave = true;
+saveDir = fopts.plotdir;
+wd = 5; ht = 4.5;
+mrg = 0.125;
+
+dtsToInclude = ~io.getMonkeyDateInds(dts, 'Nelson');
 
 % CovAf = Cov1R;
 % CovBf = Cov2R;
@@ -115,12 +121,23 @@ errFcn = @(C0, Ch) covAreaFcn(Ch)/covAreaFcn(C0);
 
 plot.init;
 dstep = 5;
+jc = 0;
 for jj = 1:size(Cov2S,1)
+	if ~dtsToInclude(jj)
+        continue;
+    end
+    t = Cov2S(jj,:,:);
+    if all(cellfun(@isempty, t(:)))
+        continue;
+    else
+        jc = jc + 1;
+    end
     for ii = 1:size(Cov2S,2)
         for kk = 1:size(Cov2S,3)
             C1 = CovA{jj,ii,kkA};
             C2 = CovB{jj,ii,kk};
             if isempty(C1) || isempty(C2)
+                [ii jj]
                 continue;
             end
             errs(jj,ii,kk) = errFcn(C1, C2);
@@ -134,8 +151,8 @@ for jj = 1:size(Cov2S,1)
                 [bpB, ~, ~] = tools.gauss2dcirc([], sigMult, C2);
                 bpA(1,:) = bpA(1,:) + (ii-1)*dstep;
                 bpB(1,:) = bpB(1,:) + (ii-1)*dstep;
-                bpA(2,:) = bpA(2,:) - (jj-1)*dstep;
-                bpB(2,:) = bpB(2,:) - (jj-1)*dstep;
+                bpA(2,:) = bpA(2,:) - (jc-1)*dstep;
+                bpB(2,:) = bpB(2,:) - (jc-1)*dstep;
             end            
             if kk == kkA
                 plot(bpA(1,:), bpA(2,:), '-', 'Color', clrA);
@@ -148,29 +165,20 @@ for jj = 1:size(Cov2S,1)
 end
 
 box off; axis off;
-plot.subtitle([kNmA ' and ' kNmB]);
-set(gcf, 'Position', [0 0 700 600]);
-
-%% heatmap and barplot
-
-cErr = errs(:,:,kkB);
-
-plot.init;
-clrs = cbrewer('div', 'RdBu', 11);
-colormap(clrs);
-imagesc(flipud(log(cErr)));
-caxis([-2 2]);
-axis off; box off;
-
-plot.init;
-bar(mean(log(cErr),2), 'FaceColor', 'w');
+figs.setPrintSize(gcf, wd, ht, mrg);
+if doSave
+    export_fig(gcf, fullfile(saveDir, ['SSS_' kNmB '.pdf']));
+end
 
 %% plot avg cov ellipse error
 
-doSave = false;
-saveDir = 'notes/sfn/imgs';
-mnkNm = 'Nelson';
-% mnkNm = '';
+doSave = true;
+saveDir = fopts.plotdir;
+wd = 5; ht = 4.5;
+mrg = 0.125;
+
+mnksToIgnore = 'Nelson';
+ix = ~io.getMonkeyDateInds(dts, mnksToIgnore);
 
 curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', ...
     'unconstrained', 'habitual', 'cloud'};
@@ -182,18 +190,13 @@ nmsToShow = figs.getHypDisplayNames(hypnms(hypInds), ...
     hypNmsInternal, hypNmsShown);
 
 cErr = log(errs);
-if ~isempty(mnkNm)
-    ix = io.getMonkeyDateInds(dts, mnkNm);
-else
-    ix = true(size(cErr,1),1);
-end
 cErr = cErr(ix,:,:);
 
 plot.init;
 c = 1;
 for kk = hypInds
     cv = squeeze(cErr(:,:,kk));
-%     cv = nanmean(cv, 2);
+    cv = nanmean(cv, 2); % first take avg within session, across dirs
     cv = cv(:);
     cv = cv(~isinf(cv) & ~isnan(cv));
 %     ps = prctile(cv, [25 50 75]);
@@ -215,12 +218,24 @@ ylabel('\leftarrow Contraction  Expansion \rightarrow');
 xlim([0.5 numel(hypInds)+0.5]);
 ylim([-2.5 2.5]);
 
-if ~isempty(mnkNm)
-    title(mnkNm);
-end
+figs.setPrintSize(gcf, wd, ht, mrg);
 if doSave
     export_fig(gcf, fullfile(saveDir, 'SSS.pdf'));
 end
+
+%% heatmap and barplot
+
+cErr = errs(:,:,kkB);
+
+plot.init;
+clrs = cbrewer('div', 'RdBu', 11);
+colormap(clrs);
+imagesc(flipud(log(cErr)));
+caxis([-2 2]);
+axis off; box off;
+
+plot.init;
+bar(mean(log(cErr),2), 'FaceColor', 'w');
 
 %%
 

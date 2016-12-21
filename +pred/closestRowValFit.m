@@ -1,4 +1,4 @@
-function Z = closestRowValFit(D, opts)
+function [Z, inds] = closestRowValFit(D, opts)
 % aka cloud
 % 
     if nargin < 2

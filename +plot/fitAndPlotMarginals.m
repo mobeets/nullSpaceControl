@@ -5,7 +5,8 @@ function [D, opts, figs] = fitAndPlotMarginals(D, opts)
     defopts = struct('nbins', nan, 'doFit', false, 'hypInds', [], ...
         'grpsToShow', [], 'ttl', D.datestr, 'showSe', false, ...
         'grpNm', 'thetaActualGrps', 'makeMax1', false, ...
-        'oneColPerFig', false, 'oneKinPerFig', false, 'dimInds', []);
+        'oneColPerFig', false, 'oneKinPerFig', false, 'dimInds', [], ...
+        'includeBlk1', false);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     if isempty(opts.hypInds)
         error('Must set opts.hypInds');
@@ -15,9 +16,18 @@ function [D, opts, figs] = fitAndPlotMarginals(D, opts)
     end
     
     gs = D.blocks(2).(opts.grpNm);
+    warning('DOING SOMETHING TEMPORARY');    
+    RB = D.blocks(2).fDecoder.RowM2;
+    YR = D.blocks(2).latents*RB;
+    angs = arrayfun(@(t) tools.computeAngle(YR(t,:), [1; 0]), ...
+        1:size(YR,1))'; angs = mod(angs, 360);
+    gs = score.thetaGroup(angs, score.thetaCenters(16));
+
     if isnan(opts.nbins)
-        Y = D.hyps(1).nullActivity.zNull;
-        opts.nbins = score.optimalBinCount(Y, gs, false);
+        YN = D.hyps(1).nullActivity.zNull;
+%         YN = D.hyps(1).latents*RB;
+%         YN = sqrt(sum(YN.^2,2));
+        opts.nbins = score.optimalBinCount(YN, gs, false);
     end
     
     % make and score marginal histograms
@@ -25,6 +35,8 @@ function [D, opts, figs] = fitAndPlotMarginals(D, opts)
         Xs = [];
         for ii = opts.hypInds % 1:numel(D.hyps)
             YN = D.hyps(ii).nullActivity.zNull;
+%             YN = D.hyps(ii).latents*RB;
+%             YN = sqrt(sum(YN.^2,2));
             if isempty(Xs)
                 [Zs, Xs, grps] = tools.marginalDist(YN, gs, opts);
             else
@@ -45,6 +57,24 @@ function [D, opts, figs] = fitAndPlotMarginals(D, opts)
     grps = hists(1).grps;
     Xs = hists(1).Xs;
     Zs = {hists.Zs};
+    hnms = {Hs.name};
+    
+    if opts.includeBlk1
+        Y1 = D.blocks(1).latents;
+        NB = D.blocks(2).fDecoder.NulM2;
+        [~,~,v] = svd(D.blocks(2).latents*NB); NB = NB*v;
+        YN = Y1*NB;
+%         YN = Y1*RB;
+%         YN = sqrt(sum(YN.^2,2));
+        RB = D.blocks(2).fDecoder.RowM2;
+        YR = Y1*RB;
+        angs = arrayfun(@(t) tools.computeAngle(YR(t,:), [1; 0]), ...
+            1:size(YR,1))';
+        angs = mod(angs, 360);
+        gs1 = score.thetaGroup(angs, score.thetaCenters(16));
+        Zs{end+1} = tools.marginalDist(YN, gs1, opts, Xs);
+        hnms{end+1} = 'Blk1';
+    end
     
     if ~isempty(opts.dimInds)
         fcn = @(x) x(:,opts.dimInds);
@@ -68,6 +98,6 @@ function [D, opts, figs] = fitAndPlotMarginals(D, opts)
     if ~isempty(opts.grpsToShow)
         grps(~ismember(grps, opts.grpsToShow)) = nan;
     end
-    figs = plot.marginalDists(Zs, Xs, grps, opts, {Hs.name});
+    figs = plot.marginalDists(Zs, Xs, grps, opts, hnms);
 
 end

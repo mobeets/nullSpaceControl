@@ -31,5 +31,5 @@ function fig = plotErrByBlock(b1, b2)
     
     plot([max(xs1)+1 max(xs1)+1], ylim, 'k--');
     xlabel('trial #');
-    ylabel('absolute angular error (degrees)');
+    ylabel('Absolute angular error (deg)');
 end

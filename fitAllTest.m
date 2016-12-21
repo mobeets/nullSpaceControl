@@ -53,8 +53,8 @@ hypopts = struct('nBoots', 0, 'obeyBounds', true, ...
 % lopts = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, true));
 % lopts2 = struct('postLoadFcn', @(D) io.splitIntuitiveBlock(D, 2, 0.5, false));
 
-% lopts = struct('postLoadFcn', @io.makeImeDefault);
-lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);
+lopts = struct('postLoadFcn', @io.makeImeDefault);
+% lopts = struct('postLoadFcn', @io.splitIntuitiveBlock);
 
 popts = struct();
 % popts = struct('plotdir', '', 'doSave', true, 'doTimestampFolder', false);

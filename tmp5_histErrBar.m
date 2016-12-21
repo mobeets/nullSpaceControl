@@ -32,7 +32,10 @@ mus = nanmean(errs,2);
 ses = nanstd(errs,[],2)./sqrt(nansum(~isnan(errs),2));
 bs = [mus - 2*ses mus + 2*ses]';
 plot.init;
-figs.bar_oneDt(mus, hypnms, allHypClrs, 'avg hist error', bs);
+figs.bar_oneDt(mus, hypnms, allHypClrs, 'Avg. histogram overlap (%)', bs);
+ylim([0 1]);
+set(gca, 'YTick', 0:0.2:1);
+set(gca, 'YTickLabel', 0:20:100);
 
 % figs.bar_allDts(errs', hypnms, dts, allHypClrs, 'avg hist error');
 

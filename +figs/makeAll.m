@@ -23,8 +23,9 @@ figs.init;
 hypnms = {D.score.name};
 fopts.doSave = false;
 fopts.showAll = true;
+fopts.includeBlk1 = true;
 popts = struct('FontName', 'Times', 'FontSize', 12, ...
-    'margin', 0, 'LineWidth', 1, 'yMax', 0.6);
+    'margin', 0, 'LineWidth', 1, 'yMax', 0.8);
 
 dimInds = 1:3; popts.width = 5;
 
@@ -39,15 +40,18 @@ popts.FontName = 'Helvetica';
 postfix = '';
 popts.LineWidth = 3;
 popts.FontSize = 16;
-grpVals = score.thetaCenters(4); popts.height = 10;
+grpVals = score.thetaCenters(8); popts.height = 10;
 
 nms = {'minimum', 'baseline', 'uncontrolled-uniform', 'unconstrained', ...
     'habitual', 'cloud'};
-% nms = {'unconstrained'};
+nms = {'cloud'};
 for ii = 1:numel(nms)
     curHyps = ['observed' nms(ii)];    
     [hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, ...
         allHypClrs);
+    if fopts.includeBlk1
+        hypClrs(end+1,:) = 0.5*(1-hypClrs(1,:));
+    end
     fopts.nameFcn = @(jj) ['margHist-' nms{ii} postfix];
     figs.marginalHistograms(D, hypInds, grpVals, hypClrs, dimInds, ...
         fopts, popts);
@@ -55,25 +59,52 @@ end
 
 %% marginal histogram error
 
-curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', ...
-    'unconstrained', 'habitual', 'cloud'};
-[hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
+doSave = false;
+saveDir = fopts.plotdir;
+wd = 5; ht = 5; mrg = 0.125;
 
-% errs = cellfun(@(y) nanmean(1-y(:)), HistErr);
-errs = HistErr(:,hypInds);
+% curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', 'minimum-sample'};
+curHyps = {'minimum', 'baseline', ...
+    'minimum-sample', 'baseline-sample', ...
+    'uncontrolled-uniform', ...
+    'unconstrained', 'habitual', 'cloud'};
+
+[hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
+nmsToShow = figs.getHypDisplayNames(hypnms(hypInds), ...
+    hypNmsInternal, hypNmsShown);
+
+% HistErr = cellfun(@(e) nanmean(e(:)), es);
+% errs = 1-HistErr(:,hypInds);
 mus = nanmean(errs,2);
 ses = 2*nanstd(errs,[],2)./sqrt(nansum(~isnan(errs),2));
 bs = [mus - ses mus + ses]';
 plot.init;
-figs.bar_oneDt(mus, hypnms(hypInds), hypClrs, 'avg hist error', bs);
+figs.bar_oneDt(mus, nmsToShow, hypClrs, 'Avg. histogram overlap (%)', bs);
+ylim([0 1]);
+set(gca, 'YTick', 0:0.2:1);
+set(gca, 'YTickLabel', 0:20:100);
+
+figs.setPrintSize(gcf, wd, ht, mrg);
+if doSave
+    export_fig(gcf, fullfile(saveDir, 'histErr_int.pdf'));
+end
 
 %% bar plot across sessions (rank or normalized)
 
-doSave = false;
+doSave = true;
 doAvg = true;
 doRank = false;
 showPts = false;
-% saveDir = fopts.plotdir;
+mnkNm = 'Lincoln';
+postfix = ['Mnk' mnkNm(1)];
+
+saveDir = fopts.plotdir;
+nmsShown = hypNmsShown;
+FontSize = 24;
+FontName = 'Helvetica';
+wd = 6; ht = 6; mrg = 0.125; % in inches
+curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', ...
+    'unconstrained', 'habitual', 'cloud'};
 
 % saveDir = 'notes/cosyne/imgs';
 % postfix = '_cosyne';
@@ -84,18 +115,18 @@ showPts = false;
 % curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', ...
 %     'unconstrained', 'cloud'};
 
+% saveDir = 'notes/sfn/imgs';
+% postfix = '-rnk_sfn';
+% nmsShown = hypNmsShown;
+% FontSize = 24;
+% FontName = 'Helvetica';
+% wd = 6; ht = 6; mrg = 0.125; % in inches
+% curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', ...
+%     'unconstrained', 'habitual', 'cloud'};
+
 close all;
 
 prcs = [25 50 75];
-mnkNm = 'Nelson';
-saveDir = 'notes/sfn/imgs';
-postfix = '-rnk_sfn';
-nmsShown = hypNmsShown;
-FontSize = 24;
-FontName = 'Helvetica';
-wd = 6; ht = 6; mrg = 0.125; % in inches
-curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', ...
-    'unconstrained', 'habitual', 'cloud'};
 
 [hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
 if doRank
@@ -119,9 +150,7 @@ if ~isempty(mnkNm)
 end
 
 mups = prctile(mus, prcs);
-
 cvps = prctile(cvs, prcs);
-
 mue = 2*std(mus)/sqrt(size(mus,1));
 cve = 2*std(cvs)/sqrt(size(cvs,1));
 
@@ -143,12 +172,12 @@ if doAvg
 %         bar(ii, sum(mus(:,ii)==1), 'FaceColor', hypClrs(ii,:), 'EdgeColor', hypClrs(ii,:));
 %     end
     figs.bar_oneDt(ms, nmsToShow, hypClrs, ...
-        ylbl, bs, ymx, mus);
+        'Avg. error in mean', bs, ymx, mus);
 %     set(gca, 'YTick', 5:5:size(mus,1)); set(gca, 'YTickLabel', 5:5:size(mus,1)); ylim([0 size(mus,1)]);
     figs.setPrintSize(gcf, wd, ht, mrg);
-    title([mnkNm ' error in mean']);
+    title(['Monkey ' mnkNm(1)]);
     if doSave
-        export_fig(gcf, fullfile(saveDir, ['bar_rankMean' postfix '.pdf']));
+        export_fig(gcf, fullfile(saveDir, ['errMean_' postfix '.pdf']));
     end
         
     cs = cvps(2,:); bs = cvps([1 3],:);
@@ -159,13 +188,14 @@ if doAvg
 %         bar(ii, sum(cvs(:,ii)==1), 'FaceColor', hypClrs(ii,:), 'EdgeColor', hypClrs(ii,:));
 %     end
     figs.bar_oneDt(cs, nmsToShow, hypClrs, ...
-        ylbl, bs, ymx, cvs);
-%     ylim([0 200]);
+        'Avg. error in covariance', bs, ymx, cvs);
+%     ylim([0 ceil(max(cs))]);
+    ylim([0 200]);
 %     set(gca, 'YTick', 5:5:size(mus,1)); set(gca, 'YTickLabel', 5:5:size(mus,1)); ylim([0 size(mus,1)]);
     figs.setPrintSize(gcf, wd, ht, mrg);
-    title([mnkNm ' error in covariance']);
+    title(['Monkey ' mnkNm(1)]);
     if doSave
-        export_fig(gcf, fullfile(saveDir, ['bar_rankCov' postfix '.pdf']));
+        export_fig(gcf, fullfile(saveDir, ['errCov_' postfix '.pdf']));
     end
 else
     figs.meanAndCovAllSessions(mus, cvs, ...
@@ -272,6 +302,11 @@ set(gca, 'YTick', 0:1:8);
 axis square;
 xlabel('error in mean (normalized)');
 ylabel('error in covariance (normalized)');
+
+%% plot learning by trial in both mappings
+
+figs.behavByTrialSmoothed;
+figs.imeByTrial;
 
 %% EXTRA STUFF BELOW
 
