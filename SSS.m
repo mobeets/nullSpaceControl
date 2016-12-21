@@ -94,8 +94,7 @@ CovA = Cov1S;
 CovB = Cov2S;
 doSave = true;
 saveDir = fopts.plotdir;
-wd = 5; ht = 4.5;
-mrg = 0.125;
+popts = struct('width', 6, 'height', 4.5, 'margin', 0.125);
 
 dtsToInclude = ~io.getMonkeyDateInds(dts, 'Nelson');
 
@@ -165,7 +164,7 @@ for jj = 1:size(Cov2S,1)
 end
 
 box off; axis off;
-figs.setPrintSize(gcf, wd, ht, mrg);
+figs.setPrintSize(gcf, popts);
 if doSave
     export_fig(gcf, fullfile(saveDir, ['SSS_' kNmB '.pdf']));
 end
@@ -174,8 +173,7 @@ end
 
 doSave = true;
 saveDir = fopts.plotdir;
-wd = 5; ht = 4.5;
-mrg = 0.125;
+popts = struct('width', 5, 'height', 4.5, 'margin', 0.125);
 
 mnksToIgnore = 'Nelson';
 ix = ~io.getMonkeyDateInds(dts, mnksToIgnore);
@@ -218,7 +216,7 @@ ylabel('\leftarrow Contraction  Expansion \rightarrow');
 xlim([0.5 numel(hypInds)+0.5]);
 ylim([-2.5 2.5]);
 
-figs.setPrintSize(gcf, wd, ht, mrg);
+figs.setPrintSize(gcf, popts);
 if doSave
     export_fig(gcf, fullfile(saveDir, 'SSS.pdf'));
 end

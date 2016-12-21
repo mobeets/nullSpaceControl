@@ -61,7 +61,7 @@ end
 
 doSave = false;
 saveDir = fopts.plotdir;
-wd = 5; ht = 5; mrg = 0.125;
+popts = struct('width', 5, 'height', 5, 'margin', 0.125);
 
 % curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', 'minimum-sample'};
 curHyps = {'minimum', 'baseline', ...
@@ -84,7 +84,7 @@ ylim([0 1]);
 set(gca, 'YTick', 0:0.2:1);
 set(gca, 'YTickLabel', 0:20:100);
 
-figs.setPrintSize(gcf, wd, ht, mrg);
+figs.setPrintSize(gcf, popts);
 if doSave
     export_fig(gcf, fullfile(saveDir, 'histErr_int.pdf'));
 end
@@ -102,7 +102,7 @@ saveDir = fopts.plotdir;
 nmsShown = hypNmsShown;
 FontSize = 24;
 FontName = 'Helvetica';
-wd = 6; ht = 6; mrg = 0.125; % in inches
+popts = struct('width', 6, 'height', 6, 'margin', 0.125);
 curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', ...
     'unconstrained', 'habitual', 'cloud'};
 
@@ -174,7 +174,7 @@ if doAvg
     figs.bar_oneDt(ms, nmsToShow, hypClrs, ...
         'Avg. error in mean', bs, ymx, mus);
 %     set(gca, 'YTick', 5:5:size(mus,1)); set(gca, 'YTickLabel', 5:5:size(mus,1)); ylim([0 size(mus,1)]);
-    figs.setPrintSize(gcf, wd, ht, mrg);
+    figs.setPrintSize(gcf, popts);
     title(['Monkey ' mnkNm(1)]);
     if doSave
         export_fig(gcf, fullfile(saveDir, ['errMean_' postfix '.pdf']));
@@ -192,7 +192,7 @@ if doAvg
 %     ylim([0 ceil(max(cs))]);
     ylim([0 200]);
 %     set(gca, 'YTick', 5:5:size(mus,1)); set(gca, 'YTickLabel', 5:5:size(mus,1)); ylim([0 size(mus,1)]);
-    figs.setPrintSize(gcf, wd, ht, mrg);
+    figs.setPrintSize(gcf, popts);
     title(['Monkey ' mnkNm(1)]);
     if doSave
         export_fig(gcf, fullfile(saveDir, ['errCov_' postfix '.pdf']));
