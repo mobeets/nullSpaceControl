@@ -7,7 +7,7 @@ for jj = 1:numel(dts)
         es{ii,jj} = nan(16,8);
     end
     
-    hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps', ...
+    hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16', ...
         'obeyBounds', true, 'boundsType', 'spikes');
     hypopts.fitInLatent = false;
     hypopts.addSpikeNoise = true;
@@ -25,9 +25,19 @@ end
 
 %%
 
-% ff = @(y) nanmean(y(:));
-% errs = cellfun(@(y) 1-ff(y(:,1:3)), es);
-errs = cellfun(@(y) nanmean(1-y(:)), es);
+for ii = 1:size(es,1)
+    for jj = 1:size(es,2)
+        if isempty(es{ii,jj})
+            es{ii,jj} = nan(8,8);
+        end
+    end
+end
+
+%%
+
+ff = @(y) nanmean(y(:));
+errs = cellfun(@(y) ff(y(:,1:2)), es);
+% errs = cellfun(@(y) nanmean(y(:)), es);
 mus = nanmean(errs,2);
 ses = nanstd(errs,[],2)./sqrt(nansum(~isnan(errs),2));
 bs = [mus - 2*ses mus + 2*ses]';
@@ -37,6 +47,7 @@ ylim([0 1]);
 set(gca, 'YTick', 0:0.2:1);
 set(gca, 'YTickLabel', 0:20:100);
 
+errsBase = errs;
 % figs.bar_allDts(errs', hypnms, dts, allHypClrs, 'avg hist error');
 
 %%

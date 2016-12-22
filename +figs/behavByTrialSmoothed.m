@@ -1,12 +1,19 @@
 
 doSave = true;
 saveDir = fopts.plotdir;
-wd = 5; ht = 5; mrg = 0.125;
+popts = struct('width', 4, 'height', 6, 'margin', 0.125);
 
-% dtstr = '20120528';
+%% trial_length
+
+dtstr = '20131205';
+
 % D = io.quickLoadByDate(dtstr, struct('START_SHUFFLE', nan));
+% ps = struct('START_SHUFFLE', nan, 'REMOVE_INCORRECTS', false);
+% D = io.quickLoadByDate(dtstr, ps);
+
+% behavNm = 'trial_length';
+behavNm = 'isCorrect';
 binSz = 50;
-behavNm = 'trial_length';
 clr = 'k';
 lw = 3;
 
@@ -36,12 +43,16 @@ for ii = 1:2
 end
 
 xlabel('Trial #');
-ylabel('Target acquisition time (sec)');
-% yl = ylim; ylim([0 max(yl)]);
-set(gca, 'TickDir', 'out');
+if strcmp(behavNm, 'trial_length')
+    ylabel('Target acquisition time (sec)');
+elseif strcmp(behavNm, 'isCorrect')
+    ylabel('Proportion correct');
+    yl = ylim;
+    ylim([yl(1) 1]);
+end
 set(gca, 'Ticklength', [0 0]);
 
-figs.setPrintSize(gcf, wd, ht, mrg);
+figs.setPrintSize(gcf, opts);
 if doSave
-    export_fig(gcf, fullfile(saveDir, 'lrnByTrial.pdf'));
+    export_fig(gcf, fullfile(saveDir, ['lrnByTrial_' behavNm '.pdf']));
 end

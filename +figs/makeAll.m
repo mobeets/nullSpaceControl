@@ -59,13 +59,13 @@ end
 
 %% marginal histogram error
 
-doSave = false;
+doSave = true;
 saveDir = fopts.plotdir;
 popts = struct('width', 5, 'height', 5, 'margin', 0.125);
+mnkNm = 'Jeffy';
 
 % curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', 'minimum-sample'};
-curHyps = {'minimum', 'baseline', ...
-    'minimum-sample', 'baseline-sample', ...
+curHyps = {'minimum', 'baseline', ...    
     'uncontrolled-uniform', ...
     'unconstrained', 'habitual', 'cloud'};
 
@@ -73,20 +73,28 @@ curHyps = {'minimum', 'baseline', ...
 nmsToShow = figs.getHypDisplayNames(hypnms(hypInds), ...
     hypNmsInternal, hypNmsShown);
 
+errs = errsBase(hypInds,:);
 % HistErr = cellfun(@(e) nanmean(e(:)), es);
 % errs = 1-HistErr(:,hypInds);
-mus = nanmean(errs,2);
-ses = 2*nanstd(errs,[],2)./sqrt(nansum(~isnan(errs),2));
+% errs = 1-errs;
+
+if ~isempty(mnkNm)
+    curDts = io.getDates(true, false, {mnkNm});
+    errsc = errs(:,ismember(dts, curDts));
+end
+
+mus = nanmean(errsc,2);
+ses = 2*nanstd(errsc,[],2)./sqrt(nansum(~isnan(errsc),2));
 bs = [mus - ses mus + ses]';
 plot.init;
-figs.bar_oneDt(mus, nmsToShow, hypClrs, 'Avg. histogram overlap (%)', bs);
+figs.bar_oneDt(mus, nmsToShow, hypClrs, 'Avg. histogram error (%)', bs);
 ylim([0 1]);
 set(gca, 'YTick', 0:0.2:1);
 set(gca, 'YTickLabel', 0:20:100);
 
 figs.setPrintSize(gcf, popts);
 if doSave
-    export_fig(gcf, fullfile(saveDir, 'histErr_int.pdf'));
+    export_fig(gcf, fullfile(saveDir, ['histErr_pert' mnkNm(1) '_3r.pdf']));
 end
 
 %% bar plot across sessions (rank or normalized)
@@ -175,7 +183,7 @@ if doAvg
         'Avg. error in mean', bs, ymx, mus);
 %     set(gca, 'YTick', 5:5:size(mus,1)); set(gca, 'YTickLabel', 5:5:size(mus,1)); ylim([0 size(mus,1)]);
     figs.setPrintSize(gcf, popts);
-    title(['Monkey ' mnkNm(1)]);
+%     title(['Monkey ' mnkNm(1)]);
     if doSave
         export_fig(gcf, fullfile(saveDir, ['errMean_' postfix '.pdf']));
     end
@@ -193,7 +201,7 @@ if doAvg
     ylim([0 200]);
 %     set(gca, 'YTick', 5:5:size(mus,1)); set(gca, 'YTickLabel', 5:5:size(mus,1)); ylim([0 size(mus,1)]);
     figs.setPrintSize(gcf, popts);
-    title(['Monkey ' mnkNm(1)]);
+%     title(['Monkey ' mnkNm(1)]);
     if doSave
         export_fig(gcf, fullfile(saveDir, ['errCov_' postfix '.pdf']));
     end

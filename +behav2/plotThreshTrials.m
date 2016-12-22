@@ -1,10 +1,9 @@
 function [isGood, ixs, xsb, ysb, ysv] = plotThreshTrials(xs, ys, opts)
-    if nargin < 3
-        opts = struct('muThresh', 0.5, 'varThresh', 0.5, ...
-            'meanBinSz', 50, 'varBinSz', 50, 'varMeanBinSz', 50, ...
-            'trialsInARow', 10, 'groupEvalFcn', @numel, ...
-            'minGroupSize', 100);
-    end
+    defopts = struct('muThresh', 0.5, 'varThresh', 0.5, ...
+        'meanBinSz', 50, 'varBinSz', 50, 'varMeanBinSz', 50, ...
+        'trialsInARow', 10, 'groupEvalFcn', @numel, ...
+        'minGroupSize', 100);
+    opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
 
     % get mean value per trial
     xsb = unique(xs);
@@ -59,13 +58,13 @@ function v = runningVar(x, m)
     assert(isequal(numel(v), numel(x)));
 end
 
-function p = tTestOfBestAgainstFirst(ysb, Ysc)
-    [~,ix] = min(ysb);
-    Y1 = Ysc{1};
-    Y2 = Ysc{ix};
-    % test Y1 > Y2
-    [~,p] = ttest2(Y1, Y2, 'Vartype', 'unequal', 'tail', 'right');
-end
+% function p = tTestOfBestAgainstFirst(ysb, Ysc)
+%     [~,ix] = min(ysb);
+%     Y1 = Ysc{1};
+%     Y2 = Ysc{ix};
+%     % test Y1 > Y2
+%     [~,p] = ttest2(Y1, Y2, 'Vartype', 'unequal', 'tail', 'right');
+% end
 
 function ixBest = findBestRun(xs, ys, ix, evalFcn, trialsInARow)
     % for groups of consecutive xs, find best set of corresponding ys

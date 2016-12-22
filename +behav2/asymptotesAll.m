@@ -2,30 +2,29 @@
 dts = io.getDates(false);
 % dts = setdiff(io.getDates(false), io.getDates);
 % dts = io.getDates(false, true, {'Jeffy'});
-% dts = {'20120528'};
-
-%% set up directories for saving
-
-baseDir = fullfile('plots', 'behavAsymps');
-goodDir = fullfile(baseDir, 'good');
-badDir = fullfile(baseDir, 'bad');
-if exist(goodDir, 'dir')
-    rmdir(goodDir, 's');
-end
-mkdir(goodDir);
-if exist(badDir, 'dir')
-    rmdir(badDir, 's');
-end
-mkdir(badDir);
+dts = {'20131205'};
 
 isDebug = false;
 doSave = false;
+popts = struct('width', 6, 'height', 3, 'margin', 0.125);
+
+%% set up directories for saving
+
+if doSave
+    baseDir = fullfile('plots', 'behavAsymps');
+    goodDir = fullfile(baseDir, 'good');
+    badDir = fullfile(baseDir, 'bad');
+    if exist(goodDir, 'dir')
+        rmdir(goodDir, 's');
+    end
+    mkdir(goodDir);
+    if exist(badDir, 'dir')
+        rmdir(badDir, 's');
+    end
+    mkdir(badDir);
+end
 
 %%
-
-% plot opts
-popts = struct();
-popts.width = 4; popts.height = 6; popts.margin = 0.125;
 
 % fit opts
 opts = struct();
@@ -37,12 +36,14 @@ opts.minGroupSize = 150; % want at least 150 consecutive trials
 opts.meanBinSz = 150; % smoothing for mean
 opts.varMeanBinSz = 100; % smoothing for mean before var
 opts.varBinSz = 100; % bin size for running var
-% opts.behavNm = 'progress';
-opts.behavNm = 'trial_length';
+opts.behavNm = 'trial_length'; % 'progress'
+% opts.behavNm = 'angErrorAbs';
+
+% NOTE: can we use angular error?
 
 behNm = opts.behavNm;
 if strcmp(opts.behavNm, 'trial_length')
-    behNm = 'normalized Acquisition time';
+    behNm = 'normalized acquisition time';
 end
 
 % dts = {'20131205', '20120525', '20160810'};
@@ -114,14 +115,14 @@ for ii = 1:numel(dts)
     [str2num(dtstr) min(xsb(ixs{1})) max(xsb(ixs{1}))]
 
     plot.init;
-    subplot(2,1,1); hold on; set(gca, 'FontSize', 14);
+    subplot(1,2,1); hold on; set(gca, 'FontSize', 14);
     plot(xsb, ysb, 'k-');
     plot([min(xsb) max(xsb)], [opts.muThresh opts.muThresh], 'k--');
     plot(xsb(ixs{1}), ysb(ixs{1}), 'r-');
     xlabel('trial #');
     ylabel(['Mean of ' behNm]);
-%     title(dtstr);
     ylim([0 1.01]);
+    xlim([min(xs) max(xs)])
     
     for jj = 1:numel(binSzs)
         opts2 = opts;
@@ -131,12 +132,13 @@ for ii = 1:numel(dts)
     end
 
     [isGood, ixs, xsb, ysb, ysv] = behav2.plotThreshTrials(xs, ys, opts);
-    subplot(2,1,2); hold on; set(gca, 'FontSize', 14);
+    subplot(1,2,2); hold on; set(gca, 'FontSize', 14);
     plot(xsb, ysv, 'k-');
     plot([min(xsb) max(xsb)], [opts.varThresh opts.varThresh], 'k--');
     xlabel('trial #');
     ylabel(['Var of ' behNm]);
     ylim([0 1.01]);
+    xlim([min(xs) max(xs)])
 
     for jj = 1:numel(binSzsV)
         opts2 = opts;
@@ -152,15 +154,14 @@ for ii = 1:numel(dts)
         chcFldr = badDir;
         pos = [0 (ii-1)*20 600 600];
     end
-%     set(gcf, 'Position', pos);
-    figs.setPrintSize(gcf, wd, ht, mrg);
-    if isDebug
-        saveas(gcf, 'plots/tmp.png');
-        export_fig(gcf, 'plots/tmp.pdf');
-        break;
-    elseif doSave
-%         saveas(gcf, fullfile(chcFldr, [dts{ii} '.png']));
+    figs.setPrintSize(gcf, popts);
+    if doSave
         export_fig(gcf, fullfile(chcFldr, [dts{ii} '.pdf']));
+    else
+        export_fig(gcf, 'plots/tmp.pdf');
+        if isDebug
+            break;
+        end
     end
 end
 

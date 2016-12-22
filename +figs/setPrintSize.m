@@ -1,4 +1,7 @@
 function setPrintSize(fig, opts)
+    if nargin < 2
+        opts = struct();
+    end
     defopts = struct('width', 5, 'height', 5, 'margin', 0.125);
     opts = tools.setDefaultOptsWhenNecessary(opts, defopts);
     set(fig, 'PaperUnits', 'inches');
