@@ -4,7 +4,7 @@ for jj = 1:numel(dts)
     try
         [D, hypnms] = figs.exampleSession(fitNm, dts{jj});
     catch
-        es{ii,jj} = nan(16,8);
+        es{:,jj} = nan(16,8);
     end
     
     hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps16', ...
@@ -20,6 +20,9 @@ for jj = 1:numel(dts)
 %         Zh = D.hyps(ii).marginalHist.Zs;
 %         es{ii,jj} = score.histError(Z, Zh);
         es{ii,jj} = D.score(ii).histErrByKinByCol;
+        if isempty(es{ii,jj})
+            es{ii,jj} = nan(8,8);
+        end
     end
 end
 
@@ -35,9 +38,9 @@ end
 
 %%
 
-ff = @(y) nanmean(y(:));
-errs = cellfun(@(y) ff(y(:,1:2)), es);
-% errs = cellfun(@(y) nanmean(y(:)), es);
+% ff = @(y) nanmean(y(:));
+% errs = cellfun(@(y) ff(y(:,1:2)), es);
+errs = cellfun(@(y) nanmean(y(:)), es);
 mus = nanmean(errs,2);
 ses = nanstd(errs,[],2)./sqrt(nansum(~isnan(errs),2));
 bs = [mus - 2*ses mus + 2*ses]';

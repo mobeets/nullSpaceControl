@@ -1,6 +1,6 @@
 
-
 D = io.quickLoadByDate('20131218');
+
 %%
 
 isIme = true;
@@ -9,9 +9,7 @@ if isIme
     spsDecNm = 'nImeDecoder';
     facDecNm = 'fImeDecoder';
     vNm = 'velIme';
-%     vNm = 'velPrevIme';
-    vNmNext = 'velNextIme';
-% %     vNmNext = 'velIme';
+    vNmNext = 'velNextIme2';
 else
     spsDecNm = 'nDecoder';
     facDecNm = 'fDecoder';
@@ -22,32 +20,33 @@ end
 B = D.blocks(2);
 Ys = B.spikes;
 Yf = B.latents;
-% RBs = B.nDecoder.RowM2;
-% RBf = B.fDecoder.RowM2;
-RBs = B.(spsDecNm).M2';
-RBf = B.(facDecNm).M2';
 
-dec = B.(spsDecNm);
-Ac = dec.M1;
-Bc = dec.M2;
-cc = dec.M0;
+sdec = B.(spsDecNm);
+Ac = sdec.M1;
+Bc = sdec.M2;
+cc = sdec.M0;
+
+fdec = B.(facDecNm);
+Af = fdec.M1;
+Bf = fdec.M2;
+cf = fdec.M0;
 
 vel = B.(vNm);
 velNext = B.(vNmNext);
 
-dt = 0.045;
-
 nt = size(Ys,1);
-errs = nan(nt,1);
+errs_sps = nan(nt,1);
+errs_fcs = nan(nt,1);
 for t = 1:nt
-    x0 = vel(t,:)';%*dt;
-    x1 = velNext(t,:)';%*dt;
-    Aeq = Bc;
+    x0 = vel(t,:)';
+    x1 = velNext(t,:)';
+    
     beq = x1 - Ac*x0 - cc;
+    errs_sps(t) = norm(beq - Bc*Ys(t,:)');
     
-%     [x1 - (Ac*x0 + Bc*Ys(t,:)' + cc)]
-    
-    errs(t) = norm(beq - Aeq*Ys(t,:)');
+    beq = x1 - Af*x0 - cf;
+    errs_fcs(t) = norm(beq - Bf*Yf(t,:)');
 end
 
-nanmedian(errs)
+nanmedian(errs_sps)
+nanmedian(errs_fcs)

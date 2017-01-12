@@ -42,7 +42,9 @@ function [z, isRelaxed] = quadFireFit(Blk, t, f, decoder, fitInLatent, ...
     end
     
     Aeq = Bc;
-    beq = x1 - Ac*x0 - cc;
+    beq2 = x1 - Ac*x0 - cc;
+    beq = Aeq*Blk.latents(t,:)';
+    % beq2 won't work with IME currently; beq is a more robust definition
 
     if ~fitInLatent
         % update Aeq,beq so that our spike solutions, after 

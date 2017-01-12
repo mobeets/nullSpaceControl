@@ -2,16 +2,18 @@
 dts = io.getDates(false);
 % dts = setdiff(io.getDates(false), io.getDates);
 % dts = io.getDates(false, true, {'Jeffy'});
-dts = {'20131205'};
+% dts = {'20131205'};
+% dts = dts(io.getMonkeyDateInds(dts, 'J'));
 
 isDebug = false;
-doSave = false;
-popts = struct('width', 6, 'height', 3, 'margin', 0.125);
+doSave = true;
+popts = struct('width', 6, 'height', 6, 'margin', 0.125);
 
 %% set up directories for saving
 
+dirName = 'behavAsymps';
 if doSave
-    baseDir = fullfile('plots', 'behavAsymps');
+    baseDir = fullfile('plots', dirName);
     goodDir = fullfile(baseDir, 'good');
     badDir = fullfile(baseDir, 'bad');
     if exist(goodDir, 'dir')
@@ -22,6 +24,9 @@ if doSave
         rmdir(badDir, 's');
     end
     mkdir(badDir);
+else
+    goodDir = 'plots/tmp';
+    badDir = goodDir;
 end
 
 %%
@@ -36,14 +41,16 @@ opts.minGroupSize = 150; % want at least 150 consecutive trials
 opts.meanBinSz = 150; % smoothing for mean
 opts.varMeanBinSz = 100; % smoothing for mean before var
 opts.varBinSz = 100; % bin size for running var
-opts.behavNm = 'trial_length'; % 'progress'
-% opts.behavNm = 'angErrorAbs';
+% opts.behavNm = 'trial_length'; % 'progress'
+opts.behavNm = 'angErrorAbs';
 
 % NOTE: can we use angular error?
 
 behNm = opts.behavNm;
 if strcmp(opts.behavNm, 'trial_length')
     behNm = 'normalized acquisition time';
+elseif strcmp(opts.behavNm, 'angErrorAbs')
+    behNm = 'abs. angular cursor error';
 end
 
 % dts = {'20131205', '20120525', '20160810'};
@@ -115,7 +122,7 @@ for ii = 1:numel(dts)
     [str2num(dtstr) min(xsb(ixs{1})) max(xsb(ixs{1}))]
 
     plot.init;
-    subplot(1,2,1); hold on; set(gca, 'FontSize', 14);
+    subplot(2,1,1); hold on; set(gca, 'FontSize', 14);
     plot(xsb, ysb, 'k-');
     plot([min(xsb) max(xsb)], [opts.muThresh opts.muThresh], 'k--');
     plot(xsb(ixs{1}), ysb(ixs{1}), 'r-');
@@ -132,7 +139,7 @@ for ii = 1:numel(dts)
     end
 
     [isGood, ixs, xsb, ysb, ysv] = behav2.plotThreshTrials(xs, ys, opts);
-    subplot(1,2,2); hold on; set(gca, 'FontSize', 14);
+    subplot(2,1,2); hold on; set(gca, 'FontSize', 14);
     plot(xsb, ysv, 'k-');
     plot([min(xsb) max(xsb)], [opts.varThresh opts.varThresh], 'k--');
     xlabel('trial #');
@@ -165,4 +172,4 @@ for ii = 1:numel(dts)
     end
 end
 
-% save(fullfile(baseDir, 'goodTrials.mat'), 'Trs', 'opts');
+save(fullfile(baseDir, 'goodTrials_angErr.mat'), 'Trs', 'opts');

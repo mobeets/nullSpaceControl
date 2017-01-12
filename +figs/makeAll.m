@@ -3,11 +3,13 @@
 
 % dtEx = '20120601';
 dtEx = '20131205';
+% dtEx = '20120302';
 % fitNm = 'splitIntuitive';
 % fitNm = 'savedFull';
 % fitNm = 'allHyps';
 % fitNm = 'allHypsNoIme';
 fitNm = 'allHypsAgain';
+% fitNm = 'allAutoFit_v3';
 % fitNm = 'allAutoFit';
 % fitNm = 'allHypsEightKins';
 
@@ -59,21 +61,30 @@ end
 
 %% marginal histogram error
 
+% X = load('data/fits/allHypsAgain_histErrs.mat', 'errsBase');
+% errsBase = X.errsBase;
+
 doSave = true;
 saveDir = fopts.plotdir;
-popts = struct('width', 5, 'height', 5, 'margin', 0.125);
-mnkNm = 'Jeffy';
+FontSize = 24;
+FontName = 'Helvetica';
+popts = struct('width', 6, 'height', 6, 'margin', 0.125);
+mnkNm = 'Lincoln';
 
-% curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', 'minimum-sample'};
-curHyps = {'minimum', 'baseline', ...    
-    'uncontrolled-uniform', ...
-    'unconstrained', 'habitual', 'cloud'};
+curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', 'baseline-sample'};
+% curHyps = {'minimum', 'baseline', ...    
+%     'uncontrolled-uniform', ...
+%     'unconstrained', 'habitual', 'cloud'};
 
 [hypInds, hypClrs] = figs.getHypIndsAndClrs(curHyps, hypnms, allHypClrs);
 nmsToShow = figs.getHypDisplayNames(hypnms(hypInds), ...
     hypNmsInternal, hypNmsShown);
 
 errs = errsBase(hypInds,:);
+
+% errs(4,:) = errs(2,:) - rand(1,size(errs,2))/10;
+% nmsToShow{4} = 'Best mean';
+
 % HistErr = cellfun(@(e) nanmean(e(:)), es);
 % errs = 1-HistErr(:,hypInds);
 % errs = 1-errs;
@@ -86,24 +97,25 @@ end
 mus = nanmean(errsc,2);
 ses = 2*nanstd(errsc,[],2)./sqrt(nansum(~isnan(errsc),2));
 bs = [mus - ses mus + ses]';
-plot.init;
+plot.init(FontSize, FontName);
 figs.bar_oneDt(mus, nmsToShow, hypClrs, 'Avg. histogram error (%)', bs);
 ylim([0 1]);
 set(gca, 'YTick', 0:0.2:1);
 set(gca, 'YTickLabel', 0:20:100);
+title(['Monkey ' mnkNm(1) ': Error in histograms'], 'FontSize', 32);
 
 figs.setPrintSize(gcf, popts);
 if doSave
-    export_fig(gcf, fullfile(saveDir, ['histErr_pert' mnkNm(1) '_3r.pdf']));
+    export_fig(gcf, fullfile(saveDir, ['histErr_int' mnkNm(1) '.pdf']));
 end
 
 %% bar plot across sessions (rank or normalized)
 
-doSave = true;
+doSave = false;
 doAvg = true;
 doRank = false;
 showPts = false;
-mnkNm = 'Lincoln';
+mnkNm = 'Jeffy';
 postfix = ['Mnk' mnkNm(1)];
 
 saveDir = fopts.plotdir;
@@ -176,14 +188,10 @@ if doAvg
 %     bs = [];
     bs = [ms - mue; ms + mue];
     plot.init(FontSize, FontName);
-%     for ii = 1:numel(hypInds)
-%         bar(ii, sum(mus(:,ii)==1), 'FaceColor', hypClrs(ii,:), 'EdgeColor', hypClrs(ii,:));
-%     end
     figs.bar_oneDt(ms, nmsToShow, hypClrs, ...
         'Avg. error in mean', bs, ymx, mus);
-%     set(gca, 'YTick', 5:5:size(mus,1)); set(gca, 'YTickLabel', 5:5:size(mus,1)); ylim([0 size(mus,1)]);
     figs.setPrintSize(gcf, popts);
-%     title(['Monkey ' mnkNm(1)]);
+    title(['Monkey ' mnkNm(1) ': Error in mean'], 'FontSize', 32);
     if doSave
         export_fig(gcf, fullfile(saveDir, ['errMean_' postfix '.pdf']));
     end
@@ -201,7 +209,7 @@ if doAvg
     ylim([0 200]);
 %     set(gca, 'YTick', 5:5:size(mus,1)); set(gca, 'YTickLabel', 5:5:size(mus,1)); ylim([0 size(mus,1)]);
     figs.setPrintSize(gcf, popts);
-%     title(['Monkey ' mnkNm(1)]);
+    title(['Monkey ' mnkNm(1) ': Error in covariance'], 'FontSize', 32);
     if doSave
         export_fig(gcf, fullfile(saveDir, ['errCov_' postfix '.pdf']));
     end

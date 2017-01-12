@@ -24,7 +24,7 @@ function D = fitByDate(dtstr, params, nms, plotopts, opts, hypopts)
         if isfield(opts, 'postLoadFcn') && ...
                 isa(opts.postLoadFcn, 'function_handle')
             D.blocks = D.blocks_raw;
-            D.blocks = pred.addTrainAndTestIdx(D.blocks_raw); % c-v
+%             D.blocks = pred.addTrainAndTestIdx(D.blocks_raw); % c-v
             D = opts.postLoadFcn(D);
         end
         disp('Loaded data. Fitting hyps...');

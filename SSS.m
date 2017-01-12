@@ -1,4 +1,15 @@
 
+X = load('data/fits/SSS.mat', ...
+    'baseDir', 'dts', 'D', 'decNm', 'Cov1S', 'Cov2S', 'hypnms');
+dts = X.dts;
+D = X.D;
+decNm = X.decNm;
+Cov1S = X.Cov1S;
+Cov2S = X.Cov2S;
+hypnms = X.hypnms;
+
+%%
+
 baseDir = 'data/fits/allHypsAgain';
 dts = io.getDates();
 % dts = dts(cellfun(@str2num, dts) < 20160101);
@@ -88,6 +99,8 @@ end
 
 %% plot cov ellipses
 
+close all;
+
 kNmA = 'observed';
 kNmB = 'cloud';
 CovA = Cov1S;
@@ -97,6 +110,7 @@ saveDir = fopts.plotdir;
 popts = struct('width', 6, 'height', 4.5, 'margin', 0.125);
 
 dtsToInclude = ~io.getMonkeyDateInds(dts, 'Nelson');
+% dtsToInclude = dtsToInclude | true;
 
 % CovAf = Cov1R;
 % CovBf = Cov2R;
@@ -163,6 +177,14 @@ for jj = 1:size(Cov2S,1)
     end
 end
 
+% fsz = 10;
+% text(-5, -5, 'Activity\newline in dim 1', 'Rotation', 90, 'FontSize', fsz);
+
+fsz = 18;
+text(-5, -77, 'Sessions \rightarrow', 'Rotation', 90, 'FontSize', fsz);
+text(-2, -81, 'Cursor directions \rightarrow', 'FontSize', fsz);
+% title('Covariance ellipses');
+
 box off; axis off;
 figs.setPrintSize(gcf, popts);
 if doSave
@@ -175,8 +197,8 @@ doSave = true;
 saveDir = fopts.plotdir;
 popts = struct('width', 5, 'height', 4.5, 'margin', 0.125);
 
-mnksToIgnore = 'Nelson';
-ix = ~io.getMonkeyDateInds(dts, mnksToIgnore);
+mnkToIgnore = 'Nelson';
+ix = ~io.getMonkeyDateInds(dts, mnkToIgnore);
 
 curHyps = {'minimum', 'baseline', 'uncontrolled-uniform', ...
     'unconstrained', 'habitual', 'cloud'};
@@ -187,6 +209,7 @@ hypClrs = [hypClrs; baseClr];
 nmsToShow = figs.getHypDisplayNames(hypnms(hypInds), ...
     hypNmsInternal, hypNmsShown);
 
+lw = 2;
 cErr = log(errs);
 cErr = cErr(ix,:,:);
 
@@ -204,15 +227,19 @@ for kk = hypInds
     vs = 2*std(cv)/sqrt(numel(cv));
     es = [mu-vs mu+vs];
     
-    bar(c, mu, 'EdgeColor', hypClrs(c,:), 'FaceColor', hypClrs(c,:));
-    plot([c c], es, 'k-');
+    b = bar(c, mu, 'EdgeColor', 'k', 'FaceColor', hypClrs(c,:), 'LineWidth', lw);
+    set(get(b, 'BaseLine'), 'LineWidth', lw);
+    plot([c c], es, 'k-', 'LineWidth', lw);
     c = c + 1;
 end
 set(gca, 'XTick', 1:numel(hypInds));
 set(gca, 'XTickLabel', nmsToShow);
 set(gca, 'XTickLabelRotation', 45);
 set(gca, 'TickDir', 'out');
-ylabel('\leftarrow Contraction  Expansion \rightarrow');
+set(gca, 'LineWidth', lw);
+set(gca, 'TickDir', 'out');
+set(gca, 'Ticklength', [0 0]);
+ylabel('            Variance log-ratio \newline \leftarrow Contraction  Expansion \rightarrow');
 xlim([0.5 numel(hypInds)+0.5]);
 ylim([-2.5 2.5]);
 

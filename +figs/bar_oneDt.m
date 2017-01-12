@@ -8,9 +8,11 @@ function bar_oneDt(S, nms, clrs, ylbl, bs, ymx, pts)
     if nargin < 7
         pts = [];
     end
+    lw = 2;
 
     for ii = 1:numel(nms)        
-        bar(ii, S(ii), 'FaceColor', clrs(ii,:), 'EdgeColor', clrs(ii,:));
+        bar(ii, S(ii), 'FaceColor', clrs(ii,:), 'EdgeColor', 'k', ...
+            'LineWidth', lw);%clrs(ii,:));
 %         bar(ii, S(ii), 'FaceColor', 'w', 'EdgeColor', 'k');
 %         plot([ii-0.5 ii+0.5], [S(ii) S(ii)]);        
 %         jtr = rand(size(pts,1),1)/2-0.25;
@@ -34,7 +36,7 @@ function bar_oneDt(S, nms, clrs, ylbl, bs, ymx, pts)
     end
     if ~isempty(bs)
         for ii = 1:numel(nms)
-            plot([ii ii], bs(:,ii), 'k-');
+            plot([ii ii], bs(:,ii), 'k-', 'LineWidth', lw);
         end
     end
 
@@ -42,6 +44,7 @@ function bar_oneDt(S, nms, clrs, ylbl, bs, ymx, pts)
     set(gca, 'XTickLabel', nms);
     set(gca, 'TickDir', 'out');
     set(gca, 'Ticklength', [0 0]);
+    set(gca, 'LineWidth', lw);
     if max(cellfun(@numel, nms)) > 3 % if longest name > 3 chars
         set(gca, 'XTickLabelRotation', 45);
     end

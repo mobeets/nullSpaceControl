@@ -9,12 +9,11 @@ dts = io.getDates();
 nms = {'habitual', 'cloud', 'cloud-200', 'unconstrained', ...
     'baseline-sample', 'minimum-sample', 'uncontrolled-uniform', ...
     'baseline', 'minimum', 'bestMean'};
-
-% nms = {'habitual', 'cloud', 'unconstrained'};
+% nms = {'habitual', 'cloud', 'unconstrained', 'uncontrolled-uniform'};
+nms = {'habitual'};
 
 hypopts = struct('nBoots', 0, 'scoreGrpNm', 'thetaActualGrps', ...
     'obeyBounds', true, 'boundsType', 'spikes');
-
 hypopts.fitInLatent = false;
 hypopts.addSpikeNoise = true;
 
@@ -23,7 +22,8 @@ hypopts.addSpikeNoise = true;
 % fitNm = 'allHypsNoIme';
 % fitNm = 'allHypsEightKins';
 % fitNm = 'allHypsAgain';
-fitNm = 'allAutoFit_v2';
+% fitNm = 'allAutoFit_v2';
+fitNm = 'allAutoFit_v3';
 
 %%
 
@@ -36,6 +36,7 @@ elseif strcmp(fitNm, 'splitPerturbation_rand')
 else
     lopts = struct('postLoadFcn', @io.makeImeDefault);
 end
+% lopts = struct('postLoadFcn', nan);
 
 popts = struct();
 pms = struct();
@@ -49,7 +50,7 @@ end
 
 isConfirmed = false;
 skipIfExists = false;
-for ii = 10:numel(dts) % 27 and 28 failed
+for ii = 21%1:numel(dts)
     dtstr = dts{ii}
     fnm = fullfile(baseDir, [dtstr '.mat']);
     if ~isConfirmed && exist(fnm, 'file')
