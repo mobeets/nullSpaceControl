@@ -8,7 +8,9 @@ function trials = makeTrials(D)
     for tr = 1:ntrials        
         trial = struct();        
         ntimes = size(d.spikeBins{tr},1);
-        
+        if ntimes == 0
+            continue;
+        end        
 %         trial.spikes = d.spikeBins{tr};
         % the below shifts all timepoints of spikes by 1 (what pete did)
         spikes = d.spikeBins{tr};
@@ -19,7 +21,12 @@ function trials = makeTrials(D)
         trial.vel = d.decodedVelocities{tr};
         trial.spd = arrayfun(@(ii) norm(trial.vel(ii,:)), 1:ntimes)';        
         trial.target = repmat(d.targetLocations(tr, 1:2), ntimes, 1);
-        trial.targetAngle = d.targetAngles(tr)*ones(ntimes,1);
+        try
+            trial.targetAngle = d.targetAngles(tr)*ones(ntimes,1);
+        catch
+            trial.targetAngle = nan*ones(ntimes,1);
+        end
+%         trial.targetAngle = d.targetAngles(tr)*ones(ntimes,1);
         trial.trial_length = repmat(ntimes, ntimes, 1);
         trial.isCorrect = repmat(double(d.trialStatus(tr)), ntimes, 1);
         trial.trial_index = repmat(tr, ntimes, 1);

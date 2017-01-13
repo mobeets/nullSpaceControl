@@ -36,9 +36,7 @@ function D = loadRawDataByDate(dtstr)
     D.simpleData = simpleData;
 %     D.params = io.setBlockStartTrials(D.datestr);
     D.params.IDEAL_SPEED = 175;
-    if strcmp(mnkNm, 'Nelson')
-        D = io.preprocessNelsonData(D);
-    end
+    D = io.addMissingData(D);
     D.trials = io.makeTrials(D);
     
 end
@@ -48,17 +46,3 @@ function [fldrs, dr] = getFolders(datadir, mnkname, dtstr)
     fs0 = dir(fullfile(dr, '*.mat'));
     fldrs = {fs0(~[fs0.isdir]).name};
 end
-
-%%
-
-% DATADIR = getpref('factorSpace', 'data_directory');
-% mnkNm = 'Lincoln';
-% basedir = fullfile(DATADIR, mnkNm);
-% drs = dir(fullfile(basedir, '*simpleData*'));
-% tmp = arrayfun(@(ii) strsplit(drs(ii).name, 'simple'), ...
-%     1:numel(drs), 'uni', 0);
-% dtc = cellfun(@(d) d{1}, tmp, 'uni', 0);
-% for ii = 1:numel(dtc)
-%     drnm = fullfile(basedir, dtc{ii})
-%     mkdir(drnm);
-% end

@@ -1,4 +1,4 @@
-function D = preprocessNelsonData(D)
+function D = addMissingData(D)
     if ~isfield(D.simpleData, 'targetAngles')
         D.simpleData.targetAngles = addAngles(D.simpleData.targetLocations);
     end
@@ -30,9 +30,16 @@ function dec = addRawSpikesShuffleDecoder(D)
     % still need to add rawSpikes to D.simpleData.shuffles
     % D.simpleData.shuffles.rawSpikes.M1 is the same as for nullDecoder's
     % but M0 and M2 are different
-    dec.M0 = D.kalmanInitParamsPert.M0;
-    dec.M1 = D.kalmanInitParamsPert.M1;
-    dec.M2 = D.kalmanInitParamsPert.M2;
+    if isfield(D, 'kalmanInitParamsPert')
+        dec.M0 = D.kalmanInitParamsPert.M0;
+        dec.M1 = D.kalmanInitParamsPert.M1;
+        dec.M2 = D.kalmanInitParamsPert.M2;
+    else
+        dec.M1 = D.simpleData.nullDecoder.rawSpikes.M1;
+        dec.M0 = [];
+        dec.M2 = [];
+        error('Missing kalmanInitParams for perturbation.');
+    end
 end
 
 function angs = addAngles(locs)
