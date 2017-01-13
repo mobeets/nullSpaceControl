@@ -5,11 +5,11 @@
 dts = io.getDates();
 % dts = io.getDates(true, false, {'Nelson'});
 
-dts = {'20131205'};
+dts = {'20130527', '20131212'};
 
 opts = struct('plotdir', 'plots/ime', 'doCv', false, ...
-    'doSave', false, 'fitPostLearnOnly', true);
-for ii = 1%:numel(dts)
+    'doSave', true, 'fitPostLearnOnly', true);
+for ii = 1:numel(dts)
     [D, Stats, LLs] = imefit.fitSession(dts{ii}, opts);
 end
 

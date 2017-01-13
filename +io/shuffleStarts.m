@@ -1,4 +1,4 @@
-function SHUFFLE_BOUNDS = shuffleStarts()
+function SHUFFLE_BOUNDS = shuffleStarts(minNumTrials)
 % fit using behav.asymptotesAll, and corrected by eye when necessary
 %   asymptotes fit for progress and trial_index, for all trials
 
@@ -8,16 +8,22 @@ function SHUFFLE_BOUNDS = shuffleStarts()
 %         20131125 800;
 %         20131205 800;
 %     ];
+    if nargin < 1
+        minNumTrials = 100;
+    end
     DATADIR = getpref('factorSpace', 'data_directory');
-    fnm = fullfile(DATADIR, 'goodTrials.mat');
+    fnm = fullfile(DATADIR, 'goodTrials_trialLength.mat');
     if exist(fnm, 'file') % set in file
         d = load(fnm);
         SHUFFLE_BOUNDS = d.Trs;
+        ixGood = SHUFFLE_BOUNDS(:,3) - SHUFFLE_BOUNDS(:,2) >= minNumTrials;
+        SHUFFLE_BOUNDS(ixGood,4) = 1;
         % set to nan any rows where last col == 0
         SHUFFLE_BOUNDS(SHUFFLE_BOUNDS(:,4) == 0,[2 3]) = nan;
         % skip rows with nans in data col
         SHUFFLE_BOUNDS = SHUFFLE_BOUNDS(~isnan(SHUFFLE_BOUNDS(:,1)),:);
     else % manually set
+        error('Could not find goodTrials');
         SHUFFLE_BOUNDS = [
             20120303 nan; % no session asymptote
             20120308 668;
@@ -82,4 +88,7 @@ function SHUFFLE_BOUNDS = shuffleStarts()
     nd = size(SHUFFLE_BOUNDS,2)-1;
     SHUFFLE_BOUNDS = [SHUFFLE_BOUNDS; [dtsMissing nan(numel(dtsMissing),nd)]];
     
+%     SHUFFLE_BOUNDS(SHUFFLE_BOUNDS(:,1) == 20131212, 2:4) = [418 575 1];
+%     SHUFFLE_BOUNDS(SHUFFLE_BOUNDS(:,1) == 20130528, 2:4) = [330 457 1];
+        
 end

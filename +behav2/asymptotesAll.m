@@ -1,12 +1,14 @@
 
-dts = io.getDates(false);
+% dts = io.getDates(false);
+dts = {'20130528', '20130527', '20130612', '20131212'};
+% dts = {'20131212'};
 % dts = setdiff(io.getDates(false), io.getDates);
 % dts = io.getDates(false, true, {'Jeffy'});
 % dts = {'20131205'};
 % dts = dts(io.getMonkeyDateInds(dts, 'J'));
 
 isDebug = false;
-doSave = true;
+doSave = false;
 popts = struct('width', 6, 'height', 6, 'margin', 0.125);
 
 %% set up directories for saving
@@ -25,6 +27,7 @@ if doSave
     end
     mkdir(badDir);
 else
+%     baseDir = 'plots/tmp';
     goodDir = 'plots/tmp';
     badDir = goodDir;
 end
@@ -37,12 +40,12 @@ opts.muThresh = 0.5;
 opts.varThresh = 0.5;
 opts.trialsInARow = 10;
 opts.groupEvalFcn = @numel; % longest group of consecutive trials
-opts.minGroupSize = 150; % want at least 150 consecutive trials
+opts.minGroupSize = 100; % want at least 150 consecutive trials
 opts.meanBinSz = 150; % smoothing for mean
-opts.varMeanBinSz = 100; % smoothing for mean before var
+opts.varMeanBinSz = 150; % smoothing for mean before var
 opts.varBinSz = 100; % bin size for running var
-% opts.behavNm = 'trial_length'; % 'progress'
-opts.behavNm = 'angErrorAbs';
+opts.behavNm = 'trial_length'; % 'progress'
+% opts.behavNm = 'angErrorAbs';
 
 % NOTE: can we use angular error?
 
@@ -84,8 +87,8 @@ Trs = nan(numel(dts),4);
 isGoods = nan(numel(dts),1);
 
 % extra bin sizes to display
-binSzs = [20 100 200];
-binSzsV = [50 150];
+% binSzs = [1 100];
+% binSzsV = [1 50 150];
 binSzs = [];
 binSzsV = [];
 
@@ -93,11 +96,13 @@ for ii = 1:numel(dts)
     dtstr = dts{ii};
     if ~isDebug
         try
-            D = io.quickLoadByDate(dtstr, struct('START_SHUFFLE', nan));
+            D = io.quickLoadByDate(dtstr, struct('START_SHUFFLE', nan, ...
+                'REMOVE_INCORRECTS', true));
         catch
+            warning(['Could not load ' dtstr]);
             continue;
         end
-    end
+    end    
     B = D.blocks(2);
     xs = B.trial_index;
     ys = B.(opts.behavNm);
@@ -106,6 +111,7 @@ for ii = 1:numel(dts)
     end
     [isGood, ixs, xsb, ysb, ysv] = behav2.plotThreshTrials(xs, ys, opts);
     if numel(ysb) == 0
+        warning(['Not enough trials for ' dtstr]);
         continue;
     end
     Xs{ii} = xsb;

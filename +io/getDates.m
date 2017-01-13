@@ -11,7 +11,7 @@ function dts = getDates(asympsOnly, showRaw, mnkNms)
 
     if asympsOnly
         assert(~showRaw, 'Cannot set showRaw=true if asympsOnly=true');
-        ss = io.shuffleStarts;
+        ss = io.shuffleStarts();
         dtnums = sort(ss(~isnan(ss(:,2)),1));
         dts = arrayfun(@num2str, dtnums, 'uni', 0);
         if numel(mnkNms) ~= numel(io.getMonkeys)

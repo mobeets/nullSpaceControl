@@ -23,7 +23,7 @@ function [isGood, ixs, xsb, ysb, ysv] = plotThreshTrials(xs, ys, opts)
     ysv = runningVar(ysb2, opts.varBinSz);
     
     % normalize mean and var to be in [0,1]    
-    ysb = behav2.normToZeroOne(ysb, ymn, ymx);
+    ysb = behav2.normToZeroOne(ysb, ymn, ymx);    
 %     ysv = behav2.normToZeroOne(ysv, nanmin(ysv), nanmax(ysv));
     vmn = nanmin(ysv);
     vmx = nanmax(ysv(1:ceil(numel(ysv)/2)));
