@@ -4,7 +4,7 @@ dts = {'20130528', '20130527', '20130612', '20131212'};
 % dts = {'20131212'};
 % dts = setdiff(io.getDates(false), io.getDates);
 % dts = io.getDates(false, true, {'Jeffy'});
-% dts = {'20131205'};
+dts = {'20131205'};
 % dts = dts(io.getMonkeyDateInds(dts, 'J'));
 
 isDebug = false;
@@ -27,12 +27,15 @@ if doSave
     end
     mkdir(badDir);
 else
-%     baseDir = 'plots/tmp';
-    goodDir = 'plots/tmp';
+    baseDir = 'plots';
+    goodDir = 'plots';
     badDir = goodDir;
 end
 
 %%
+
+FontSize = 26;
+lw = 3;
 
 % fit opts
 opts = struct();
@@ -51,9 +54,9 @@ opts.behavNm = 'trial_length'; % 'progress'
 
 behNm = opts.behavNm;
 if strcmp(opts.behavNm, 'trial_length')
-    behNm = 'normalized acquisition time';
+    behNm = 'acquisition time (normalized)';
 elseif strcmp(opts.behavNm, 'angErrorAbs')
-    behNm = 'abs. angular cursor error';
+    behNm = 'Abs. angular cursor error';
 end
 
 % dts = {'20131205', '20120525', '20160810'};
@@ -127,15 +130,21 @@ for ii = 1:numel(dts)
     Trs(ii,:) = [str2num(dtstr) tmn tmx all(isGood)];
     [str2num(dtstr) min(xsb(ixs{1})) max(xsb(ixs{1}))]
 
-    plot.init;
-    subplot(2,1,1); hold on; set(gca, 'FontSize', 14);
-    plot(xsb, ysb, 'k-');
-    plot([min(xsb) max(xsb)], [opts.muThresh opts.muThresh], 'k--');
-    plot(xsb(ixs{1}), ysb(ixs{1}), 'r-');
+    fig1 = plot.init(FontSize);
+    
+    plot(xsb, ysb, 'k-', 'LineWidth', lw);
+    plot([min(xsb) max(xsb)], [opts.muThresh opts.muThresh], 'k--', ...
+        'LineWidth', lw);
+%     plot(xsb(ixs{1}), ysb(ixs{1}), 'r-', 'LineWidth', lw);
+    yl = [0 1.01];
+    plot([min(xsb(ixs{1})) max(xsb(ixs{1}))], [yl(2) yl(2)], ...
+        'r-', 'LineWidth', lw);
     xlabel('trial #');
     ylabel(['Mean of ' behNm]);
-    ylim([0 1.01]);
-    xlim([min(xs) max(xs)])
+    ylim(yl);
+    xlim([min(xs) max(xs)]);
+    set(gca, 'YTick', [0 0.5 1.0]);
+    set(gca, 'LineWidth', lw);
     
     for jj = 1:numel(binSzs)
         opts2 = opts;
@@ -143,15 +152,26 @@ for ii = 1:numel(dts)
         [~, ~, xsb, ysb, ysv] = behav2.plotThreshTrials(xs, ys, opts2);
         plot(xsb, ysb, '-', 'Color', [0.7 0.7 0.7]/sqrt(jj));
     end
+    figs.setPrintSize(gcf, popts);
+    if doSave
+        export_fig(gcf, fullfile(chcFldr, [dts{ii} '_mean.pdf']));
+    else
+        export_fig(gcf, 'plots/tmp_mean.pdf');
+    end
 
     [isGood, ixs, xsb, ysb, ysv] = behav2.plotThreshTrials(xs, ys, opts);
-    subplot(2,1,2); hold on; set(gca, 'FontSize', 14);
-    plot(xsb, ysv, 'k-');
-    plot([min(xsb) max(xsb)], [opts.varThresh opts.varThresh], 'k--');
+    fig2 = plot.init(FontSize);
+    plot(xsb, ysv, 'k-', 'LineWidth', lw);
+    plot([min(xsb) max(xsb)], [opts.varThresh opts.varThresh], 'k--', ...
+        'LineWidth', lw);
+    plot([min(xsb(ixs{1})) max(xsb(ixs{1}))], [yl(2) yl(2)], ...
+        'r-', 'LineWidth', lw);
     xlabel('trial #');
     ylabel(['Var of ' behNm]);
-    ylim([0 1.01]);
-    xlim([min(xs) max(xs)])
+    ylim(yl);
+    xlim([min(xs) max(xs)]);
+    set(gca, 'YTick', [0 0.5 1.0]);
+    set(gca, 'LineWidth', lw);
 
     for jj = 1:numel(binSzsV)
         opts2 = opts;
@@ -169,9 +189,9 @@ for ii = 1:numel(dts)
     end
     figs.setPrintSize(gcf, popts);
     if doSave
-        export_fig(gcf, fullfile(chcFldr, [dts{ii} '.pdf']));
+        export_fig(gcf, fullfile(chcFldr, [dts{ii} '_var.pdf']));
     else
-        export_fig(gcf, 'plots/tmp.pdf');
+        export_fig(gcf, 'plots/tmp_var.pdf');
         if isDebug
             break;
         end

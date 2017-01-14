@@ -86,7 +86,10 @@ function SHUFFLE_BOUNDS = shuffleStarts(minNumTrials)
     dtnums = cellfun(@str2num, io.getDates(false, true));
     dtsMissing = dtnums(~ismember(dtnums, SHUFFLE_BOUNDS(:,1)));
     nd = size(SHUFFLE_BOUNDS,2)-1;
-    SHUFFLE_BOUNDS = [SHUFFLE_BOUNDS; [dtsMissing nan(numel(dtsMissing),nd)]];
+    tmp = [dtsMissing nan(numel(dtsMissing),nd)];
+    if ~isempty(tmp)
+        SHUFFLE_BOUNDS = [SHUFFLE_BOUNDS; tmp];
+    end
     
 %     SHUFFLE_BOUNDS(SHUFFLE_BOUNDS(:,1) == 20131212, 2:4) = [418 575 1];
 %     SHUFFLE_BOUNDS(SHUFFLE_BOUNDS(:,1) == 20130528, 2:4) = [330 457 1];
