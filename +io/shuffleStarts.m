@@ -12,7 +12,7 @@ function SHUFFLE_BOUNDS = shuffleStarts(minNumTrials)
         minNumTrials = 100;
     end
     DATADIR = getpref('factorSpace', 'data_directory');
-    fnm = fullfile(DATADIR, 'goodTrials_trialLength.mat');
+    fnm = fullfile(DATADIR, 'sessions', 'goodTrials_trialLength.mat');
     if exist(fnm, 'file') % set in file
         d = load(fnm);
         SHUFFLE_BOUNDS = d.Trs;

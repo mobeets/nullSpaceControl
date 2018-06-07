@@ -26,15 +26,17 @@ function dts = getDates(asympsOnly, showRaw, mnkNms)
     if showRaw
         dts = [];
         for ii = 1:numel(mnkNms)
-            fnms = dir(fullfile(DATADIR, mnkNms{ii}));
+            fnms = dir(fullfile(DATADIR, 'raw', mnkNms{ii}));
             ix = [fnms.isdir] & ~strcmp({fnms.name}, '.') & ...
-                ~strcmp({fnms.name}, '..');
+                ~strcmp({fnms.name}, '..') & ...
+                ~strcmp({fnms.name}, '.DS_Store');
             mnk = {fnms(ix).name};
             dts = [dts mnk];
         end
         dts = dts';
     else
-        fnms = dir(fullfile(DATADIR, 'preprocessed'));
-        dts = strrep({fnms(~[fnms.isdir]).name}, '.mat', '');
+        fnms = dir(fullfile(DATADIR,  'sessions', 'preprocessed'));
+        ix = ~strcmp({fnms.name}, '.DS_Store');
+        dts = strrep({fnms(~[fnms.isdir] & ix).name}, '.mat', '');
     end
 end

@@ -109,7 +109,7 @@ end
 %% pct return to baseline levels, avg over sessions
 
 doSave = true;
-saveDir = fopts.plotdir;
+% saveDir = fopts.plotdir;
 wd = 5; ht = 5; mrg = 0.125;
 fsz = 24;
 

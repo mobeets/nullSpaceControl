@@ -1,14 +1,15 @@
 
 % dts = io.getDates(false);
-dts = {'20130528', '20130527', '20130612', '20131212'};
+% dts = {'20130528', '20130527', '20130612', '20131212'};
 % dts = {'20131212'};
 % dts = setdiff(io.getDates(false), io.getDates);
 % dts = io.getDates(false, true, {'Jeffy'});
-dts = {'20131205'};
+% dts = {'20131205'};
 % dts = dts(io.getMonkeyDateInds(dts, 'J'));
 
+dts = io.getDates(false);
 isDebug = false;
-doSave = false;
+doSave = true;
 popts = struct('width', 6, 'height', 6, 'margin', 0.125);
 
 %% set up directories for saving
@@ -41,14 +42,18 @@ lw = 3;
 opts = struct();
 opts.muThresh = 0.5;
 opts.varThresh = 0.5;
-opts.trialsInARow = 10;
-opts.groupEvalFcn = @numel; % longest group of consecutive trials
-opts.minGroupSize = 100; % want at least 150 consecutive trials
-opts.meanBinSz = 150; % smoothing for mean
-opts.varMeanBinSz = 150; % smoothing for mean before var
+opts.meanBinSz = 100; % smoothing for mean
 opts.varBinSz = 100; % bin size for running var
+opts.maxTrialSkip = 10; % max change that we can still count as one group
+opts.minGroupSize = 100; % want at least N consecutive trials
 opts.behavNm = 'trial_length'; % 'progress'
-% opts.behavNm = 'angErrorAbs';
+opts.lastBaselineTrial = 50;
+
+% actual one used
+% DATADIR = getpref('factorSpace', 'data_directory')
+% fnm = fullfile(DATADIR, 'sessions', 'goodTrials_trialLength.mat')
+% d = load(fnm)
+% opts = d.opts;
 
 % NOTE: can we use angular error?
 
@@ -58,31 +63,6 @@ if strcmp(opts.behavNm, 'trial_length')
 elseif strcmp(opts.behavNm, 'angErrorAbs')
     behNm = 'Abs. angular cursor error';
 end
-
-% dts = {'20131205', '20120525', '20160810'};
-% dts = {'20131125', '20131204', '20131205', '20131211', '20131212', '20131218'};
-
-% close all;
-
-% dne = {'20130528', '20130614', '20130619'};
-% goods = {'20131125', '20131204', '20131205', '20131208', ...
-%     '20131211', '20131212', '20131218'};
-% bads = {'20130527', '20130612', '20131124', '20131214', '20131215'};
-
-% '20131125'
-% '20131204'
-% '20131205'
-% '20131211'
-% '20131212'
-% '20131218'
-
-% '20160329'
-% '20160714'
-% '20160722'
-% '20160726'
-% '20160727'
-% '20160810'
-
 Xs = cell(numel(dts),1);
 Ys = cell(numel(dts),1);
 Vs = cell(numel(dts),1);
@@ -95,12 +75,16 @@ isGoods = nan(numel(dts),1);
 binSzs = [];
 binSzsV = [];
 
+objs = [];
 for ii = 1:numel(dts)
     dtstr = dts{ii};
     if ~isDebug
         try
-            D = io.quickLoadByDate(dtstr, struct('START_SHUFFLE', nan, ...
-                'REMOVE_INCORRECTS', true));
+            cd ~/code/bciDynamics;
+            D = io.loadData(dtstr, false, false);
+%             D = io.quickLoadByDate(dtstr, struct('START_SHUFFLE', nan, ...
+%                 'REMOVE_INCORRECTS', true));
+            cd ~/code/nullSpaceControl;
         catch
             warning(['Could not load ' dtstr]);
             continue;
@@ -108,11 +92,30 @@ for ii = 1:numel(dts)
     end    
     B = D.blocks(2);
     xs = B.trial_index;
+    if strcmpi(opts.behavNm, 'trial_length') && ~isfield(B, 'trial_length')
+        B.trial_length = nan(size(B.trial_index));
+        axs = unique(xs);
+        for jj = 1:numel(axs)
+            ix = B.trial_index == axs(jj);
+            B.trial_length(ix) = sum(ix);
+        end
+    elseif strcmpi(opts.behavNm, 'progress') && ~isfield(B, 'progress')
+        cd ~/code/bciDynamics;
+        B.progress = tools.getProgress([], B.pos, B.trgpos, [], B.vel);
+        cd ~/code/nullSpaceControl;
+    end
     ys = B.(opts.behavNm);
     if strcmpi(opts.behavNm, 'progress')
         ys = -ys;
     end
-    [isGood, ixs, xsb, ysb, ysv] = behav2.plotThreshTrials(xs, ys, opts);
+%     [isGood, ixs, xsb, ysb, ysv] = behav2.plotThreshTrials(xs, ys, opts);
+    obj = behav2.plotThreshTrials2(xs, ys, opts);
+    objs = [objs; obj];
+    xsb = obj.xsb;
+    ysb = obj.ysSmoothMeanNorm;    
+    ysv = obj.ysSmoothVarNorm;
+    ixs = {obj.ix};
+    isGood = obj.isGood;
     if numel(ysb) == 0
         warning(['Not enough trials for ' dtstr]);
         continue;
@@ -137,8 +140,10 @@ for ii = 1:numel(dts)
         'LineWidth', lw);
 %     plot(xsb(ixs{1}), ysb(ixs{1}), 'r-', 'LineWidth', lw);
     yl = [0 1.01];
-    plot([min(xsb(ixs{1})) max(xsb(ixs{1}))], [yl(2) yl(2)], ...
-        'r-', 'LineWidth', lw);
+    if sum(ixs{1}) > 0
+        plot([min(xsb(ixs{1})) max(xsb(ixs{1}))], [yl(2) yl(2)], ...
+            'r-', 'LineWidth', lw);
+    end
     xlabel('trial #');
     ylabel(['Mean of ' behNm]);
     ylim(yl);
@@ -146,39 +151,32 @@ for ii = 1:numel(dts)
     set(gca, 'YTick', [0 0.5 1.0]);
     set(gca, 'LineWidth', lw);
     
-    for jj = 1:numel(binSzs)
-        opts2 = opts;
-        opts2.meanBinSz = binSzs(jj);
-        [~, ~, xsb, ysb, ysv] = behav2.plotThreshTrials(xs, ys, opts2);
-        plot(xsb, ysb, '-', 'Color', [0.7 0.7 0.7]/sqrt(jj));
-    end
     figs.setPrintSize(gcf, popts);
+    if all(isGood)
+        chcFldr = goodDir;
+    else
+        chcFldr = badDir;
+    end
     if doSave
         export_fig(gcf, fullfile(chcFldr, [dts{ii} '_mean.pdf']));
     else
         export_fig(gcf, 'plots/tmp_mean.pdf');
     end
 
-    [isGood, ixs, xsb, ysb, ysv] = behav2.plotThreshTrials(xs, ys, opts);
     fig2 = plot.init(FontSize);
     plot(xsb, ysv, 'k-', 'LineWidth', lw);
     plot([min(xsb) max(xsb)], [opts.varThresh opts.varThresh], 'k--', ...
         'LineWidth', lw);
-    plot([min(xsb(ixs{1})) max(xsb(ixs{1}))], [yl(2) yl(2)], ...
-        'r-', 'LineWidth', lw);
+    if sum(ixs{1}) > 0
+        plot([min(xsb(ixs{1})) max(xsb(ixs{1}))], [yl(2) yl(2)], ...
+            'r-', 'LineWidth', lw);
+    end
     xlabel('trial #');
     ylabel(['Var of ' behNm]);
     ylim(yl);
     xlim([min(xs) max(xs)]);
     set(gca, 'YTick', [0 0.5 1.0]);
     set(gca, 'LineWidth', lw);
-
-    for jj = 1:numel(binSzsV)
-        opts2 = opts;
-        opts2.varBinSz = binSzsV(jj);
-        [~, ~, xsb, ysb, ysv] = behav2.plotThreshTrials(xs, ys, opts2);
-        plot(xsb, ysv, '-', 'Color', [0.7 0.7 0.7]/sqrt(jj));
-    end
     
     if all(isGood)
         chcFldr = goodDir;
@@ -198,4 +196,47 @@ for ii = 1:numel(dts)
     end
 end
 
-save(fullfile(baseDir, 'goodTrials_angErr.mat'), 'Trs', 'opts');
+save(fullfile(baseDir, ['goodTrials_' opts.behavNm '.mat']), 'Trs', 'opts');
+
+%%
+
+lw = 1;
+xmx = 1010;
+ymx = 8;
+plot.init;
+for ii = 1:numel(objs)
+    subplot(6, 7, ii); hold on;
+    obj = objs(ii);
+    xsb = obj.xsb; xsb = xsb - min(xsb);
+%     ysb = obj.ysSmoothMeanNorm;
+    ysb = (45/1000)*obj.ysSmoothMean;
+    ix = obj.ix;
+    
+    clr = 'k';
+    if ~obj.isGood
+        clr = 0.8*ones(3,1);
+    end
+    
+%     plot([0 xmx], [opts.muThresh opts.muThresh], ...
+%         '-', 'Color', 0.8*ones(3,1), 'LineWidth', lw);
+%     yl = [0 1.01];
+%     set(gca, 'YTick', [0 0.5 1.0]);
+
+    plot(xsb(1:end-10), ysb(1:end-10), '-', 'Color', clr, 'LineWidth', lw);
+%     plot(xsb(ix), ysb(ix), 'r-', 'LineWidth', lw);
+    
+    yl = [0 ymx];
+    if sum(ix) > 0
+        plot([min(xsb(ix)) max(xsb(ix))], [yl(2) yl(2)], ...
+            'r-', 'LineWidth', lw);
+    end
+%     xlabel('Trial #');
+%     ylabel(['Mean of ' behNm]);
+    set(gca, 'YTick', [0 ymx]);
+    ylim(yl);
+    xlim([min(xsb) max(xsb)]);
+    set(gca, 'LineWidth', lw);
+    set(gca, 'XTick', [500]);
+    xlim([0 xmx]);
+    title(dts{ii});
+end

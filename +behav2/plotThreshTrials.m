@@ -23,8 +23,7 @@ function [isGood, ixs, xsb, ysb, ysv] = plotThreshTrials(xs, ys, opts)
     ysv = runningVar(ysb2, opts.varBinSz);
     
     % normalize mean and var to be in [0,1]    
-    ysb = behav2.normToZeroOne(ysb, ymn, ymx);    
-%     ysv = behav2.normToZeroOne(ysv, nanmin(ysv), nanmax(ysv));
+    ysb = behav2.normToZeroOne(ysb, ymn, ymx);
     vmn = nanmin(ysv);
     vmx = nanmax(ysv(1:ceil(numel(ysv)/2)));
     ysv = behav2.normToZeroOne(ysv, vmn, vmx);
@@ -33,9 +32,9 @@ function [isGood, ixs, xsb, ysb, ysv] = plotThreshTrials(xs, ys, opts)
     ix1 = ysb <= opts.muThresh;
     ix2 = ysv <= opts.varThresh;
     ix = ix1 & ix2;
-    ix1 = findBestRun(xsb, ysb, ix1, opts.groupEvalFcn, opts.trialsInARow);
-    ix2 = findBestRun(xsb, ysb, ix2, opts.groupEvalFcn, opts.trialsInARow);
     ix = findBestRun(xsb, ysb, ix, opts.groupEvalFcn, opts.trialsInARow);
+    ix1 = findBestRun(xsb, ysb, ix1, opts.groupEvalFcn, opts.trialsInARow);
+    ix2 = findBestRun(xsb, ysb, ix2, opts.groupEvalFcn, opts.trialsInARow);    
     ixs = {ix, ix1, ix2};
     
     isGood = [];
@@ -49,29 +48,21 @@ function [isGood, ixs, xsb, ysb, ysv] = plotThreshTrials(xs, ys, opts)
 end
 
 function v = runningVar(x, m)
-    n=size(x,1);
-    f=zeros(m,1)+1/m;
-    v=filter2(f,x.^2,'valid')-filter2(f,x,'valid').^2;
-    m2=floor(m/2);
-    n2=ceil(m/2)-1;
-    v=v([zeros(1,m2)+m2+1,(m2+1):(n-n2),zeros(1,n2)+(n-n2)]-m2,:);
+    n = size(x,1);
+    f = zeros(m,1) + 1/m;
+    v = filter2(f, x.^2, 'valid') - filter2(f, x, 'valid').^2;
+    m2 = floor(m/2);
+    n2 = ceil(m/2) - 1;
+    v = v([zeros(1,m2)+m2+1,(m2+1):(n-n2), zeros(1,n2)+(n-n2)]-m2,:);
     assert(isequal(numel(v), numel(x)));
 end
-
-% function p = tTestOfBestAgainstFirst(ysb, Ysc)
-%     [~,ix] = min(ysb);
-%     Y1 = Ysc{1};
-%     Y2 = Ysc{ix};
-%     % test Y1 > Y2
-%     [~,p] = ttest2(Y1, Y2, 'Vartype', 'unequal', 'tail', 'right');
-% end
 
 function ixBest = findBestRun(xs, ys, ix, evalFcn, trialsInARow)
     % for groups of consecutive xs, find best set of corresponding ys
     xsc = xs(ix);
     ysc = ys(ix);
     temp = abs(diff(xsc));
-    inds = [1 find(temp > trialsInARow)' numel(xsc)];
+    inds = [1 find(temp >= trialsInARow)' numel(xsc)];
     ymx = -inf;
     bestInds = [];
     for kk = 2:numel(inds)
